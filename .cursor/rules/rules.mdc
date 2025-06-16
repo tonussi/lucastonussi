@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+- Follow Turborepo for scaling monorepos and build system.
+- Use yarn for package management.
+- Use Vite for build tool.
+- Use Vitest for unit testing.
+- Follow Reactjs & typescript patterns
+- Use Tailwind CSS v4 for styling.
+- Use Shadcn UI for components.
+- Use TanStack Query (react-query) for frontend data fetching.
+- Use React Hook Form for form handling.
+- User React Router v7
+- Use Zod for validation.
+- Use Zustand and React Context for state management
+- Follow eslint-plugin-react and prettier guide for code formatting.
+- Use PascalCase when creating new React files. UserCard, not user-card.
+- Use named exports when creating new react components.
+- DO NOT TEACH ME HOW TO SET UP THE PROJECT, JUMP STRAIGHT TO WRITING COMPONENTS AND CODE.
