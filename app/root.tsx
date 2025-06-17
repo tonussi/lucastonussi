@@ -1,52 +1,44 @@
-import React, { useEffect, useState } from "react";
-import {
-  isRouteErrorResponse,
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "react-router";
+import React, { useEffect, useState } from 'react'
+import { isRouteErrorResponse, Links, Meta, Scripts, ScrollRestoration } from 'react-router'
 
-import type { Route } from "./+types/root";
-import "./app.css";
+import type { Route } from './+types/root'
+import './app.css'
+import { MainLayout } from './layouts/main-layout'
 
 export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
+    rel: 'preconnect',
+    href: 'https://fonts.gstatic.com',
+    crossOrigin: 'anonymous',
   },
   {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
   },
-];
+]
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<string>(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       return (
-        localStorage.getItem("theme") ||
-        (window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light")
-      );
+        localStorage.getItem('theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      )
     }
-    return "dark";
-  });
+    return 'dark'
+  })
 
   useEffect(() => {
-    const root = document.documentElement;
-    root.classList.remove("dark", "light");
-    root.classList.add(theme);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+    const root = document.documentElement
+    root.classList.remove('dark', 'light')
+    root.classList.add(theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+  }
 
   return (
     <>
@@ -60,10 +52,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="bg-white dark:bg-black">
           <button
             onClick={toggleTheme}
-            style={{ position: "fixed", top: 16, right: 16, zIndex: 1000 }}
+            style={{ position: 'fixed', top: 16, right: 16, zIndex: 1000 }}
             aria-label="Toggle theme"
           >
-            {theme === "dark" ? "🌙" : "☀️"}
+            {theme === 'dark' ? '🌙' : '☀️'}
           </button>
           {children}
           <ScrollRestoration />
@@ -71,27 +63,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </body>
     </>
-  );
+  )
 }
 
-export default function App() {
-  return <Outlet />;
+const App = () => {
+  return <MainLayout />
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
+  let message = 'Oops!'
+  let details = 'An unexpected error occurred.'
+  let stack: string | undefined
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
+    message = error.status === 404 ? '404' : 'Error'
     details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
+      error.status === 404 ? 'The requested page could not be found.' : error.statusText || details
   } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+    details = error.message
+    stack = error.stack
   }
 
   return (
@@ -104,5 +94,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         </pre>
       )}
     </main>
-  );
+  )
 }
+
+export default App

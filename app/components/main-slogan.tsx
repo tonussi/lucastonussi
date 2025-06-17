@@ -1,4 +1,5 @@
-import { Divider } from "./divider";
+import { Divider } from './divider'
+import { MonitorSells } from './monitor-sells'
 
 export function MainSlogan() {
   return (
@@ -18,6 +19,12 @@ export function MainSlogan() {
           </div>
         </div>
       </div>
+      <div>
+        <Divider />
+        <div style={{ width: '500px', height: '500px' }}>
+          <MonitorSells />
+        </div>
+      </div>
     </div>
-  );
+  )
 }
