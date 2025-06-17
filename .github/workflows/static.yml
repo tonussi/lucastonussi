@@ -37,8 +37,6 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: build:prod
-      - name: AdMob File
-        run: echo ${{ secrets.GOOGLE_AD_MOB }} > ./dist/app-ads.txt
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
