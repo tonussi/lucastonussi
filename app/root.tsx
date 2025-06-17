@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   isRouteErrorResponse,
   Links,
@@ -24,8 +25,31 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return (
+        localStorage.getItem("theme") ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light")
+      );
+    }
+    return "dark";
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove("dark", "light");
+    root.classList.add(theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
   return (
-    <html data-theme="dark" lang="en">
+    <>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -34,12 +58,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <div className="bg-white dark:bg-black">
+          <button
+            onClick={toggleTheme}
+            style={{ position: "fixed", top: 16, right: 16, zIndex: 1000 }}
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? "🌙" : "☀️"}
+          </button>
           {children}
           <ScrollRestoration />
           <Scripts />
         </div>
       </body>
-    </html>
+    </>
   );
 }
 
