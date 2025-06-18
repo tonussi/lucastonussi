@@ -5,5 +5,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <div>Contact</div>
+  return <div>lptonussi@gmail.com</div>
 }
