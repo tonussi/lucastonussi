@@ -1,7 +1,7 @@
 export function Slogan() {
   return (
     <>
-      <div className="grid grid-cols-2">
+      <div className="grid xs:grid-cols-2 3xl:grid-cols-6">
         <div className="w-1/2 justify-self-center">
           <h1
             className="

@@ -3,9 +3,9 @@ import { MonitorSellsDescription } from './description'
 
 export function MonitorSellsSection() {
   return (
-    <div className="grid grid-cols-2 content-center bg-gray-50 p-30">
+    <div className="grid xs:grid-rows-2 lg:grid-cols-2 content-center bg-gray-50 p-30">
       <MonitorSellsDescription />
-      <div className="w-1/2 justify-self-center">
+      <div className="lg:w-1/2 xs:w-full justify-self-center">
         <MonitorSellsCard />
       </div>
     </div>

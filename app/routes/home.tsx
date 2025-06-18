@@ -8,7 +8,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-3">
+    <div className="grid xs:grid-rows-2 3xl:grid-cols-1">
       <Slogan />
       <MonitorSellsSection />
     </div>
