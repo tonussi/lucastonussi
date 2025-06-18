@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { isRouteErrorResponse, Links, Meta, Scripts, ScrollRestoration } from 'react-router'
 
+import { Moon, Sun } from 'lucide-react'
 import type { Route } from './+types/root'
 import './app.css'
 import { MainLayout } from './layouts/main-layout'
@@ -52,10 +53,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="bg-white dark:bg-black">
           <button
             onClick={toggleTheme}
-            style={{ position: 'fixed', top: 16, right: 16, zIndex: 1000 }}
+            style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1000 }}
             aria-label="Toggle theme"
           >
-            {theme === 'dark' ? '🌙' : '☀️'}
+            {theme === 'dark' ? <Moon /> : <Sun />}
           </button>
           {children}
           <ScrollRestoration />
