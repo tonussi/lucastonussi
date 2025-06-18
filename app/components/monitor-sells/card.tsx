@@ -21,27 +21,27 @@ import {
 export const description = 'A simple area chart'
 
 const chartData = [
-  { month: 'January', desktop: 186 },
-  { month: 'February', desktop: 305 },
-  { month: 'March', desktop: 237 },
-  { month: 'April', desktop: 73 },
-  { month: 'May', desktop: 209 },
-  { month: 'June', desktop: 214 },
+  { month: 'January', orders: 186 },
+  { month: 'February', orders: 305 },
+  { month: 'March', orders: 237 },
+  { month: 'April', orders: 73 },
+  { month: 'May', orders: 209 },
+  { month: 'June', orders: 214 },
 ]
 
 const chartConfig = {
-  desktop: {
-    label: 'Desktop',
+  orders: {
+    label: 'Orders',
     color: 'var(--chart-1)',
   },
 } satisfies ChartConfig
 
-export function MonitorSells() {
+export function MonitorSellsCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Area Chart</CardTitle>
-        <CardDescription>Showing total visitors for the last 6 months</CardDescription>
+        <CardTitle>Orders monitor</CardTitle>
+        <CardDescription>Showing total orders for the last days</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -63,11 +63,11 @@ export function MonitorSells() {
             />
             <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
             <Area
-              dataKey="desktop"
+              dataKey="orders"
               type="natural"
-              fill="var(--color-desktop)"
+              fill="var(--color-primary)"
               fillOpacity={0.4}
-              stroke="var(--color-desktop)"
+              stroke="var(--color-secondary)"
             />
           </AreaChart>
         </ChartContainer>

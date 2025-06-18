@@ -1,0 +1,8 @@
+.feature-section h2 {
+    --text-color: #BD34FE;
+    background: radial-gradient(circle 300px at 30% -180%,var(--text-color) 0%,#ffffff 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 4px rgba(255,255,255,.1),0 0 14px rgba(130,168,236,.2)
+}
