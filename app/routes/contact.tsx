@@ -4,6 +4,10 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Contact' }, { name: 'description', content: 'Contact' }]
 }
 
-export default function Home() {
-  return <div>lptonussi@gmail.com</div>
+export default function Contact() {
+  return (
+    <div className="h-full" style={{ height: '20vh' }}>
+      lptonussi@gmail.com
+    </div>
+  )
 }

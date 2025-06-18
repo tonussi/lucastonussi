@@ -4,6 +4,10 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Docs' }, { name: 'description', content: 'Docs' }]
 }
 
-export default function Home() {
-  return <div>Docs</div>
+export default function Docs() {
+  return (
+    <div className="h-full" style={{ height: '20vh' }}>
+      Docs
+    </div>
+  )
 }
