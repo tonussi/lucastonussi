@@ -5,7 +5,7 @@ export function MainLayout() {
   return (
     <main className="w-full flex items-center justify-center overflow-hidden">
       <Navbar />
-      <div className="h-full max-w-7xl mt-50">
+      <div className="h-fit w-fit">
         <Outlet />
       </div>
     </main>

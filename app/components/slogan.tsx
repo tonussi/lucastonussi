@@ -1,8 +1,8 @@
-export function MainSlogan() {
+export function Slogan() {
   return (
     <>
-      <div className="grid grid-cols-2 place-content-between">
-        <div className="flex items-center justify-center">
+      <div className="grid grid-cols-2">
+        <div className="w-1/2 justify-self-center">
           <h1
             className="
           bg-[radial-gradient(138.06%_1036.51%_at_95.25%_-2.54%,_#7ED4FD_14.06%,#709DF7_51.02%,#4D78EF_79.09%)]
@@ -19,7 +19,7 @@ export function MainSlogan() {
             Make your selling ideas
           </h1>
         </div>
-        <div className="flex items-center justify-center">
+        <div className="w-1/2 justify-self-center">
           <h1
             className="bg-[radial-gradient(138.06%_1036.51%_at_95.25%_-2.54%,_#7ED4FD_14.06%,#709DF7_51.02%,#4D78EF_79.09%)]
           bg-clip-text
