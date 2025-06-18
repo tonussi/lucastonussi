@@ -1,5 +1,5 @@
 import { MainSlogan } from '@/components/main-slogan'
-import { MonitorSellsCard } from '@/components/monitor-sells/card'
+import { MonitorSellsSection } from '@/components/monitor-sells/section'
 import type { Route } from './+types/home'
 
 export function meta({}: Route.MetaArgs) {
@@ -8,9 +8,9 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   return (
-    <div className="grid grid-cols-1 gap-4">
+    <div className="grid grid-rows-2 gap-10">
       <MainSlogan />
-      <MonitorSellsCard />
+      <MonitorSellsSection />
     </div>
   )
 }
