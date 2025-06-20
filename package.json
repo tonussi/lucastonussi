@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "react-router build",
-    "build:prod": "yarn install && react-router build --mode production",
+    "build": "react-router build && cp robots.txt build/client/robots.txt",
+    "build:prod": "yarn install && react-router build --mode production && cp robots.txt build/client/robots.txt",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
@@ -27,11 +27,8 @@
     "recharts": "^2.15.3",
     "tailwind-merge": "^3.3.1",
     "three": "^0.170.0",
-    "i18next": "13.1.5",
-    "i18next-browser-languagedetector": "^8.2.0",
-    "i18next-locize-backend": "^7.0.4",
-    "i18next-xhr-backend": "^3.2.2",
-    "react-i18next": "^15.5.3"
+    "react-i18next": "^15.5.3",
+    "i18next": "^25.2.1"
   },
   "devDependencies": {
     "@react-router/dev": "^7.6.2",
@@ -46,6 +43,12 @@
     "vite": "^6.3.3",
     "vite-plugin-devtools-json": "^0.2.0",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
     "development": [

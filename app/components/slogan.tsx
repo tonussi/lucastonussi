@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next'
+
 export function Slogan() {
+  const { t } = useTranslation()
+
   return (
     <>
       <div className="grid xs:grid-col-1 lg:grid-cols-2">
@@ -18,7 +22,7 @@ export function Slogan() {
           sm:leading-[4.75rem]
           lg:text-left"
           >
-            Make your selling ideas
+            {t('slogan.makeYourSellingIdeas')}
           </h1>
         </div>
         <div className="w-1/2 justify-self-center">
@@ -36,7 +40,7 @@ export function Slogan() {
           sm:leading-[4.75rem]
           lg:text-center"
           >
-            come to life with meaningful chat conversations
+            {t('slogan.comeToLifeWithMeaningfulChatConversations')}
           </h1>
         </div>
       </div>

@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next'
+
 export function MonitorSellsDescription() {
+  const { t } = useTranslation()
+
   return (
     <h1
       className="
@@ -15,7 +19,7 @@ export function MonitorSellsDescription() {
     sm:leading-[4.75rem]
     lg:text-left"
     >
-      Receive orders from your customers and receive detailed information about your sales
+      {t('monitorSells.description')}
     </h1>
   )
 }

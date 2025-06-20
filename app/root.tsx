@@ -4,6 +4,7 @@ import { isRouteErrorResponse, Links, Meta, Scripts, ScrollRestoration } from 'r
 import { Moon, Sun } from 'lucide-react'
 import type { Route } from './+types/root'
 import './app.css'
+import './i18n'
 import { MainLayout } from './layouts/main-layout'
 
 export const links: Route.LinksFunction = () => [
