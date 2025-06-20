@@ -33,6 +33,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
     return 'dark'
   })
 
+  const [language, setLanguage] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('language') ?? 'en-US'
+    }
+    return 'en-US'
+  })
+
   useEffect(() => {
     const root = document.documentElement
     root.classList.remove('dark', 'light')
@@ -57,9 +64,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="fixed top-4 right-4 z-50">
             <select
               style={{ position: 'fixed', bottom: 16, right: 4 * 16, zIndex: 1000 }}
-              value={i18n.language}
-              onChange={(e) => i18n.changeLanguage(e.target.value)}
-              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white"
+              value={language ?? i18n.language}
+              onChange={(e) => {
+                const newLanguage = e.target.value
+                i18n.changeLanguage(newLanguage)
+                localStorage.setItem('language', newLanguage)
+                setLanguage(newLanguage)
+              }}
+              className="p-3 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white"
             >
               <option value="en-US">English</option>
               <option value="pt-BR">Português</option>
@@ -67,7 +79,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <button
             onClick={toggleTheme}
-            style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1000 }}
+            style={{ position: 'fixed', bottom: 1.6 * 16, right: 16, zIndex: 1000 }}
             aria-label="Toggle theme"
           >
             {theme === 'dark' ? <Moon /> : <Sun />}
