@@ -1,9 +1,9 @@
 {
   "slogan": {
     "makeYourSellingIdeas": "Make your selling ideas",
-    "comeToLifeWithMeaningfulChatConversations": "Come to life with meaningful chat conversations",
-    "monitorSells": {
-      "description": "Receive orders from your customers and receive detailed information about your sales"
-    }
+    "comeToLifeWithMeaningfulChatConversations": "Come to life with meaningful chat conversations"
+  },
+  "monitorSells": {
+    "description": "Receive orders from your customers and receive detailed information about your sales"
   }
 }
