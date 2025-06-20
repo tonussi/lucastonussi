@@ -7,7 +7,10 @@ export function meta({}: Route.MetaArgs) {
 export default function Contact() {
   return (
     <div className="h-full" style={{ height: '20vh' }}>
-      lptonussi@gmail.com
+      <div className="flex flex-col items-center justify-center text-2xl">
+        <p>For business inquiries, please contact me at </p>
+        <a href="mailto:lptonussi@gmail.com">lptonussi@gmail.com</a>
+      </div>
     </div>
   )
 }

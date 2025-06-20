@@ -1,5 +1,6 @@
+import { Footer } from '@/components/footer'
+import { Navbar } from '@/components/navbar'
 import { Outlet } from 'react-router'
-import { Navbar } from '../components/navbar'
 
 export function MainLayout() {
   return (
@@ -8,6 +9,7 @@ export function MainLayout() {
       <div className="h-fit w-fit mt-30">
         <Outlet />
       </div>
+      <Footer />
     </main>
   )
 }
