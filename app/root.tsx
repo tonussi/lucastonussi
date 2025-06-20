@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { isRouteErrorResponse, Links, Meta, Scripts, ScrollRestoration } from 'react-router'
 
 import { Moon, Sun } from 'lucide-react'
+import { I18nextProvider } from 'react-i18next'
 import type { Route } from './+types/root'
 import './app.css'
 import './i18n'
+import i18n from './i18n'
 import { MainLayout } from './layouts/main-layout'
 
 export const links: Route.LinksFunction = () => [
@@ -52,6 +54,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <div className="bg-white dark:bg-black">
+          <div className="fixed top-4 right-4 z-50">
+            <select
+              style={{ position: 'fixed', bottom: 16, right: 4 * 16, zIndex: 1000 }}
+              value={i18n.language}
+              onChange={(e) => i18n.changeLanguage(e.target.value)}
+              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white"
+            >
+              <option value="en-US">English</option>
+              <option value="pt-BR">Português</option>
+            </select>
+          </div>
           <button
             onClick={toggleTheme}
             style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1000 }}
@@ -69,7 +82,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 const App = () => {
-  return <MainLayout />
+  return (
+    <I18nextProvider i18n={i18n}>
+      <MainLayout />
+    </I18nextProvider>
+  )
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

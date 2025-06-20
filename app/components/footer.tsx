@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="fixed bottom-0 left-0 p-4 text-xs w-full">
+    <footer className="fixed bottom-0 left-0 p-4 text-xs w-full dark:bg-transparent bg-transparent">
       <div className="flex gap-4">
         <a
           href="https://linkedin.com/in/lptonussi"
