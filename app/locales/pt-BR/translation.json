@@ -1,9 +1,13 @@
 {
   "slogan": {
-    "makeYourSellingIdeas": "Faça suas ideias de venda",
-    "comeToLifeWithMeaningfulChatConversations": "Vire realidade com conversas de chat significativas"
+    "makeYourSellingIdeas": "Faça com que suas ideias de vendas",
+    "comeToLifeWithMeaningfulChatConversations": "Virem realidade com conversas de chat humanizadas"
   },
   "monitorSells": {
     "description": "Receba pedidos de seus clientes e receba informações detalhadas sobre suas vendas"
+  },
+  "contact": {
+    "title": "Para negociações comerciais, entre em contato comigo em",
+    "email": "lptonussi@gmail.com"
   }
 }
