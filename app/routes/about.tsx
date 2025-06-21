@@ -6,7 +6,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function About() {
   return (
-    <div className="h-full" style={{ height: '20vh' }}>
+    <div className="h-full fade-in-100 fade-out-100" style={{ height: '20vh' }}>
       About
     </div>
   )
