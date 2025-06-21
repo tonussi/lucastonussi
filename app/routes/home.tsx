@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <>
       <Vaper color="#25D366" particleCount={10} type="rounded" isActive={true} />
-      <div className="grid xs:grid-rows-2 3xl:grid-cols-1 gap-30 fade-in-100 fade-out-100">
+      <div className="grid xs:grid-rows-2 3xl:grid-cols-1 gap-30">
         <Slogan />
         <MonitorSellsSection />
       </div>
