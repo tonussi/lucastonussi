@@ -3,7 +3,6 @@ import { Canvas, useLoader } from '@react-three/fiber'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 import type { Route } from './+types/home'
 
-import { Button } from '@/components/ui/button'
 import { Suspense, useEffect, useState } from 'react'
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js'
 
@@ -185,9 +184,6 @@ export default function About() {
 
           {/* Right Column - 3D Model */}
           <div className="relative">
-            <Button className="absolute top-4 right-4 z-10" onClick={() => {}}>
-              <span>Fullscreen Mode</span>
-            </Button>
             <p className="w-80 absolute top-4 left-4 z-10 text-white leading-relaxed mb-4">
               This is a 3D model of a racing steering wheel. Drag with the mouse to look around.
             </p>
