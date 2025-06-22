@@ -9,4 +9,4 @@
 com.chrome.devtools.json
 
 # Models
-/public/models/
+# /public/models/
