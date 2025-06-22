@@ -1,4 +1,4 @@
-import { Html, OrbitControls, useProgress } from '@react-three/drei'
+import { Environment, Html, OrbitControls, useProgress } from '@react-three/drei'
 import { Canvas, useLoader } from '@react-three/fiber'
 import { Mesh } from 'three'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
@@ -60,6 +60,10 @@ export default function About() {
               <h3 className="text-gray-800 dark:text-white text-xl font-semibold mb-4">
                 Racing Community
               </h3>
+              <p className="text-gray-800 dark:text-gray-300 leading-relaxed mb-4">
+                Join our racing community to connect with other enthusiasts, share your racing
+                experiences, and stay updated on the latest racing news and events.
+              </p>
               <div className="grid grid-cols-4 gap-4">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                   <div key={i} className="flex flex-col items-center">
@@ -143,16 +147,19 @@ export default function About() {
             >
               <span className="text-white">Fullscreen Mode</span>
             </Button>
+            <p className="absolute top-4 left-4 z-10 text-gray-800 dark:text-gray-300 leading-relaxed mb-4">
+              This is a 3D model of a racing steering wheel. Drag with the mouse to look around.
+            </p>
             <Canvas
-              dpr={[1, 2]}
               fallback={
-                <div className="bg-gray-700 h-96 w-full rounded-lg flex items-center justify-center">
+                <div className="bg-gray-100 dark:bg-gray-800 h-96 w-full rounded-lg flex items-center justify-center">
                   Sorry no WebGL supported!
                 </div>
               }
-              camera={{ position: [10, 10, 10], fov: 50 }}
-              className="bg-gray-700 h-96 w-full rounded-lg"
+              camera={{ position: [0, 0, 10], fov: 100 }}
+              className="bg-gray-100 dark:bg-gray-800 h-96 w-full rounded-lg"
             >
+              <Environment preset="sunset" />
               <ambientLight intensity={0.6} />
               <pointLight position={[0, 1, 1]} intensity={5} />
               <OrbitControls
