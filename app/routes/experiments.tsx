@@ -198,6 +198,13 @@ export default function About() {
             >
               <Environment preset="sunset" />
               <ambientLight intensity={0.6} />
+              <spotLight
+                position={[10, 10, 10]}
+                angle={0.15}
+                penumbra={1}
+                decay={0}
+                intensity={Math.PI}
+              />
               <pointLight position={[0, 1, 1]} intensity={5} />
               <OrbitControls
                 enableZoom={true}
@@ -208,7 +215,9 @@ export default function About() {
                 rotateSpeed={0.5}
               />
               <Suspense fallback={<IncrementalLoader />}>
-                <Scene />
+                <mesh>
+                  <Scene />
+                </mesh>
               </Suspense>
             </Canvas>
           </div>
