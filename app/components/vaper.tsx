@@ -32,7 +32,7 @@ export function Vaper({
     const newParticles = Array.from({ length: particleCount }, (_, i) => ({
       id: i,
       duration: duration + Math.random() * 2,
-      startX: Math.random() * 100,
+      startX: Math.random() * 200,
       endX: Math.random() * 200,
       size: Math.random() * 40,
       type,

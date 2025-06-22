@@ -56,14 +56,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <html suppressHydrationWarning>
+    <html>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <div className="bg-white dark:bg-black">
           <div className="fixed top-4 right-4 z-50">
             <select
@@ -75,7 +75,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 localStorage.setItem('language', newLanguage)
                 setLanguage(newLanguage)
               }}
-              className="p-3 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white"
+              className=" p-3 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white"
             >
               <option value="en-US">English</option>
               <option value="pt-BR">Português</option>
@@ -98,6 +98,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { hydrateRoot } from 'react-dom/client'
+import { Navbar } from './components/navbar'
 
 const App = () => {
   const root = window.document.getElementById('root')
@@ -136,15 +137,18 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <>
+      <Navbar />
+      <main className="flex items-center justify-center mt-30">
+        <h1>{message}</h1>
+        <p>{details}</p>
+        {stack && (
+          <pre className="flex items-center justify-center">
+            <code>{stack}</code>
+          </pre>
+        )}
+      </main>
+    </>
   )
 }
 

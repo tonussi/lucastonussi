@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js'
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'About' }, { name: 'description', content: 'About' }]
+  return [{ title: 'Experiments' }, { name: 'description', content: 'Experiments' }]
 }
 
 const Scene = () => {

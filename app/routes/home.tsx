@@ -10,7 +10,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   return (
     <>
-      <Vaper color="#25D366" particleCount={10} type="rounded" isActive={true} />
+      <Vaper color="#25D366" particleCount={100} type="rounded" isActive={true} />
       <div className="grid xs:grid-rows-2 3xl:grid-cols-1 gap-30">
         <Slogan />
         <MonitorSellsSection />
