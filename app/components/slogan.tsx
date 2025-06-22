@@ -5,7 +5,7 @@ export function Slogan() {
 
   return (
     <>
-      <div className="grid xs:grid-col-1 lg:grid-cols-2">
+      <div className="grid xs:grid-col-1 lg:grid-cols-2 mt-30">
         <div className="w-1/2 justify-self-center">
           <h1
             className="
