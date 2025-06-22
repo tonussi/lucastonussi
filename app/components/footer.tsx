@@ -1,3 +1,5 @@
+import { Vaper } from './vaper'
+
 export function Footer() {
   return (
     <footer className="fixed bottom-0 left-0 p-4 text-xs w-full dark:bg-transparent bg-transparent">
@@ -13,6 +15,7 @@ export function Footer() {
           </svg>
           LinkedIn
         </a>
+        <Vaper color="gray" particleCount={10} type="rounded" isActive={true} />
         <a
           href="https://github.com/tonussi"
           target="_blank"

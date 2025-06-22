@@ -7,6 +7,9 @@ interface VaperProps {
   className?: string
   isActive?: boolean
   type?: 'rounded' | 'square'
+  size?: number
+  startX?: number
+  endX?: number
 }
 
 interface Particle {
@@ -25,6 +28,9 @@ export function Vaper({
   className = '',
   isActive = true,
   type = 'square',
+  size,
+  startX,
+  endX,
 }: VaperProps) {
   const [particles, setParticles] = useState<Particle[]>([])
 
@@ -32,9 +38,9 @@ export function Vaper({
     const newParticles = Array.from({ length: particleCount }, (_, i) => ({
       id: i,
       duration: duration + Math.random() * 2,
-      startX: Math.random() * 200,
-      endX: Math.random() * 200,
-      size: Math.random() * 40,
+      startX: startX ?? Math.random() * 200,
+      endX: endX ?? Math.random() * 200,
+      size: size ?? Math.random() * 40,
       type,
     }))
     setParticles(newParticles)
@@ -55,7 +61,7 @@ export function Vaper({
                 left: `calc(${particle.startX}% - ${particle.size * 1.5}px)`,
                 bottom: `${particle.size}%`,
                 width: `${particle.size}px`,
-                height: `${particle.size * 1.2}px`,
+                height: `${particle.size}px`,
                 filter: 'blur(4px)',
                 animation: `smokeRise ${particle.duration}s infinite ease-in-out`,
                 '--start-x': `${particle.startX}%`,
@@ -74,12 +80,10 @@ export function Vaper({
               opacity: 0;
             }
             15% {
+             transform: translateY(-100px) translateX(${Math.random() * 60 - 30}px)
               opacity: 0.8;
             }
             50% {
-              transform: translateY(-100px) translateX(${
-                Math.random() * 60 - 30
-              }px) scale(0.8) rotate(180deg);
               opacity: 0.6;
             }
             85% {

@@ -1,6 +1,5 @@
 import { Environment, Html, OrbitControls, useProgress } from '@react-three/drei'
 import { Canvas, useLoader } from '@react-three/fiber'
-import { Mesh } from 'three'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 import type { Route } from './+types/home'
 
@@ -13,13 +12,9 @@ export function meta({}: Route.MetaArgs) {
 
 const Scene = () => {
   const materials = useLoader(MTLLoader, '/models/misc/steering/material.mtl')
-  const obj = useLoader(OBJLoader, '/models/misc/steering/steering.obj')
-
-  // Apply materials to the loaded object
-  obj.traverse((child) => {
-    if (child instanceof Mesh) {
-      // child.material = materials.materialsInfo
-    }
+  const obj = useLoader(OBJLoader, '/models/misc/steering/steering.obj', (loader) => {
+    materials.preload()
+    loader.setMaterials(materials)
   })
 
   return <primitive object={obj} />
@@ -84,57 +79,77 @@ export default function About() {
                 Performance Statistics
               </h3>
               <div className="space-y-4 text-gray-800 dark:text-white">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Durability</span>
-                    <span>95%</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-green-100 to-green-200 h-2 rounded-full"
-                      style={{ width: '95%' }}
-                    ></div>
-                  </div>
-                </div>
+                {(() => {
+                  const durability = Math.floor(Math.random() * 101)
+                  return (
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Durability</span>
+                        <span>{durability}%</span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div
+                          style={{ width: `${durability}%` }}
+                          className="h-2.5 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
+                        ></div>
+                      </div>
+                    </div>
+                  )
+                })()}
 
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Precision</span>
-                    <span>88%</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-blue-100 to-blue-200 h-2 rounded-full"
-                      style={{ width: '88%' }}
-                    ></div>
-                  </div>
-                </div>
+                {(() => {
+                  const precision = Math.floor(Math.random() * 101)
+                  return (
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Precision</span>
+                        <span>{precision}%</span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div
+                          style={{ width: `${precision}%` }}
+                          className="h-2.5 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
+                        ></div>
+                      </div>
+                    </div>
+                  )
+                })()}
 
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Response Time</span>
-                    <span>92%</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-purple-100 to-purple-200 h-2 rounded-full"
-                      style={{ width: '92%' }}
-                    ></div>
-                  </div>
-                </div>
+                {(() => {
+                  const responseTime = Math.floor(Math.random() * 101)
+                  return (
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Response Time</span>
+                        <span>{responseTime}%</span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div
+                          style={{ width: `${responseTime}%` }}
+                          className="h-2.5 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
+                        ></div>
+                      </div>
+                    </div>
+                  )
+                })()}
 
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Weight Distribution</span>
-                    <span>87%</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-orange-100 to-orange-200 h-2 rounded-full"
-                      style={{ width: '87%' }}
-                    ></div>
-                  </div>
-                </div>
+                {(() => {
+                  const weightDistribution = Math.floor(Math.random() * 101)
+                  return (
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Weight Distribution</span>
+                        <span>{weightDistribution}%</span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div
+                          style={{ width: `${weightDistribution}%` }}
+                          className="h-2.5 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
+                        ></div>
+                      </div>
+                    </div>
+                  )
+                })()}
               </div>
             </div>
           </div>
@@ -142,7 +157,7 @@ export default function About() {
           {/* Right Column - 3D Model */}
           <div className="relative">
             <Button
-              className="absolute top-4 right-4 z-10 bg-blue-600 hover:bg-blue-700"
+              className="absolute top-4 right-4 z-10 bg-gray-600 hover:bg-gray-700"
               onClick={() => {}}
             >
               <span className="text-white">Fullscreen Mode</span>
