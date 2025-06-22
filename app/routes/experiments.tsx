@@ -188,7 +188,7 @@ export default function About() {
             <Button className="absolute top-4 right-4 z-10" onClick={() => {}}>
               <span>Fullscreen Mode</span>
             </Button>
-            <p className="w-80 absolute top-4 left-4 z-10 text-gray-800 dark:text-gray-300 leading-relaxed mb-4">
+            <p className="w-80 absolute top-4 left-4 z-10 text-white leading-relaxed mb-4">
               This is a 3D model of a racing steering wheel. Drag with the mouse to look around.
             </p>
             <Canvas
