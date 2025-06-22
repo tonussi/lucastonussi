@@ -5,5 +5,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Docs() {
-  return <div className="h-full" style={{ height: '20vh' }}></div>
+  return (
+    <div className="h-full" style={{ height: '20vh' }}>
+      Soon...
+    </div>
+  )
 }
