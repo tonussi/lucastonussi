@@ -67,7 +67,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="bg-white dark:bg-black">
           <div className="fixed top-4 right-4 z-50">
             <select
-              style={{ position: 'fixed', bottom: 16, right: 4 * 16, zIndex: 1000 }}
+              className="fixed bottom-4 right-16 z-50 p-3 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white"
               value={language ?? i18n.language}
               onChange={(e) => {
                 const newLanguage = e.target.value
@@ -75,10 +75,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 localStorage.setItem('language', newLanguage)
                 setLanguage(newLanguage)
               }}
-              className=" p-3 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white"
             >
-              <option value="en-US">English</option>
-              <option value="pt-BR">Português</option>
+              <option
+                value="en-US"
+                className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              >
+                English
+              </option>
+              <option
+                value="pt-BR"
+                className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              >
+                Português
+              </option>
             </select>
           </div>
           <button

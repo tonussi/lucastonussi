@@ -1,9 +1,10 @@
-import { Environment, Html, OrbitControls, useProgress } from '@react-three/drei'
+import { Environment, OrbitControls } from '@react-three/drei'
 import { Canvas, useLoader } from '@react-three/fiber'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 import type { Route } from './+types/home'
 
 import { Button } from '@/components/ui/button'
+import { Suspense, useEffect, useState } from 'react'
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js'
 
 export function meta({}: Route.MetaArgs) {
@@ -20,9 +21,37 @@ const Scene = () => {
   return <primitive object={obj} />
 }
 
-function Loader() {
-  const { progress } = useProgress()
-  return <Html center>{progress} % loaded</Html>
+function IncrementalLoader() {
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          return 100
+        }
+        return prev + 1
+      })
+    }, 50) // Increment every 50ms for smooth animation
+
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className="bg-gray-100 dark:bg-gray-800 h-96 w-full rounded-lg flex flex-col items-center justify-center">
+      <div className="text-gray-800 dark:text-white text-2xl font-bold mb-4">
+        Loading 3D Model...
+      </div>
+      <div className="w-64 bg-gray-700 rounded-full h-3 mb-2">
+        <div
+          style={{ width: `${progress}%` }}
+          className="h-3 rounded-full bg-gradient-to-r from-pink-600 to-amber-300 transition-all duration-100"
+        ></div>
+      </div>
+      <div className="text-gray-800 dark:text-white text-lg">{progress}%</div>
+    </div>
+  )
 }
 
 export default function About() {
@@ -90,7 +119,7 @@ export default function About() {
                       <div className="w-full bg-gray-700 rounded-full h-2">
                         <div
                           style={{ width: `${durability}%` }}
-                          className="h-2.5 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
+                          className="h-2 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
                         ></div>
                       </div>
                     </div>
@@ -108,7 +137,7 @@ export default function About() {
                       <div className="w-full bg-gray-700 rounded-full h-2">
                         <div
                           style={{ width: `${precision}%` }}
-                          className="h-2.5 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
+                          className="h-2 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
                         ></div>
                       </div>
                     </div>
@@ -126,7 +155,7 @@ export default function About() {
                       <div className="w-full bg-gray-700 rounded-full h-2">
                         <div
                           style={{ width: `${responseTime}%` }}
-                          className="h-2.5 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
+                          className="h-2 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
                         ></div>
                       </div>
                     </div>
@@ -144,7 +173,7 @@ export default function About() {
                       <div className="w-full bg-gray-700 rounded-full h-2">
                         <div
                           style={{ width: `${weightDistribution}%` }}
-                          className="h-2.5 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
+                          className="h-2 w-3/4 rounded-full bg-linear-to-r from-pink-600 to-amber-300 ring-1 ring-gray-950/10 ring-inset dark:from-pink-500 dark:to-amber-200 dark:ring-white/10"
                         ></div>
                       </div>
                     </div>
@@ -156,13 +185,10 @@ export default function About() {
 
           {/* Right Column - 3D Model */}
           <div className="relative">
-            <Button
-              className="absolute top-4 right-4 z-10 bg-gray-600 hover:bg-gray-700"
-              onClick={() => {}}
-            >
-              <span className="text-white">Fullscreen Mode</span>
+            <Button className="absolute top-4 right-4 z-10" onClick={() => {}}>
+              <span>Fullscreen Mode</span>
             </Button>
-            <p className="absolute top-4 left-4 z-10 text-gray-800 dark:text-gray-300 leading-relaxed mb-4">
+            <p className="w-80 absolute top-4 left-4 z-10 text-gray-800 dark:text-gray-300 leading-relaxed mb-4">
               This is a 3D model of a racing steering wheel. Drag with the mouse to look around.
             </p>
             <Canvas
@@ -172,7 +198,7 @@ export default function About() {
                 </div>
               }
               camera={{ position: [0, 0, 10], fov: 100 }}
-              className="bg-gray-100 dark:bg-gray-800 h-96 w-full rounded-lg"
+              className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 h-96 w-full rounded-lg"
             >
               <Environment preset="sunset" />
               <ambientLight intensity={0.6} />
@@ -185,7 +211,9 @@ export default function About() {
                 panSpeed={0.5}
                 rotateSpeed={0.5}
               />
-              <Scene />
+              <Suspense fallback={<IncrementalLoader />}>
+                <Scene />
+              </Suspense>
             </Canvas>
           </div>
         </div>
