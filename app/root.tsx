@@ -56,7 +56,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
+    <html suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -93,15 +93,31 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <Scripts />
         </div>
       </body>
-    </>
+    </html>
   )
 }
 
+import { hydrateRoot } from 'react-dom/client'
+
 const App = () => {
+  const root = window.document.getElementById('root')
+  if (root) {
+    hydrateRoot(
+      root,
+      <React.StrictMode>
+        <I18nextProvider i18n={i18n}>
+          <MainLayout />
+        </I18nextProvider>
+      </React.StrictMode>
+    )
+  }
+
   return (
-    <I18nextProvider i18n={i18n}>
-      <MainLayout />
-    </I18nextProvider>
+    <React.StrictMode>
+      <I18nextProvider i18n={i18n}>
+        <MainLayout />
+      </I18nextProvider>
+    </React.StrictMode>
   )
 }
 

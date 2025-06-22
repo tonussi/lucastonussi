@@ -33,8 +33,8 @@ export function Vaper({
       id: i,
       duration: duration + Math.random() * 2,
       startX: Math.random() * 100,
-      endX: Math.random() * 100,
-      size: 20 + Math.random() * 40,
+      endX: Math.random() * 200,
+      size: Math.random() * 40,
       type,
     }))
     setParticles(newParticles)

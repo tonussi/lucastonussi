@@ -7,3 +7,6 @@
 
 # Chrome DevTools
 com.chrome.devtools.json
+
+# Models
+/public/models/

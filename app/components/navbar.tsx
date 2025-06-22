@@ -1,8 +1,8 @@
-import { NavLink } from "react-router";
+import { NavLink } from 'react-router'
 
 export function Navbar() {
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full px-6 py-2 shadow-lg border border-gray-200 dark:border-gray-800">
+    <div className="z-50 fixed top-4 left-1/2 -translate-x-1/2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full px-6 py-2 shadow-lg border border-gray-200 dark:border-gray-800">
       <nav className="flex items-center gap-6">
         <NavLink
           to="/"
@@ -30,5 +30,5 @@ export function Navbar() {
         </NavLink>
       </nav>
     </div>
-  );
+  )
 }

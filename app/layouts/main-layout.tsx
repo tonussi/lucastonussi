@@ -4,14 +4,12 @@ import { Outlet } from 'react-router'
 
 export function MainLayout() {
   return (
-    <main className="flex items-center justify-center overflow-x-hidden ">
+    <>
       <Navbar />
-
-      <div className="h-fit mt-30">
+      <main className="flex items-center justify-center overflow-x-hidden mt-30 mb-30">
         <Outlet />
-      </div>
-
+      </main>
       <Footer />
-    </main>
+    </>
   )
 }
