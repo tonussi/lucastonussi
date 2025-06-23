@@ -6,7 +6,7 @@ interface VaperProps {
   particleCount?: number
   className?: string
   isActive?: boolean
-  type?: 'rounded' | 'square'
+  type?: 'rounded' | 'squared'
   size?: number
   startX?: number
   endX?: number
@@ -18,7 +18,7 @@ interface Particle {
   startX: number
   endX: number
   size: number
-  type: 'rounded' | 'square'
+  type: 'rounded' | 'squared'
 }
 
 export function Vaper({
@@ -27,7 +27,7 @@ export function Vaper({
   particleCount = 8,
   className = '',
   isActive = true,
-  type = 'square',
+  type = 'rounded',
   size,
   startX,
   endX,
@@ -58,16 +58,16 @@ export function Vaper({
             style={
               {
                 backgroundColor: color,
-                left: `calc(${particle.startX - Math.random() * 10}% - ${particle.size * 1.5}px)`,
-                bottom: `${particle.size}%`,
+                left: `calc(${particle.startX + Math.random() * 10}% - ${particle.size * 1.5}px)`,
+                bottom: `${particle.size - Math.random() * 10}%`,
                 width: `${particle.size - Math.random() * 10}px`,
                 height: `${particle.size}px`,
                 filter: 'blur(6px)',
                 animation: `smokeRise ${
                   particle.duration + Math.random() * 10
                 }s infinite ease-in-out`,
-                '--start-x': `${particle.startX}%`,
-                '--end-x': `${particle.endX}%`,
+                '--start-x': `${particle.startX - Math.random() * 10}%`,
+                '--end-x': `${particle.endX - Math.random() * 10}%`,
               } as React.CSSProperties
             }
           />
