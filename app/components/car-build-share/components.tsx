@@ -1,9 +1,22 @@
-import { OrbitControls } from '@react-three/drei'
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { Canvas, useLoader } from '@react-three/fiber'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
+import { extend, type ThreeElement } from '@react-three/fiber'
 import { Suspense } from 'react'
+import { GridHelper } from 'three'
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js'
+class CustomGrid extends GridHelper {}
+extend({ CustomGrid })
+
+import * as THREE from 'three'
+declare module '@react-three/fiber' {
+  interface ThreeElements {
+    customElement: ThreeElement<typeof CustomGrid>
+  }
+}
+const color = new THREE.Color()
+console.log(color)
 
 const Scene = () => {
   const materials = useLoader(MTLLoader, '/models/misc/steering/material.mtl')
@@ -160,19 +173,25 @@ export default function CarBuildShare() {
                   Sorry no WebGL supported!
                 </div>
               }
-              camera={{ position: [0, 0, 10], fov: 100 }}
               className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 h-96 xs:h-full w-full rounded-lg"
             >
-              <Suspense fallback={<IncrementalLoader />}>
+              <Suspense fallback={null}>
+                <PerspectiveCamera
+                  makeDefault
+                  position={[10, 10, 12]}
+                  near={0.1}
+                  far={1000}
+                  zoom={1}
+                />
                 <ambientLight intensity={Math.PI / 2} />
                 <spotLight
-                  position={[10, 10, 10]}
+                  position={[10, 10, 20]}
                   angle={0.15}
-                  penumbra={1}
+                  penumbra={0.8}
                   decay={0}
                   intensity={Math.PI}
                 />
-                <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
+                {/* <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} /> */}
                 <OrbitControls
                   enableZoom={true}
                   enablePan={true}
@@ -181,8 +200,9 @@ export default function CarBuildShare() {
                   panSpeed={0.5}
                   rotateSpeed={0.5}
                 />
+                <Scene />
                 <mesh>
-                  <Scene />
+                  <customGrid args={[10, 10, 0x444444, 0x888888]} />
                 </mesh>
               </Suspense>
             </Canvas>
