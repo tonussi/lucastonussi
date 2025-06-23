@@ -369,7 +369,7 @@ export default function CarBuildShare() {
                 />
                 <Scene />
                 <mesh>
-                  <customGrid args={[10, 10, 0x444444, 0x888888]} />
+                  <gridHelper args={[50, 50, 0x424242, 0x888888]} />
                 </mesh>
               </Suspense>
             </Canvas>
