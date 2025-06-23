@@ -22,7 +22,7 @@ interface Particle {
 }
 
 export function Vaper({
-  color = '#ffffff',
+  color = '#FFFFFF',
   duration = 3,
   particleCount = 8,
   className = '',
