@@ -58,7 +58,7 @@ export default function CarBuildShare() {
           <div className="relative flex flex-row justify-center items-center">
             <Input
               type="text"
-              placeholder="Looking for a 2023 Porsche 911 GT3 RS with carbon fiber steering wheel and titanium exhaust..."
+              placeholder="Looking for carbon fiber steering wheel for a 2023 Porsche 911..."
               onChange={handleSearch}
               className="w-1/2 px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             />
