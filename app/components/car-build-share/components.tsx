@@ -1,21 +1,16 @@
-import { OrbitControls, PerspectiveCamera, Progress } from '@react-three/drei'
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { Canvas, useLoader } from '@react-three/fiber'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
-import { extend, type ThreeElement } from '@react-three/fiber'
+import { extend } from '@react-three/fiber'
 import { Suspense, useState } from 'react'
-import { GridHelper } from 'three'
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js'
-class CustomGrid extends GridHelper {}
-extend({ CustomGrid })
 
 import * as THREE from 'three'
 import { Input } from '../ui/input'
-declare module '@react-three/fiber' {
-  interface ThreeElements {
-    customElement: ThreeElement<typeof CustomGrid>
-  }
-}
+import Particles from './particles'
+extend(THREE as any)
+
 const color = new THREE.Color()
 console.log(color)
 
@@ -331,7 +326,7 @@ export default function CarBuildShare() {
               }
               className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 h-96 xs:h-full w-full rounded-lg"
             >
-              <Suspense fallback={<Progress />}>
+              <Suspense fallback={null}>
                 <PerspectiveCamera
                   makeDefault
                   position={[10, 10, 12]}
@@ -360,6 +355,7 @@ export default function CarBuildShare() {
                 <mesh>
                   <gridHelper args={[50, 50, 0x424242, 0x888888]} />
                 </mesh>
+                <Particles count={1000} />
               </Suspense>
             </Canvas>
           </div>
