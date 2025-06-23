@@ -1,4 +1,4 @@
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
+import { OrbitControls, PerspectiveCamera, Progress } from '@react-three/drei'
 import { Canvas, useLoader } from '@react-three/fiber'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
@@ -9,8 +9,8 @@ import { MTLLoader } from 'three/addons/loaders/MTLLoader.js'
 class CustomGrid extends GridHelper {}
 extend({ CustomGrid })
 
-import { SearchIcon } from 'lucide-react'
 import * as THREE from 'three'
+import { Input } from '../ui/input'
 declare module '@react-three/fiber' {
   interface ThreeElements {
     customElement: ThreeElement<typeof CustomGrid>
@@ -38,157 +38,157 @@ export default function CarBuildShare() {
 
   return (
     <div className="min-h-screen p-8 mb-10">
-      <div className="mb-8 flex flex-col items-center justify-center">
-        <h1 className="text-4xl font-bold mb-4">Car Build Share</h1>
-        <p className="text-lg max-w-3xl">
-          Discover, share, and collaborate on racing car builds with the community. Search through
-          thousands of parts, tracks, and connect with fellow racing enthusiasts. Upload your custom
-          builds, find inspiration, and get feedback from the community.
-        </p>
-        <div className="flex items-center gap-4 mt-4 text-sm text-gray-400">
-          <span>🏁 Racing Community</span>
-          <span>🔧 Parts Database</span>
-          <span>📊 Build Analytics</span>
-          <span>💬 Community Feedback</span>
-        </div>
-      </div>
-      <div className="relative mb-8">
-        <div className="relative flex flex-row justify-center items-center">
-          <div className="inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <SearchIcon className="w-5 h-5 text-gray-400" />
+      <div className="mb-30">
+        <div className="mb-8 flex flex-col items-center justify-center">
+          <h1 className="text-4xl font-bold mb-4">Car Build Freak</h1>
+          <p className="text-lg max-w-3xl">
+            Discover, share, and collaborate on racing car builds with the community. Search through
+            thousands of parts, tracks, and connect with fellow racing enthusiasts. Upload your
+            custom builds, find inspiration, and get feedback from the community.
+          </p>
+          <div className="flex items-center gap-4 mt-4 text-sm text-gray-400">
+            <span>🏁 Racing Community</span>
+            <span>🔧 Parts Database</span>
+            <span>🏎️ Build Setups</span>
+            <span>💬 Community Feedback</span>
+            <span>🏪 Stores and partners</span>
           </div>
-          <input
-            type="text"
-            placeholder="Search for racing parts, tracks, or community members..."
-            onChange={handleSearch}
-            className="w-1/2 px-4 py-3 pl-12 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
         </div>
+        <div className="relative mb-8">
+          <div className="relative flex flex-row justify-center items-center">
+            <Input
+              type="text"
+              placeholder="Looking for a 2023 Porsche 911 GT3 RS with carbon fiber steering wheel and titanium exhaust..."
+              onChange={handleSearch}
+              className="w-1/2 px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+            />
+          </div>
 
-        {/* Auto-complete dropdown */}
-        {searching && (
-          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-            <div className="py-2">
-              <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                Recent searches
-              </div>
-              <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
-                <div className="flex items-center">
-                  <svg
-                    className="h-4 w-4 text-gray-400 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>Carbon fiber steering wheel</span>
+          {/* Auto-complete dropdown */}
+          {searching && (
+            <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              <div className="py-2">
+                <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                  Recent searches
+                </div>
+                <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
+                  <div className="flex items-center">
+                    <svg
+                      className="h-4 w-4 text-gray-400 mr-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>Carbon fiber steering wheel</span>
+                  </div>
+                </div>
+                <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
+                  <div className="flex items-center">
+                    <svg
+                      className="h-4 w-4 text-gray-400 mr-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>Monaco Grand Prix track</span>
+                  </div>
+                </div>
+                <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
+                  <div className="flex items-center">
+                    <svg
+                      className="h-4 w-4 text-gray-400 mr-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>Racing gloves</span>
+                  </div>
                 </div>
               </div>
-              <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
-                <div className="flex items-center">
-                  <svg
-                    className="h-4 w-4 text-gray-400 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>Monaco Grand Prix track</span>
+
+              <div className="py-2">
+                <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                  Popular searches
                 </div>
-              </div>
-              <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
-                <div className="flex items-center">
-                  <svg
-                    className="h-4 w-4 text-gray-400 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>Racing gloves</span>
+                <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
+                  <div className="flex items-center">
+                    <svg
+                      className="h-4 w-4 text-blue-500 mr-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
+                    </svg>
+                    <span>Formula 1 steering wheels</span>
+                  </div>
+                </div>
+                <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
+                  <div className="flex items-center">
+                    <svg
+                      className="h-4 w-4 text-blue-500 mr-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
+                    </svg>
+                    <span>Racing simulators</span>
+                  </div>
+                </div>
+                <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
+                  <div className="flex items-center">
+                    <svg
+                      className="h-4 w-4 text-blue-500 mr-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
+                    </svg>
+                    <span>Professional racing gear</span>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <div className="py-2">
-              <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                Popular searches
-              </div>
-              <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
-                <div className="flex items-center">
-                  <svg
-                    className="h-4 w-4 text-blue-500 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-                  <span>Formula 1 steering wheels</span>
-                </div>
-              </div>
-              <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
-                <div className="flex items-center">
-                  <svg
-                    className="h-4 w-4 text-blue-500 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-                  <span>Racing simulators</span>
-                </div>
-              </div>
-              <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-white">
-                <div className="flex items-center">
-                  <svg
-                    className="h-4 w-4 text-blue-500 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-                  <span>Professional racing gear</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <div className="mx-auto">
@@ -331,7 +331,7 @@ export default function CarBuildShare() {
               }
               className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 h-96 xs:h-full w-full rounded-lg"
             >
-              <Suspense fallback={null}>
+              <Suspense fallback={<Progress />}>
                 <PerspectiveCamera
                   makeDefault
                   position={[10, 10, 12]}

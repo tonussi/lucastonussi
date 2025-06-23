@@ -10,6 +10,7 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@radix-ui/react-progress": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@react-router/node": "^7.6.2",
     "@react-router/serve": "^7.6.2",
