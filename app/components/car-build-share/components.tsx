@@ -1,4 +1,4 @@
-import { Environment, OrbitControls } from '@react-three/drei'
+import { OrbitControls } from '@react-three/drei'
 import { Canvas, useLoader } from '@react-three/fiber'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
@@ -164,16 +164,15 @@ export default function CarBuildShare() {
               className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 h-96 xs:h-full w-full rounded-lg"
             >
               <Suspense fallback={<IncrementalLoader />}>
-                <Environment preset="night" />
-                <ambientLight intensity={0.6} />
+                <ambientLight intensity={Math.PI / 2} />
                 <spotLight
                   position={[10, 10, 10]}
-                  angle={0.25}
+                  angle={0.15}
                   penumbra={1}
                   decay={0}
                   intensity={Math.PI}
                 />
-                <pointLight position={[0, 1, 1]} intensity={5} />
+                <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
                 <OrbitControls
                   enableZoom={true}
                   enablePan={true}
