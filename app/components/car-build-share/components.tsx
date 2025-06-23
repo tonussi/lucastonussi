@@ -9,6 +9,7 @@ import { MTLLoader } from 'three/addons/loaders/MTLLoader.js'
 class CustomGrid extends GridHelper {}
 extend({ CustomGrid })
 
+import { SearchIcon } from 'lucide-react'
 import * as THREE from 'three'
 declare module '@react-three/fiber' {
   interface ThreeElements {
@@ -37,7 +38,7 @@ export default function CarBuildShare() {
 
   return (
     <div className="min-h-screen p-8 mb-10">
-      <div className="mb-8">
+      <div className="mb-8 flex flex-col items-center justify-center">
         <h1 className="text-4xl font-bold mb-4">Car Build Share</h1>
         <p className="text-lg max-w-3xl">
           Discover, share, and collaborate on racing car builds with the community. Search through
@@ -52,28 +53,16 @@ export default function CarBuildShare() {
         </div>
       </div>
       <div className="relative mb-8">
-        <div className="relative">
+        <div className="relative flex flex-row justify-center items-center">
+          <div className="inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <SearchIcon className="w-5 h-5 text-gray-400" />
+          </div>
           <input
             type="text"
             placeholder="Search for racing parts, tracks, or community members..."
             onChange={handleSearch}
-            className="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+            className="w-1/2 px-4 py-3 pl-12 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg
-              className="h-5 w-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
         </div>
 
         {/* Auto-complete dropdown */}
