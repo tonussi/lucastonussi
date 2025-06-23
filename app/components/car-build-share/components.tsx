@@ -2,7 +2,7 @@ import { Environment, OrbitControls } from '@react-three/drei'
 import { Canvas, useLoader } from '@react-three/fiber'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense } from 'react'
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js'
 
 const Scene = () => {
@@ -16,36 +16,7 @@ const Scene = () => {
 }
 
 function IncrementalLoader() {
-  const [progress, setProgress] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          return 100
-        }
-        return prev + 1
-      })
-    }, 50) // Increment every 50ms for smooth animation
-
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <div className="bg-gray-100 dark:bg-gray-800 h-96 w-full rounded-lg flex flex-col items-center justify-center">
-      <div className="text-gray-800 dark:text-white text-2xl font-bold mb-4">
-        Loading 3D Model...
-      </div>
-      <div className="w-64 bg-gray-700 rounded-full h-3 mb-2">
-        <div
-          style={{ width: `${progress}%` }}
-          className="h-3 rounded-full bg-gradient-to-r from-pink-600 to-amber-300 transition-all duration-100"
-        ></div>
-      </div>
-      <div className="text-gray-800 dark:text-white text-lg">{progress}%</div>
-    </div>
-  )
+  return <>Loading 3D Model...</>
 }
 
 export default function CarBuildShare() {
@@ -179,37 +150,38 @@ export default function CarBuildShare() {
 
           {/* Right Column - 3D Model */}
           <div className="relative">
-            <p className="w-80 absolute top-4 left-4 z-10 text-white leading-relaxed mb-4">
+            <p className="w-50 absolute top-4 left-4 z-10 text-white leading-relaxed mb-4 text-xs">
               This is a 3D model of a racing steering wheel. Drag with the mouse to look around.
             </p>
             <Canvas
+              dpr={[1, 2]}
               fallback={
-                <div className="bg-gray-100 dark:bg-gray-800 h-96 w-full rounded-lg flex items-center justify-center">
+                <div className="bg-gray-100 dark:bg-gray-800 h-96 text-xs w-full rounded-lg flex items-center justify-center">
                   Sorry no WebGL supported!
                 </div>
               }
               camera={{ position: [0, 0, 10], fov: 100 }}
-              className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 h-96 w-full rounded-lg"
+              className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 h-96 xs:h-full w-full rounded-lg"
             >
-              <Environment preset="sunset" />
-              <ambientLight intensity={0.6} />
-              <spotLight
-                position={[10, 10, 10]}
-                angle={0.15}
-                penumbra={1}
-                decay={0}
-                intensity={Math.PI}
-              />
-              <pointLight position={[0, 1, 1]} intensity={5} />
-              <OrbitControls
-                enableZoom={true}
-                enablePan={true}
-                enableRotate={true}
-                zoomSpeed={0.5}
-                panSpeed={0.5}
-                rotateSpeed={0.5}
-              />
               <Suspense fallback={<IncrementalLoader />}>
+                <Environment preset="night" />
+                <ambientLight intensity={0.6} />
+                <spotLight
+                  position={[10, 10, 10]}
+                  angle={0.25}
+                  penumbra={1}
+                  decay={0}
+                  intensity={Math.PI}
+                />
+                <pointLight position={[0, 1, 1]} intensity={5} />
+                <OrbitControls
+                  enableZoom={true}
+                  enablePan={true}
+                  enableRotate={true}
+                  zoomSpeed={0.5}
+                  panSpeed={0.5}
+                  rotateSpeed={0.5}
+                />
                 <mesh>
                   <Scene />
                 </mesh>
