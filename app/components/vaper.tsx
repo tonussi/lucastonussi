@@ -38,8 +38,8 @@ export function Vaper({
     const newParticles = Array.from({ length: particleCount }, (_, i) => ({
       id: i,
       duration: duration + Math.random() * 2,
-      startX: startX ?? Math.random() * 200,
-      endX: endX ?? Math.random() * 200,
+      startX: startX ?? Math.random() * 100,
+      endX: endX ?? Math.random() * 100,
       size: size ?? Math.random() * 40,
       type,
     }))
@@ -58,12 +58,14 @@ export function Vaper({
             style={
               {
                 backgroundColor: color,
-                left: `calc(${particle.startX}% - ${particle.size * 1.5}px)`,
+                left: `calc(${particle.startX - Math.random() * 10}% - ${particle.size * 1.5}px)`,
                 bottom: `${particle.size}%`,
-                width: `${particle.size}px`,
+                width: `${particle.size - Math.random() * 10}px`,
                 height: `${particle.size}px`,
-                filter: 'blur(4px)',
-                animation: `smokeRise ${particle.duration}s infinite ease-in-out`,
+                filter: 'blur(6px)',
+                animation: `smokeRise ${
+                  particle.duration + Math.random() * 10
+                }s infinite ease-in-out`,
                 '--start-x': `${particle.startX}%`,
                 '--end-x': `${particle.endX}%`,
               } as React.CSSProperties
