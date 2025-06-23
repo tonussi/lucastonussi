@@ -2,21 +2,26 @@ import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { Canvas, useLoader } from '@react-three/fiber'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
+import { Html, useProgress } from '@react-three/drei'
 import { extend } from '@react-three/fiber'
 import { Suspense, useState } from 'react'
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js'
 
 import * as THREE from 'three'
 import { Input } from '../ui/input'
-import Particles from './particles'
 extend(THREE as any)
 
 const color = new THREE.Color()
 console.log(color)
 
+function Loader() {
+  const { progress } = useProgress()
+  return <Html center>{progress} % loaded</Html>
+}
+
 const Scene = () => {
   const materials = useLoader(MTLLoader, '/models/misc/steering/material.mtl')
-  const obj = useLoader(OBJLoader, '/models/misc/steering/steering.obj', (loader) => {
+  const obj = useLoader(OBJLoader, '/models/misc/steering/shape.obj', (loader) => {
     materials.preload()
     loader.setMaterials(materials)
   })
@@ -326,7 +331,7 @@ export default function CarBuildShare() {
               }
               className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 h-96 xs:h-full w-full rounded-lg"
             >
-              <Suspense fallback={null}>
+              <Suspense fallback={<Loader />}>
                 <PerspectiveCamera
                   makeDefault
                   position={[10, 10, 12]}
@@ -342,7 +347,6 @@ export default function CarBuildShare() {
                   decay={0}
                   intensity={Math.PI}
                 />
-                {/* <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} /> */}
                 <OrbitControls
                   enableZoom={true}
                   enablePan={true}
@@ -355,7 +359,6 @@ export default function CarBuildShare() {
                 <mesh>
                   <gridHelper args={[50, 50, 0x424242, 0x888888]} />
                 </mesh>
-                <Particles count={1000} />
               </Suspense>
             </Canvas>
           </div>
