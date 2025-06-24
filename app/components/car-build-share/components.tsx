@@ -21,7 +21,7 @@ function Foo({ bar, ...props }: FooProps) {
   }, [bar])
   return (
     <mesh {...props}>
-      <boxGeometry args={[1, 1, 1]} />
+      <gridHelper args={[50, 50, 0x424242, 0x888888]} />
     </mesh>
   )
 }
@@ -368,9 +368,7 @@ export default function CarBuildShare() {
                   rotateSpeed={0.5}
                 />
                 <Scene />
-                <mesh>
-                  <gridHelper args={[50, 50, 0x424242, 0x888888]} />
-                </mesh>
+                <Foo bar={true} />
               </Suspense>
             </Canvas>
           </div>
