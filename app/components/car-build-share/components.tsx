@@ -38,7 +38,7 @@ const Scene = () => {
     loader.setMaterials(materials)
   })
 
-  return <primitive object={obj} />
+  return <primitive object={obj} position={[0, 5, 0]} />
 }
 
 export default function CarBuildShare() {
@@ -353,7 +353,7 @@ export default function CarBuildShare() {
                 />
                 <ambientLight intensity={Math.PI / 2} />
                 <spotLight
-                  position={[10, 10, 20]}
+                  position={[55, 5, 20]}
                   angle={0.15}
                   penumbra={0.8}
                   decay={0}
