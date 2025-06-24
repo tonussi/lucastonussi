@@ -3,16 +3,28 @@ import { Canvas, useLoader } from '@react-three/fiber'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
 import { Html, useProgress } from '@react-three/drei'
-import { extend } from '@react-three/fiber'
-import { Suspense, useState } from 'react'
+import { extend, type ThreeElements } from '@react-three/fiber'
+import { Suspense, useEffect, useState } from 'react'
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js'
 
 import * as THREE from 'three'
 import { Input } from '../ui/input'
 extend(THREE as any)
 
-const color = new THREE.Color()
-console.log(color)
+// const color = new THREE.Color()
+
+type FooProps = ThreeElements['mesh'] & { bar: boolean }
+
+function Foo({ bar, ...props }: FooProps) {
+  useEffect(() => {
+    console.log(bar)
+  }, [bar])
+  return (
+    <mesh {...props}>
+      <boxGeometry args={[1, 1, 1]} />
+    </mesh>
+  )
+}
 
 function Loader() {
   const { progress } = useProgress()

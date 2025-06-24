@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "react-router build && cp robots.txt build/client/robots.txt",
-    "build:prod": "yarn install && react-router build --mode production && cp robots.txt build/client/robots.txt",
+    "build:prod": "yarn install && react-router build --mode production && cp robots.txt build/client/robots.txt && cp build/client/index.html build/client/404.html",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
