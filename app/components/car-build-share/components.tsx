@@ -60,7 +60,7 @@ export default function CarBuildShare() {
   }
 
   return (
-    <div className="min-h-screen p-8 mb-10">
+    <div className="min-h-screen px-10!">
       <div className="mb-30">
         <div className="mb-8 flex flex-col items-center justify-center">
           <h1 className="text-4xl font-bold mb-4">Car Build Freak</h1>
@@ -348,7 +348,7 @@ export default function CarBuildShare() {
             <Canvas
               dpr={[1, 2]}
               fallback={
-                <div className="bg-gray-100 dark:bg-gray-800 h-96 text-xs w-full rounded-lg flex items-center justify-center">
+                <div className="bg-gray-100 dark:bg-gray-800 h-full text-xs w-full rounded-lg flex items-center justify-center">
                   Sorry no WebGL supported!
                 </div>
               }
@@ -357,19 +357,19 @@ export default function CarBuildShare() {
               <Suspense fallback={<Loader />}>
                 <PerspectiveCamera
                   makeDefault
-                  position={[10, 10, 12]}
+                  position={[10, 10, 10]}
                   near={0.1}
                   far={1000}
-                  zoom={1}
+                  zoom={0.5}
                 />
-                <ambientLight intensity={Math.PI * 5} />
-                {/* <spotLight
+                {/* <ambientLight intensity={Math.PI * 2} /> */}
+                <spotLight
                   position={[55, 5, 20]}
                   angle={0.15}
                   penumbra={0.8}
                   decay={0}
                   intensity={Math.PI}
-                /> */}
+                />
                 <OrbitControls
                   enableZoom={true}
                   enablePan={true}
