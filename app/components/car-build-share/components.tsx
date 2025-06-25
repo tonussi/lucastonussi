@@ -103,10 +103,11 @@ const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCa
     }
 
     if (keysPressed.space) {
-      obj.translateOnAxis(new THREE.Vector3(0, 10, 0), moveSpeed)
-      setTimeout(() => {
-        obj.translateOnAxis(new THREE.Vector3(0, -10, 0), moveSpeed)
+      obj.translateOnAxis(new THREE.Vector3(0, 10, 0), 0.01)
+      const timeout = setTimeout(() => {
+        obj.translateOnAxis(new THREE.Vector3(0, -10, 0), 0.01)
       }, 100)
+      return () => clearTimeout(timeout)
     }
 
     // Apply movement to mesh
