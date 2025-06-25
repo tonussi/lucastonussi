@@ -1,5 +1,6 @@
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
-import { Canvas, useLoader } from '@react-three/fiber'
+import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
 import { Html, useProgress } from '@react-three/drei'
@@ -28,17 +29,27 @@ function Foo({ bar, ...props }: FooProps) {
 
 function Loader() {
   const { progress } = useProgress()
-  return <Html center>{progress} % loaded</Html>
+  return <Html center>{progress.toFixed(2)} % loaded</Html>
 }
 
-const Scene = () => {
+const SteeringWheel = () => {
   const materials = useLoader(MTLLoader, '/models/misc/steering/material.mtl')
   const obj = useLoader(OBJLoader, '/models/misc/steering/shape.obj', (loader) => {
     materials.preload()
     loader.setMaterials(materials)
   })
 
+  obj.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 6)
+  useFrame(() => {
+    obj.rotation.y += 0.01
+  })
+
   return <primitive object={obj} position={[0, 5, 0]} />
+}
+
+const DungeonScene = () => {
+  const gltf = useLoader(GLTFLoader, '/models/dungeons/dungeon.glb')
+  return <primitive object={gltf.scene} scale={0.01} position={[0, 5, 50]} />
 }
 
 export default function CarBuildShare() {
@@ -351,14 +362,14 @@ export default function CarBuildShare() {
                   far={1000}
                   zoom={1}
                 />
-                <ambientLight intensity={Math.PI / 2} />
-                <spotLight
+                <ambientLight intensity={Math.PI * 5} />
+                {/* <spotLight
                   position={[55, 5, 20]}
                   angle={0.15}
                   penumbra={0.8}
                   decay={0}
                   intensity={Math.PI}
-                />
+                /> */}
                 <OrbitControls
                   enableZoom={true}
                   enablePan={true}
@@ -367,7 +378,7 @@ export default function CarBuildShare() {
                   panSpeed={0.5}
                   rotateSpeed={0.5}
                 />
-                <Scene />
+                <SteeringWheel />
                 <Foo bar={true} />
               </Suspense>
             </Canvas>
