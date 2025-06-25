@@ -1,12 +1,10 @@
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
+import { OrbitControls, PerspectiveCamera, useGLTF } from '@react-three/drei'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
 import { Html, useProgress } from '@react-three/drei'
 import { extend, type ThreeElements } from '@react-three/fiber'
-import { Suspense, useEffect, useState } from 'react'
-import { MTLLoader } from 'three/addons/loaders/MTLLoader.js'
+import { Suspense, useEffect, useRef, useState, type RefObject } from 'react'
 
 import * as THREE from 'three'
 import { Input } from '../ui/input'
@@ -17,9 +15,7 @@ extend(THREE as any)
 type FooProps = ThreeElements['mesh'] & { bar: boolean }
 
 function Foo({ bar, ...props }: FooProps) {
-  useEffect(() => {
-    console.log(bar)
-  }, [bar])
+  useEffect(() => {}, [bar])
   return (
     <mesh {...props}>
       <gridHelper args={[50, 50, 0x424242, 0x888888]} />
@@ -32,28 +28,119 @@ function Loader() {
   return <Html center>{progress.toFixed(2)} % loaded</Html>
 }
 
-const SteeringWheel = () => {
-  const materials = useLoader(MTLLoader, '/models/misc/steering/material.mtl')
-  const obj = useLoader(OBJLoader, '/models/misc/steering/shape.obj', (loader) => {
-    materials.preload()
-    loader.setMaterials(materials)
+const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }) => {
+  const mesh = useRef<THREE.InstancedMesh>(null!)
+
+  const obj = useLoader(OBJLoader, '/models/misc/steering/shape.obj')
+
+  const [keysPressed, setKeysPressed] = useState({
+    w: false,
+    a: false,
+    s: false,
+    d: false,
+    space: false,
   })
 
-  obj.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 6)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      setKeysPressed((prevKeys) => ({
+        ...prevKeys,
+        [event.code.toLowerCase().replace('key', '')]: true,
+      }))
+    }
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      setKeysPressed((prevKeys) => ({
+        ...prevKeys,
+        [event.code.toLowerCase().replace('key', '')]: false,
+      }))
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [])
+
   useFrame(() => {
-    obj.rotation.y += 0.01
+    // Get camera's forward vector
+    const camera = refCamera.current
+    if (!camera) return
+
+    const cameraDirection = new THREE.Vector3()
+    camera.getWorldDirection(cameraDirection)
+
+    // Calculate movement based on camera direction
+    const moveSpeed = 0.6
+    const movement = new THREE.Vector3()
+    const oneVectorXZ = new THREE.Vector3(1, 0, 1)
+
+    if (keysPressed.w) {
+      // Strafe forward (perpendicular to camera direction)
+      obj.translateOnAxis(oneVectorXZ.multiply(cameraDirection), moveSpeed)
+    }
+
+    if (keysPressed.s) {
+      // Strafe backwards (perpendicular to camera direction)
+      obj.translateOnAxis(oneVectorXZ.multiply(cameraDirection), -moveSpeed)
+    }
+
+    if (keysPressed.a) {
+      // Strafe left (perpendicular to camera direction)
+      const right = new THREE.Vector3()
+      right.crossVectors(cameraDirection, camera.up).normalize()
+      movement.add(right.clone().multiplyScalar(-moveSpeed))
+    }
+
+    if (keysPressed.d) {
+      // Strafe right (perpendicular to camera direction)
+      const right = new THREE.Vector3()
+      right.crossVectors(cameraDirection, camera.up).normalize()
+      movement.add(right.clone().multiplyScalar(moveSpeed))
+    }
+
+    if (keysPressed.space) {
+      obj.translateOnAxis(new THREE.Vector3(0, 10, 0), moveSpeed)
+      setTimeout(() => {
+        obj.translateOnAxis(new THREE.Vector3(0, -10, 0), moveSpeed)
+      }, 100)
+    }
+
+    // Apply movement to mesh
+    if (mesh.current) {
+      mesh.current.position.add(movement)
+      mesh.current.updateMatrix()
+    }
   })
 
-  return <primitive object={obj} position={[0, 5, 0]} />
+  return (
+    <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
+      <primitive object={obj} position={[0, 3, 0]} />
+      <pointsMaterial
+        color={'magenta'}
+        size={0.02}
+        transparent={true}
+        sizeAttenuation={false}
+        opacity={0.3}
+      />
+    </instancedMesh>
+  )
 }
 
 const DungeonScene = () => {
-  const gltf = useLoader(GLTFLoader, '/models/dungeons/dungeon.glb')
+  const gltf = useGLTF('/models/dungeons/dungeon.glb')
+  const nodes = gltf.nodes
+  console.log(nodes)
   return <primitive object={gltf.scene} scale={0.01} position={[0, 5, 50]} />
 }
 
 export default function CarBuildShare() {
   const [searching, setSearching] = useState(false)
+  const refCamera = useRef<THREE.PerspectiveCamera>(null!)
+  const refCanvas = useRef<HTMLCanvasElement>(null!)
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearching(e.target.value.length > 0)
@@ -346,6 +433,7 @@ export default function CarBuildShare() {
               This is a 3D model of a racing steering wheel. Drag with the mouse to look around.
             </p>
             <Canvas
+              ref={refCanvas}
               dpr={[1, 2]}
               fallback={
                 <div className="bg-gray-100 dark:bg-gray-800 h-full text-xs w-full rounded-lg flex items-center justify-center">
@@ -356,6 +444,7 @@ export default function CarBuildShare() {
             >
               <Suspense fallback={<Loader />}>
                 <PerspectiveCamera
+                  ref={refCamera}
                   makeDefault
                   position={[10, 10, 10]}
                   near={0.1}
@@ -378,7 +467,7 @@ export default function CarBuildShare() {
                   panSpeed={0.5}
                   rotateSpeed={0.5}
                 />
-                <SteeringWheel />
+                <SteeringWheel refCamera={refCamera} />
                 <Foo bar={true} />
               </Suspense>
             </Canvas>
