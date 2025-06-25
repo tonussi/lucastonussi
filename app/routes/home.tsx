@@ -3,7 +3,7 @@ import { Slogan } from '@/components/slogan'
 import type { Route } from './+types/home'
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Home' }, { name: 'description', content: 'Home' }]
+  return [{ title: 'T Labs' }, { name: 'description', content: 'T Labs' }]
 }
 
 export default function Home() {
