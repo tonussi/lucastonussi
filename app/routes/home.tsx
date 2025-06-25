@@ -3,7 +3,34 @@ import { Slogan } from '@/components/slogan'
 import type { Route } from './+types/home'
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'T Labs' }, { name: 'description', content: 'T Labs' }]
+  return [
+    { title: 'T Labs - Meaning in software' },
+    {
+      name: 'description',
+      content: 'T Labs delivers meaningful solutions to your needs.',
+    },
+    {
+      name: 'keywords',
+      content:
+        'T Labs, technology solutions, software development, hardware innovation, digital transformation, tech company',
+    },
+    { name: 'author', content: 'T Labs' },
+    { name: 'robots', content: 'index, follow' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1.0' },
+    { property: 'og:title', content: 'T Labs - Meaning in software' },
+    {
+      property: 'og:description',
+      content: 'T Labs delivers meaningful solutions to your needs.',
+    },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'T Labs' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'T Labs - Meaning in software' },
+    {
+      name: 'twitter:description',
+      content: 'T Labs delivers meaningful solutions to your needs.',
+    },
+  ]
 }
 
 export default function Home() {
