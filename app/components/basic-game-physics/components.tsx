@@ -183,9 +183,33 @@ export default function BasicGamePhysics() {
           far={1000}
           zoom={0.5}
         />
-        <ambientLight intensity={0.1} position={[0, 100, 100]} />
+        <ambientLight intensity={0.1} position={[1000, 1000, 1000]} />
+        <ambientLight intensity={0.1} position={[-1000, 1000, 1000]} />
+        <ambientLight intensity={0.1} position={[1000, 1000, -1000]} />
+        <ambientLight intensity={0.1} position={[-1000, 1000, -1000]} />
         <spotLight
           position={[100, 100, 100]}
+          angle={0.15}
+          penumbra={0.1}
+          decay={0.2}
+          intensity={100}
+        />
+        <spotLight
+          position={[-100, 100, 100]}
+          angle={0.15}
+          penumbra={0.1}
+          decay={0.2}
+          intensity={100}
+        />
+        <spotLight
+          position={[100, 100, -100]}
+          angle={0.15}
+          penumbra={0.1}
+          decay={0.2}
+          intensity={100}
+        />
+        <spotLight
+          position={[-100, 100, -100]}
           angle={0.15}
           penumbra={0.1}
           decay={0.2}
@@ -196,8 +220,8 @@ export default function BasicGamePhysics() {
           enablePan={true}
           enableRotate={true}
           zoomSpeed={0.5}
-          panSpeed={0.5}
-          rotateSpeed={0.5}
+          panSpeed={Math.PI / 2}
+          rotateSpeed={Math.PI / 2}
         />
         <PLayer refCamera={refCamera} />
         <Ground bar={true} />
