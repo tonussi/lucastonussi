@@ -26,10 +26,11 @@ function Loader() {
   return <Html center>{progress.toFixed(2)} % loaded</Html>
 }
 
-const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }) => {
+const PLayer = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }) => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
 
-  const wheel = useFBX('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx')
+  const obj = useFBX('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx')
+  obj.scale.set(0.01, 0.01, 0.01)
 
   const [keysPressed, setKeysPressed] = useState({
     w: false,
@@ -78,14 +79,18 @@ const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCa
 
     if (keysPressed.w) {
       // Rotate object to align with camera direction
-      wheel.lookAt(oneVectorXZ)
-      wheel.translateOnAxis(oneVectorXZ.multiply(cameraDirection), moveSpeed)
+      // Rotate object to face the direction of movement
+      const targetRotation = Math.atan2(cameraDirection.x, cameraDirection.z)
+      obj.rotation.y = targetRotation
+      obj.translateOnAxis(oneVectorXZ.multiply(cameraDirection), moveSpeed)
     }
 
     if (keysPressed.s) {
       // Strafe backwards (perpendicular to camera direction)
-      wheel.lookAt(oneVectorXZ)
-      wheel.translateOnAxis(oneVectorXZ.multiply(cameraDirection), -moveSpeed)
+      // Rotate object to face the opposite direction of camera
+      const targetRotation = Math.atan2(-cameraDirection.x, -cameraDirection.z)
+      obj.rotation.y = targetRotation
+      obj.translateOnAxis(oneVectorXZ.multiply(cameraDirection), -moveSpeed)
     }
 
     if (keysPressed.a) {
@@ -103,9 +108,9 @@ const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCa
     }
 
     if (keysPressed.space) {
-      wheel.translateOnAxis(new THREE.Vector3(0, 20, 0), 0.01)
+      obj.translateOnAxis(new THREE.Vector3(0, 20, 0), 0.01)
       const timeout = setTimeout(() => {
-        wheel.translateOnAxis(new THREE.Vector3(0, -20, 0), 0.01)
+        obj.translateOnAxis(new THREE.Vector3(0, -20, 0), 0.01)
       }, 200)
       return () => clearTimeout(timeout)
     }
@@ -119,7 +124,7 @@ const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCa
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
-      <primitive object={wheel} position={[0, 3, 0]} />
+      <primitive object={obj} position={[0, 3, 0]} />
       <pointsMaterial
         color={'magenta'}
         size={0.02}
@@ -147,11 +152,14 @@ export default function BasicGamePhysics() {
       ref={refCanvas}
       dpr={[1, 2]}
       fallback={
-        <div className="bg-gray-100 dark:bg-gray-800 h-full text-xs w-full rounded-lg flex items-center justify-center">
+        <div className="bg-gray-100 dark:bg-gray-800 text-xs ounded-lg flex items-center justify-center">
           Sorry no WebGL supported!
         </div>
       }
-      className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 h-96 xs:h-full w-full rounded-lg"
+      className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 rounded-lg"
+      style={{
+        height: '100vh',
+      }}
     >
       <Suspense fallback={<Loader />}>
         <PerspectiveCamera
@@ -178,7 +186,7 @@ export default function BasicGamePhysics() {
           panSpeed={0.5}
           rotateSpeed={0.5}
         />
-        <SteeringWheel refCamera={refCamera} />
+        <PLayer refCamera={refCamera} />
         <Ground bar={true} />
       </Suspense>
     </Canvas>
