@@ -26,9 +26,14 @@ function Loader() {
   return <Html center>{progress.toFixed(2)} % loaded</Html>
 }
 
-const PLayer = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }) => {
+const Player = ({
+  refCamera,
+  refScene,
+}: {
+  refCamera: RefObject<THREE.PerspectiveCamera>
+  refScene: RefObject<THREE.Scene>
+}) => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
-
   const obj = useFBX('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx')
   obj.scale.set(0.01, 0.01, 0.01)
 
@@ -141,6 +146,14 @@ const PLayer = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }
       // // Make camera look at the player
       // camera.lookAt(mesh.current.position)
       mesh.current.position.add(movement)
+      // Update spotlight to follow the player
+      const spotlight = refScene.current.getObjectByName('spotlight')
+      if (spotlight && spotlight instanceof THREE.SpotLight) {
+        spotlight.position.copy(mesh.current.position)
+        spotlight.position.y += 5 // Keep spotlight above the player
+        spotlight.target.position.copy(mesh.current.position)
+        spotlight.target.updateMatrixWorld()
+      }
       mesh.current.updateMatrix()
     }
   })
@@ -169,6 +182,7 @@ const DungeonScene = () => {
 export default function BasicGamePhysics() {
   const refCamera = useRef<THREE.PerspectiveCamera>(null!)
   const refCanvas = useRef<HTMLCanvasElement>(null!)
+  const refScene = useRef<THREE.Scene>(null!)
 
   return (
     <Canvas
@@ -185,56 +199,34 @@ export default function BasicGamePhysics() {
       }}
     >
       <Suspense fallback={<Loader />}>
-        <PerspectiveCamera
-          ref={refCamera}
-          makeDefault
-          position={[10, 10, 10]}
-          near={0.1}
-          far={1000}
-          zoom={0.5}
-        />
-        <ambientLight intensity={0.1} position={[1000, 1000, 1000]} />
-        <ambientLight intensity={0.1} position={[-1000, 1000, 1000]} />
-        <ambientLight intensity={0.1} position={[1000, 1000, -1000]} />
-        <ambientLight intensity={0.1} position={[-1000, 1000, -1000]} />
-        <spotLight
-          position={[100, 100, 100]}
-          angle={0.15}
-          penumbra={0.1}
-          decay={0.2}
-          intensity={100}
-        />
-        <spotLight
-          position={[-100, 100, 100]}
-          angle={0.15}
-          penumbra={0.1}
-          decay={0.2}
-          intensity={100}
-        />
-        <spotLight
-          position={[100, 100, -100]}
-          angle={0.15}
-          penumbra={0.1}
-          decay={0.2}
-          intensity={100}
-        />
-        <spotLight
-          position={[-100, 100, -100]}
-          angle={0.15}
-          penumbra={0.1}
-          decay={0.2}
-          intensity={100}
-        />
-        <OrbitControls
-          enableZoom={true}
-          enablePan={true}
-          enableRotate={true}
-          zoomSpeed={0.5}
-          panSpeed={Math.PI / 2}
-          rotateSpeed={Math.PI / 2}
-        />
-        <PLayer refCamera={refCamera} />
-        <Ground bar={true} />
+        <scene ref={refScene}>
+          <PerspectiveCamera
+            ref={refCamera}
+            makeDefault
+            position={[10, 10, 10]}
+            near={0.1}
+            far={1000}
+            zoom={0.5}
+          />
+          <ambientLight intensity={0.1} position={[0, 1000, 0]} />
+          <spotLight
+            name="spotlight"
+            position={[0, 10, 0]}
+            target={refScene.current.getObjectByName('Player')}
+            castShadow
+            intensity={100}
+          />
+          <OrbitControls
+            enableZoom={true}
+            enablePan={true}
+            enableRotate={true}
+            zoomSpeed={0.5}
+            panSpeed={Math.PI / 2}
+            rotateSpeed={Math.PI / 2}
+          />
+          <Player refCamera={refCamera} refScene={refScene} />
+          <Ground bar={true} />
+        </scene>
       </Suspense>
     </Canvas>
   )
