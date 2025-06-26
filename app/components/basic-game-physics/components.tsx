@@ -10,9 +10,9 @@ extend(THREE as any)
 
 // const color = new THREE.Color()
 
-type FooProps = ThreeElements['mesh'] & { bar: boolean }
+type GroundProps = ThreeElements['mesh'] & { bar: boolean }
 
-function Foo({ bar, ...props }: FooProps) {
+function Ground({ bar, ...props }: GroundProps) {
   useEffect(() => {}, [bar])
   return (
     <mesh {...props}>
@@ -139,13 +139,8 @@ const DungeonScene = () => {
 }
 
 export default function BasicGamePhysics() {
-  const [searching, setSearching] = useState(false)
   const refCamera = useRef<THREE.PerspectiveCamera>(null!)
   const refCanvas = useRef<HTMLCanvasElement>(null!)
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearching(e.target.value.length > 0)
-  }
 
   return (
     <Canvas
@@ -184,7 +179,7 @@ export default function BasicGamePhysics() {
           rotateSpeed={0.5}
         />
         <SteeringWheel refCamera={refCamera} />
-        <Foo bar={true} />
+        <Ground bar={true} />
       </Suspense>
     </Canvas>
   )
