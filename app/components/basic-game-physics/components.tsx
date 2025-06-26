@@ -73,30 +73,40 @@ const PLayer = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }
     camera.getWorldDirection(cameraDirection)
 
     // Calculate movement based on camera direction
-    const moveSpeed = 0.6
+    const moveSpeed = 0.1
     const movement = new THREE.Vector3()
-    const oneVectorXZ = new THREE.Vector3(1, 0, 1)
 
     if (keysPressed.w) {
-      // Rotate object to align with camera direction
-      // Rotate object to face the direction of movement
-      const targetRotation = Math.atan2(cameraDirection.x, cameraDirection.z)
+      // The projection make the vector translate to the obj forward direction
+      const projectedDirection = new THREE.Vector3(
+        cameraDirection.x,
+        0,
+        cameraDirection.z
+      ).normalize()
+      const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
       obj.rotation.y = targetRotation
-      obj.translateOnAxis(oneVectorXZ.multiply(cameraDirection), moveSpeed)
+      movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
     }
 
     if (keysPressed.s) {
-      // Strafe backwards (perpendicular to camera direction)
-      // Rotate object to face the opposite direction of camera
-      const targetRotation = Math.atan2(-cameraDirection.x, -cameraDirection.z)
+      // The projection make the vector translate to the obj backwards direction
+      const projectedDirection = new THREE.Vector3(
+        -cameraDirection.x,
+        0,
+        -cameraDirection.z
+      ).normalize()
+      const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
       obj.rotation.y = targetRotation
-      obj.translateOnAxis(oneVectorXZ.multiply(cameraDirection), -moveSpeed)
+      movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
     }
 
     if (keysPressed.a) {
       // Strafe left (perpendicular to camera direction)
       const right = new THREE.Vector3()
       right.crossVectors(cameraDirection, camera.up).normalize()
+      // Rotate object to face the direction of movement (left)
+      const targetRotation = Math.atan2(-right.x, -right.z)
+      obj.rotation.y = targetRotation
       movement.add(right.clone().multiplyScalar(-moveSpeed))
     }
 
@@ -104,6 +114,9 @@ const PLayer = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }
       // Strafe right (perpendicular to camera direction)
       const right = new THREE.Vector3()
       right.crossVectors(cameraDirection, camera.up).normalize()
+      // Rotate object to face the direction of movement (right)
+      const targetRotation = Math.atan2(right.x, right.z)
+      obj.rotation.y = targetRotation
       movement.add(right.clone().multiplyScalar(moveSpeed))
     }
 
@@ -170,13 +183,13 @@ export default function BasicGamePhysics() {
           far={1000}
           zoom={0.5}
         />
-        <ambientLight intensity={0.1} position={[0, 2000, 1000]} />
+        <ambientLight intensity={0.1} position={[0, 100, 100]} />
         <spotLight
-          position={[55, 5, 20]}
+          position={[100, 100, 100]}
           angle={0.15}
-          penumbra={0.8}
-          decay={0}
-          intensity={Math.PI}
+          penumbra={0.1}
+          decay={0.2}
+          intensity={100}
         />
         <OrbitControls
           enableZoom={true}
