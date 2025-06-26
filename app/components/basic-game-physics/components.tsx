@@ -121,11 +121,11 @@ const PLayer = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }
     }
 
     if (keysPressed.space) {
-      obj.translateOnAxis(new THREE.Vector3(0, 20, 0), 0.01)
-      const timeout = setTimeout(() => {
-        obj.translateOnAxis(new THREE.Vector3(0, -20, 0), 0.01)
-      }, 200)
-      return () => clearTimeout(timeout)
+      //obj.translateOnAxis(new THREE.Vector3(0, 20, 0), 0.01)
+      // const timeout = setTimeout(() => {
+      //   obj.translateOnAxis(new THREE.Vector3(0, -20, 0), 0.01)
+      // }, 200)
+      // return () => clearTimeout(timeout)
     }
 
     // Apply movement to mesh
