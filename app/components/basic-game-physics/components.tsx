@@ -10,15 +10,11 @@ extend(THREE as any)
 
 // const color = new THREE.Color()
 
-type GroundProps = ThreeElements['mesh'] & { bar: boolean }
+type GroundProps = ThreeElements['mesh'] & { active: boolean }
 
-function Ground({ bar, ...props }: GroundProps) {
-  useEffect(() => {}, [bar])
-  return (
-    <mesh {...props}>
-      <gridHelper args={[50, 50, 0x424242, 0x888888]} />
-    </mesh>
-  )
+function Ground({ active, ...props }: GroundProps) {
+  useEffect(() => {}, [active])
+  return <mesh {...props}>{active && <gridHelper args={[50, 50, 0x424242, 0x888888]} />}</mesh>
 }
 
 function Loader() {
@@ -147,12 +143,14 @@ const Player = ({
       // camera.lookAt(mesh.current.position)
       mesh.current.position.add(movement)
       // Update spotlight to follow the player
-      const spotlight = refScene.current.getObjectByName('spotlight')
-      if (spotlight && spotlight instanceof THREE.SpotLight) {
-        spotlight.position.copy(mesh.current.position)
-        spotlight.position.y += 5 // Keep spotlight above the player
-        spotlight.target.position.copy(mesh.current.position)
-        spotlight.target.updateMatrixWorld()
+      if (refScene.current) {
+        const spotlight = refScene.current.getObjectByName('spotlight')
+        if (spotlight && spotlight instanceof THREE.SpotLight) {
+          spotlight.position.copy(mesh.current.position)
+          spotlight.position.y += 5 // Keep spotlight above the player
+          spotlight.target.position.copy(mesh.current.position)
+          spotlight.target.updateMatrixWorld()
+        }
       }
       mesh.current.updateMatrix()
     }
@@ -160,14 +158,7 @@ const Player = ({
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
-      <primitive object={obj} position={[0, 3, 0]} />
-      <pointsMaterial
-        color={'magenta'}
-        size={0.02}
-        transparent={true}
-        sizeAttenuation={false}
-        opacity={0.3}
-      />
+      <primitive object={obj} position={[0, 0, 0]} />
     </instancedMesh>
   )
 }
@@ -209,13 +200,7 @@ export default function BasicGamePhysics() {
             zoom={0.5}
           />
           <ambientLight intensity={0.1} position={[0, 1000, 0]} />
-          <spotLight
-            name="spotlight"
-            position={[0, 10, 0]}
-            target={refScene.current.getObjectByName('Player')}
-            castShadow
-            intensity={100}
-          />
+          <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
           <OrbitControls
             enableZoom={true}
             enablePan={true}
@@ -225,7 +210,7 @@ export default function BasicGamePhysics() {
             rotateSpeed={Math.PI / 2}
           />
           <Player refCamera={refCamera} refScene={refScene} />
-          <Ground bar={true} />
+          <Ground active={true} />
         </scene>
       </Suspense>
     </Canvas>
