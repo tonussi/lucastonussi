@@ -1,123 +1,24 @@
-import { OrbitControls, PerspectiveCamera, useGLTF } from '@react-three/drei'
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
+import { Canvas, useLoader } from '@react-three/fiber'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
 import { Html, useProgress } from '@react-three/drei'
-import { extend, type ThreeElements } from '@react-three/fiber'
-import { Suspense, useEffect, useRef, useState, type RefObject } from 'react'
+import { extend } from '@react-three/fiber'
+import { Suspense, useRef, useState } from 'react'
 
 import * as THREE from 'three'
 import { Input } from '../ui/input'
 extend(THREE as any)
-
-// const color = new THREE.Color()
-
-type FooProps = ThreeElements['mesh'] & { bar: boolean }
-
-function Foo({ bar, ...props }: FooProps) {
-  useEffect(() => {}, [bar])
-  return (
-    <mesh {...props}>
-      <gridHelper args={[50, 50, 0x424242, 0x888888]} />
-    </mesh>
-  )
-}
 
 function Loader() {
   const { progress } = useProgress()
   return <Html center>{progress.toFixed(2)} % loaded</Html>
 }
 
-const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }) => {
+const SteeringWheel = () => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
 
   const wheel = useLoader(OBJLoader, '/models/misc/steering/shape.obj')
-
-  const [keysPressed, setKeysPressed] = useState({
-    w: false,
-    a: false,
-    s: false,
-    d: false,
-    space: false,
-  })
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      setKeysPressed((prevKeys) => ({
-        ...prevKeys,
-        [event.code.toLowerCase().replace('key', '')]: true,
-      }))
-    }
-
-    const handleKeyUp = (event: KeyboardEvent) => {
-      setKeysPressed((prevKeys) => ({
-        ...prevKeys,
-        [event.code.toLowerCase().replace('key', '')]: false,
-      }))
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('keyup', handleKeyUp)
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('keyup', handleKeyUp)
-    }
-  }, [])
-
-  useFrame(() => {
-    // Get camera's forward vector
-    const camera = refCamera.current
-    if (!camera) return
-
-    const cameraDirection = new THREE.Vector3()
-    camera.getWorldDirection(cameraDirection)
-
-    // Calculate movement based on camera direction
-    const moveSpeed = 0.6
-    const movement = new THREE.Vector3()
-    const oneVectorXZ = new THREE.Vector3(1, 0, 1)
-
-    if (keysPressed.w) {
-      // Rotate object to align with camera direction
-      wheel.lookAt(oneVectorXZ)
-      wheel.translateOnAxis(oneVectorXZ.multiply(cameraDirection), moveSpeed)
-    }
-
-    if (keysPressed.s) {
-      // Strafe backwards (perpendicular to camera direction)
-      wheel.lookAt(oneVectorXZ)
-      wheel.translateOnAxis(oneVectorXZ.multiply(cameraDirection), -moveSpeed)
-    }
-
-    if (keysPressed.a) {
-      // Strafe left (perpendicular to camera direction)
-      const right = new THREE.Vector3()
-      right.crossVectors(cameraDirection, camera.up).normalize()
-      movement.add(right.clone().multiplyScalar(-moveSpeed))
-    }
-
-    if (keysPressed.d) {
-      // Strafe right (perpendicular to camera direction)
-      const right = new THREE.Vector3()
-      right.crossVectors(cameraDirection, camera.up).normalize()
-      movement.add(right.clone().multiplyScalar(moveSpeed))
-    }
-
-    if (keysPressed.space) {
-      wheel.translateOnAxis(new THREE.Vector3(0, 20, 0), 0.01)
-      const timeout = setTimeout(() => {
-        wheel.translateOnAxis(new THREE.Vector3(0, -20, 0), 0.01)
-      }, 200)
-      return () => clearTimeout(timeout)
-    }
-
-    // Apply movement to mesh
-    if (mesh.current) {
-      mesh.current.position.add(movement)
-      mesh.current.updateMatrix()
-    }
-  })
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
@@ -131,13 +32,6 @@ const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCa
       />
     </instancedMesh>
   )
-}
-
-const DungeonScene = () => {
-  const gltf = useGLTF('/models/dungeons/dungeon.glb')
-  const nodes = gltf.nodes
-  console.log(nodes)
-  return <primitive object={gltf.scene} scale={0.01} position={[0, 5, 50]} />
 }
 
 export default function CarBuildShare() {
@@ -470,8 +364,7 @@ export default function CarBuildShare() {
                   panSpeed={0.5}
                   rotateSpeed={0.5}
                 />
-                <SteeringWheel refCamera={refCamera} />
-                <Foo bar={true} />
+                <SteeringWheel />
               </Suspense>
             </Canvas>
           </div>
