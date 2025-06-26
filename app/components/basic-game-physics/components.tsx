@@ -179,6 +179,11 @@ const Player = ({
           .add(forwardDirection.clone().multiplyScalar(3 + i * 2))
         box.position.copy(boxPosition)
         box.position.y = 0.5 // Slightly above ground
+        // Add random offset to box position
+        const randomOffsetX = (Math.random() - 0.5) * 4 // Random offset between -2 and 2
+        const randomOffsetZ = (Math.random() - 0.5) * 4 // Random offset between -2 and 2
+        boxPosition.x += randomOffsetX
+        boxPosition.z += randomOffsetZ
 
         // Add box to the scene
         refScene.current.add(box)
