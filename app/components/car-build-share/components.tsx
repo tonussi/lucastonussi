@@ -31,7 +31,7 @@ function Loader() {
 const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }) => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
 
-  const obj = useLoader(OBJLoader, '/models/misc/steering/shape.obj')
+  const wheel = useLoader(OBJLoader, '/models/misc/steering/shape.obj')
 
   const [keysPressed, setKeysPressed] = useState({
     w: false,
@@ -79,13 +79,15 @@ const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCa
     const oneVectorXZ = new THREE.Vector3(1, 0, 1)
 
     if (keysPressed.w) {
-      // Strafe forward (perpendicular to camera direction)
-      obj.translateOnAxis(oneVectorXZ.multiply(cameraDirection), moveSpeed)
+      // Rotate object to align with camera direction
+      wheel.lookAt(oneVectorXZ)
+      wheel.translateOnAxis(oneVectorXZ.multiply(cameraDirection), moveSpeed)
     }
 
     if (keysPressed.s) {
       // Strafe backwards (perpendicular to camera direction)
-      obj.translateOnAxis(oneVectorXZ.multiply(cameraDirection), -moveSpeed)
+      wheel.lookAt(oneVectorXZ)
+      wheel.translateOnAxis(oneVectorXZ.multiply(cameraDirection), -moveSpeed)
     }
 
     if (keysPressed.a) {
@@ -103,10 +105,10 @@ const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCa
     }
 
     if (keysPressed.space) {
-      obj.translateOnAxis(new THREE.Vector3(0, 10, 0), 0.01)
+      wheel.translateOnAxis(new THREE.Vector3(0, 20, 0), 0.01)
       const timeout = setTimeout(() => {
-        obj.translateOnAxis(new THREE.Vector3(0, -10, 0), 0.01)
-      }, 100)
+        wheel.translateOnAxis(new THREE.Vector3(0, -20, 0), 0.01)
+      }, 200)
       return () => clearTimeout(timeout)
     }
 
@@ -119,7 +121,7 @@ const SteeringWheel = ({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCa
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
-      <primitive object={obj} position={[0, 3, 0]} />
+      <primitive object={wheel} position={[0, 3, 0]} />
       <pointsMaterial
         color={'magenta'}
         size={0.02}
@@ -452,7 +454,7 @@ export default function CarBuildShare() {
                   far={1000}
                   zoom={0.5}
                 />
-                {/* <ambientLight intensity={Math.PI * 2} /> */}
+                <ambientLight intensity={0.1} position={[0, 2000, 1000]} />
                 <spotLight
                   position={[55, 5, 20]}
                   angle={0.15}
