@@ -71,6 +71,56 @@ const Player = ({
     isUp: false,
   })
 
+  const handleMouseMove = (event: MouseEvent) => {
+    setMouse({
+      x: event.clientX,
+      y: event.clientY,
+      isDown: event.buttons === 1,
+      isLeft: event.buttons === 2,
+      isRight: event.buttons === 4,
+      isUp: event.buttons === 8,
+    })
+  }
+
+  const handleMouseDown = (event: MouseEvent) => {
+    setMouse({
+      ...mouse,
+      isDown: true,
+    })
+  }
+
+  const handleMouseUp = (event: MouseEvent) => {
+    setMouse({
+      ...mouse,
+      isDown: false,
+    })
+  }
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+    }
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener('mousedown', handleMouseDown)
+    return () => {
+      window.removeEventListener('mousedown', handleMouseDown)
+    }
+  }, [mouse])
+
+  useEffect(() => {
+    window.addEventListener('mouseup', handleMouseUp)
+    return () => {
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [mouse])
+
+  useEffect(() => {
+    console.log(mouse)
+  }, [mouse])
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       setKeysPressed((prevKeys) => ({
@@ -106,6 +156,34 @@ const Player = ({
     // Calculate movement based on camera direction
     const moveSpeed = 0.07
     const movement = new THREE.Vector3()
+
+    if (mouse.isDown) {
+      // Create three boxes in front of the character
+      const boxGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1)
+      const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+
+      // Get the character's current position and forward direction
+      const characterPosition = mesh.current.position.clone()
+      const forwardDirection = new THREE.Vector3(
+        cameraDirection.x,
+        0,
+        cameraDirection.z
+      ).normalize()
+
+      // Create three boxes positioned in front of the character
+      for (let i = 0; i < Math.floor(Math.random() * 10) + 1; i++) {
+        const box = new THREE.Mesh(boxGeometry, boxMaterial)
+        // Position boxes 3 units in front, spaced 2 units apart
+        const boxPosition = characterPosition
+          .clone()
+          .add(forwardDirection.clone().multiplyScalar(3 + i * 2))
+        box.position.copy(boxPosition)
+        box.position.y = 0.5 // Slightly above ground
+
+        // Add box to the scene
+        refScene.current.add(box)
+      }
+    }
 
     if (keysPressed.w) {
       // The projection make the vector translate to the obj forward direction
