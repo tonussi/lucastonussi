@@ -78,7 +78,7 @@ const Player = ({
     camera.getWorldDirection(cameraDirection)
 
     // Calculate movement based on camera direction
-    const moveSpeed = 0.1
+    const moveSpeed = 0.07
     const movement = new THREE.Vector3()
 
     if (keysPressed.w) {
