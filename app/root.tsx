@@ -65,7 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body suppressHydrationWarning>
+      <body>
         <div className="bg-white dark:bg-black">
           <div className="fixed top-4 right-4 z-50">
             <select

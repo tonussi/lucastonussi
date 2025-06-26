@@ -166,7 +166,7 @@ const Player = ({
 const DungeonScene = ({ active }: { active: boolean }) => {
   const gltf = useGLTF('/models/dungeons/dungeon.glb')
   // const nodes = gltf.nodes
-  return <primitive object={gltf.scene} scale={0.01} position={[0, 5, 50]} active={active} />
+  return active && <primitive object={gltf.scene} scale={0.01} position={[0, 5, 50]} />
 }
 
 export default function BasicGamePhysics() {
@@ -196,10 +196,8 @@ export default function BasicGamePhysics() {
             name="camera"
             ref={refCamera}
             makeDefault
-            position={[10, 10, 10]}
-            near={1}
-            far={1000}
-            zoom={0.5}
+            position={[9, 9, 9]}
+            zoom={1}
           />
           <ambientLight name="ambientLight" intensity={0.1} position={[0, 1000, 0]} />
           <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
@@ -213,7 +211,7 @@ export default function BasicGamePhysics() {
             rotateSpeed={Math.PI / 2}
           />
           <Ground active={true} />
-          <DungeonScene active={true} />
+          <DungeonScene active={false} />
         </scene>
       </Suspense>
     </Canvas>
