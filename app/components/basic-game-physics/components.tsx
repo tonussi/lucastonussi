@@ -32,15 +32,43 @@ const Player = ({
   refPlayer: RefObject<THREE.Mesh>
 }) => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
-  const obj = useFBX('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx')
+  let obj: THREE.Group | null = null
+  obj = useFBX('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx') as THREE.Group
+  const box = new THREE.BoxGeometry(5, 5, 5)
+  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+  const boxMesh = new THREE.Mesh(box, material)
+  obj.add(boxMesh)
+
   obj.scale.set(0.01, 0.01, 0.01)
 
-  const [keysPressed, setKeysPressed] = useState({
+  const [keysPressed, setKeysPressed] = useState<{
+    w: boolean
+    a: boolean
+    s: boolean
+    d: boolean
+    space: boolean
+  }>({
     w: false,
     a: false,
     s: false,
     d: false,
     space: false,
+  })
+
+  const [mouse, setMouse] = useState<{
+    x: number
+    y: number
+    isDown: boolean
+    isLeft: boolean
+    isRight: boolean
+    isUp: boolean
+  }>({
+    x: 0,
+    y: 0,
+    isDown: false,
+    isLeft: false,
+    isRight: false,
+    isUp: false,
   })
 
   useEffect(() => {
