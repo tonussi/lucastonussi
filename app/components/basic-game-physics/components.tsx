@@ -25,9 +25,11 @@ function Loader() {
 const Player = ({
   refCamera,
   refScene,
+  refPlayer,
 }: {
   refCamera: RefObject<THREE.PerspectiveCamera>
   refScene: RefObject<THREE.Scene>
+  refPlayer: RefObject<THREE.Mesh>
 }) => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
   const obj = useFBX('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx')
@@ -143,14 +145,12 @@ const Player = ({
       // camera.lookAt(mesh.current.position)
       mesh.current.position.add(movement)
       // Update spotlight to follow the player
-      if (refScene.current) {
-        const spotlight = refScene.current.getObjectByName('spotlight')
-        if (spotlight && spotlight instanceof THREE.SpotLight) {
-          spotlight.position.copy(mesh.current.position)
-          spotlight.position.y += 5 // Keep spotlight above the player
-          spotlight.target.position.copy(mesh.current.position)
-          spotlight.target.updateMatrixWorld()
-        }
+      const spotlight = refScene.current.getObjectByName('spotlight')
+      if (spotlight && spotlight instanceof THREE.SpotLight) {
+        spotlight.position.copy(mesh.current.position)
+        spotlight.position.y += 5 // Keep spotlight above the player
+        spotlight.target.position.copy(mesh.current.position)
+        spotlight.target.updateMatrixWorld()
       }
       mesh.current.updateMatrix()
     }
@@ -163,17 +163,17 @@ const Player = ({
   )
 }
 
-const DungeonScene = () => {
+const DungeonScene = ({ active }: { active: boolean }) => {
   const gltf = useGLTF('/models/dungeons/dungeon.glb')
-  const nodes = gltf.nodes
-  console.log(nodes)
-  return <primitive object={gltf.scene} scale={0.01} position={[0, 5, 50]} />
+  // const nodes = gltf.nodes
+  return <primitive object={gltf.scene} scale={0.01} position={[0, 5, 50]} active={active} />
 }
 
 export default function BasicGamePhysics() {
   const refCamera = useRef<THREE.PerspectiveCamera>(null!)
   const refCanvas = useRef<HTMLCanvasElement>(null!)
   const refScene = useRef<THREE.Scene>(null!)
+  const refPlayer = useRef<THREE.Mesh>(null!)
 
   return (
     <Canvas
@@ -191,26 +191,29 @@ export default function BasicGamePhysics() {
     >
       <Suspense fallback={<Loader />}>
         <scene ref={refScene}>
+          <Player refCamera={refCamera} refScene={refScene} refPlayer={refPlayer} />
           <PerspectiveCamera
+            name="camera"
             ref={refCamera}
             makeDefault
             position={[10, 10, 10]}
-            near={0.1}
+            near={1}
             far={1000}
             zoom={0.5}
           />
-          <ambientLight intensity={0.1} position={[0, 1000, 0]} />
+          <ambientLight name="ambientLight" intensity={0.1} position={[0, 1000, 0]} />
           <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
           <OrbitControls
             enableZoom={true}
             enablePan={true}
             enableRotate={true}
-            zoomSpeed={0.5}
+            zoomSpeed={Math.PI / 2}
             panSpeed={Math.PI / 2}
+            // rotate around the player
             rotateSpeed={Math.PI / 2}
           />
-          <Player refCamera={refCamera} refScene={refScene} />
           <Ground active={true} />
+          <DungeonScene active={true} />
         </scene>
       </Suspense>
     </Canvas>
