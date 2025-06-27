@@ -49,7 +49,7 @@ const Player = ({
     checkFbxExists()
   }, [])
 
-  if (!fbxExists) {
+  if (fbxExists) {
     obj = useFBX('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx') as THREE.Group
   } else {
     obj = new THREE.Group()
@@ -362,6 +362,9 @@ export default function BasicGamePhysics() {
             panSpeed={Math.PI / 2}
             // rotate around the player
             rotateSpeed={Math.PI / 2}
+            mouseButtons={{
+              RIGHT: THREE.MOUSE.ROTATE,
+            }}
           />
           <Ground active={true} />
           <DungeonScene active={false} />
