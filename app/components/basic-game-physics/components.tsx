@@ -317,9 +317,26 @@ const Player = ({
 }
 
 const DungeonScene = ({ active }: { active: boolean }) => {
-  const gltf = useGLTF('/models/dungeons/dungeon.glb')
-  // const nodes = gltf.nodes
-  return active && <primitive object={gltf.scene} scale={0.01} position={[0, 5, 50]} />
+  const [glbExists, setGlbExists] = useState(false)
+
+  useEffect(() => {
+    const checkFbxExists = async () => {
+      try {
+        const response = await fetch('/models/dungeons/dungeon.glb')
+        setGlbExists(response.ok)
+      } catch (error) {
+        console.error('Error checking FBX file:', error)
+        setGlbExists(false)
+      }
+    }
+    checkFbxExists()
+  }, [])
+
+  if (!glbExists) {
+    const gltf = useGLTF('/models/dungeons/dungeon.glb')
+    // const nodes = gltf.nodes
+    return active && <primitive object={gltf.scene} scale={0.01} position={[0, 5, 50]} />
+  }
 }
 
 export default function BasicGamePhysics() {
@@ -352,7 +369,7 @@ export default function BasicGamePhysics() {
             position={[9, 9, 9]}
             zoom={1}
           />
-          <ambientLight name="ambientLight" intensity={0.1} position={[0, 1000, 0]} />
+          <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} />
           <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
           <OrbitControls
             enableZoom={true}
