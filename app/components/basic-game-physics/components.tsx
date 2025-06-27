@@ -33,11 +33,32 @@ const Player = ({
 }) => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
   let obj: THREE.Group | null = null
-  obj = useFBX('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx') as THREE.Group
-  const box = new THREE.BoxGeometry(5, 5, 5)
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-  const boxMesh = new THREE.Mesh(box, material)
-  obj.add(boxMesh)
+  const [fbxExists, setFbxExists] = useState(false)
+  const [bullets, setBullets] = useState<THREE.Mesh[]>([])
+
+  useEffect(() => {
+    const checkFbxExists = async () => {
+      try {
+        const response = await fetch('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx')
+        setFbxExists(response.ok)
+      } catch (error) {
+        console.error('Error checking FBX file:', error)
+        setFbxExists(false)
+      }
+    }
+    checkFbxExists()
+  }, [])
+
+  if (!fbxExists) {
+    obj = useFBX('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx') as THREE.Group
+  } else {
+    obj = new THREE.Group()
+    const box = new THREE.BoxGeometry(25, 200, 25)
+    box.translate(0, 100, 0)
+    const material = new THREE.MeshBasicMaterial({ color: 'magenta', wireframe: true })
+    const boxMesh = new THREE.Mesh(box, material)
+    obj.add(boxMesh)
+  }
 
   obj.scale.set(0.01, 0.01, 0.01)
 
@@ -83,16 +104,24 @@ const Player = ({
   }
 
   const handleMouseDown = (event: MouseEvent) => {
+    console.log('handleMouseDown', event)
     setMouse({
       ...mouse,
-      isDown: true,
+      isDown: event.buttons === 1,
+      isLeft: event.buttons === 2,
+      isRight: event.buttons === 4,
+      isUp: event.buttons === 8,
     })
   }
 
   const handleMouseUp = (event: MouseEvent) => {
+    console.log('handleMouseUp', event)
     setMouse({
       ...mouse,
-      isDown: false,
+      isDown: event.buttons === 1,
+      isLeft: event.buttons === 2,
+      isRight: event.buttons === 4,
+      isUp: event.buttons === 8,
     })
   }
 
@@ -115,10 +144,6 @@ const Player = ({
     return () => {
       window.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [mouse])
-
-  useEffect(() => {
-    console.log(mouse)
   }, [mouse])
 
   useEffect(() => {
@@ -158,7 +183,7 @@ const Player = ({
     const movement = new THREE.Vector3()
 
     if (mouse.isDown) {
-      // Create three boxes in front of the character
+      // Create bullets in front of the character
       const boxGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1)
       const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
 
@@ -170,24 +195,41 @@ const Player = ({
         cameraDirection.z
       ).normalize()
 
-      // Create three boxes positioned in front of the character
+      // Create bullets positioned in front of the character
+      const newBullets: THREE.Mesh[] = []
       for (let i = 0; i < Math.floor(Math.random() * 10) + 1; i++) {
-        const box = new THREE.Mesh(boxGeometry, boxMaterial)
-        // Position boxes 3 units in front, spaced 2 units apart
-        const boxPosition = characterPosition
+        const bullet = new THREE.Mesh(boxGeometry, boxMaterial)
+        // Position bullets 3 units in front, spaced 2 units apart
+        const bulletPosition = characterPosition
           .clone()
           .add(forwardDirection.clone().multiplyScalar(3 + i * 2))
-        box.position.copy(boxPosition)
-        box.position.y = 0.5 // Slightly above ground
-        // Add random offset to box position
+        bullet.position.copy(bulletPosition)
+        bullet.position.y = 0.5 // Slightly above ground
+        // Add random offset to bullet position
         const randomOffsetX = (Math.random() - 0.5) * 4 // Random offset between -2 and 2
         const randomOffsetZ = (Math.random() - 0.5) * 4 // Random offset between -2 and 2
-        boxPosition.x += randomOffsetX
-        boxPosition.z += randomOffsetZ
+        bulletPosition.x += randomOffsetX
+        bulletPosition.z += randomOffsetZ
 
-        // Add box to the scene
-        refScene.current.add(box)
+        // Add bullet to the scene and array
+        refScene.current?.add(bullet)
+        newBullets.push(bullet)
       }
+
+      // Update bullets state
+      setBullets((prevBullets) => [...prevBullets, ...newBullets])
+
+      // Clear bullets after 5 seconds
+      setTimeout(() => {
+        newBullets.forEach((bullet) => {
+          refScene.current?.remove(bullet)
+          bullet.geometry.dispose()
+          if (bullet.material instanceof THREE.Material) {
+            bullet.material.dispose()
+          }
+        })
+        setBullets((prevBullets) => prevBullets.filter((bullet) => !newBullets.includes(bullet)))
+      }, 100)
     }
 
     if (keysPressed.w) {
