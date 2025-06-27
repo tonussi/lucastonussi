@@ -1,4 +1,4 @@
-import { OrbitControls, PerspectiveCamera, useFBX, useGLTF } from '@react-three/drei'
+import { OrbitControls, PerspectiveCamera, useGLTF } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
 
 import { Html, useProgress } from '@react-three/drei'
@@ -40,7 +40,9 @@ const Player = ({
   useEffect(() => {
     const checkFbxExists = async () => {
       try {
-        const response = await fetch('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx')
+        const response = await fetch('/models/misc/skeleton/pirate.glb', {
+          cache: 'force-cache',
+        })
         setFbxExists(response.ok)
       } catch (error) {
         console.error('Error checking FBX file:', error)
@@ -51,7 +53,9 @@ const Player = ({
   }, [])
 
   if (fbxExists) {
-    obj = useFBX('/models/low-poly/PlayerModel/Md_Char_Low_Poly_Man.fbx') as THREE.Group
+    const { scene, nodes, animations } = useGLTF('/models/misc/skeleton/pirate.glb')
+    console.log(nodes, animations)
+    obj = scene
   } else {
     obj = new THREE.Group()
     const box = new THREE.BoxGeometry(25, 200, 25)
@@ -61,7 +65,7 @@ const Player = ({
     obj.add(boxMesh)
   }
 
-  obj.scale.set(0.01, 0.01, 0.01)
+  obj.scale.set(0.001, 0.001, 0.001)
 
   const [keysPressed, setKeysPressed] = useState<{
     w: boolean
@@ -149,9 +153,9 @@ const Player = ({
     const moveSpeed = 0.07
     const movement = new THREE.Vector3()
 
-    if (mouse.isDown && mouse.isLeft) {
+    if (mouse.isLeft) {
       // Create bullets in front of the character
-      const boxGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1)
+      const boxGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2)
       const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
 
       // Get the character's current position and forward direction
@@ -165,13 +169,13 @@ const Player = ({
       // Create bullets positioned in front of the character
       const newBullets: THREE.Mesh[] = []
       for (let i = 0; i < Math.floor(Math.random() * 10) + 1; i++) {
-        const bullet = new THREE.Mesh(boxGeometry, boxMaterial)
+        const projectiles = new THREE.Mesh(boxGeometry, boxMaterial)
         // Position bullets 3 units in front, spaced 2 units apart
         const bulletPosition = characterPosition
           .clone()
           .add(forwardDirection.clone().multiplyScalar(3 + i * 2))
-        bullet.position.copy(bulletPosition)
-        bullet.position.y = 0.5 // Slightly above ground
+        projectiles.position.copy(bulletPosition)
+        projectiles.position.y = 0.5 // Slightly above ground
         // Add random offset to bullet position
         const randomOffsetX = (Math.random() - 0.5) * 4 // Random offset between -2 and 2
         const randomOffsetZ = (Math.random() - 0.5) * 4 // Random offset between -2 and 2
@@ -179,8 +183,8 @@ const Player = ({
         bulletPosition.z += randomOffsetZ
 
         // Add bullet to the scene and array
-        refScene.current?.add(bullet)
-        newBullets.push(bullet)
+        refScene.current?.add(projectiles)
+        newBullets.push(projectiles)
       }
 
       // Update bullets state
@@ -295,7 +299,7 @@ interface SavedProps {
   overflow: string
   margin: string
   padding: string
-  border: string
+  borderRadius: string
 }
 
 const DungeonScene = ({ active }: { active: boolean }) => {
@@ -349,7 +353,7 @@ export default function BasicGamePhysics() {
               overflow: gameContainerRef.current.style.overflow,
               margin: gameContainerRef.current.style.margin,
               padding: gameContainerRef.current.style.padding,
-              border: gameContainerRef.current.style.border,
+              borderRadius: gameContainerRef.current.style.borderRadius,
             })
             if (gameContainerRef.current) {
               gameContainerRef.current.style.height = '100vh'
@@ -361,7 +365,7 @@ export default function BasicGamePhysics() {
               gameContainerRef.current.style.overflow = 'hidden'
               gameContainerRef.current.style.margin = '0'
               gameContainerRef.current.style.padding = '0'
-              gameContainerRef.current.style.border = 'none'
+              gameContainerRef.current.style.borderRadius = '0px'
             }
           } else {
             setIsFullscreen(true)
@@ -375,16 +379,17 @@ export default function BasicGamePhysics() {
               gameContainerRef.current.style.overflow = savedProps.overflow
               gameContainerRef.current.style.margin = savedProps.margin
               gameContainerRef.current.style.padding = savedProps.padding
-              gameContainerRef.current.style.border = savedProps.border
+              gameContainerRef.current.style.borderRadius = savedProps.borderRadius
             }
           }
         }}
       />
       <Canvas
+        gl={{ preserveDrawingBuffer: true, antialias: true }}
         ref={refCanvas}
         dpr={[1, 2]}
         fallback={
-          <div className="bg-gray-100 dark:bg-gray-800 text-xs rounded-lg flex items-center justify-center">
+          <div className="bg-gray-100 dark:bg-gray-800 text-xs flex items-center justify-center">
             Sorry no WebGL supported!
           </div>
         }
@@ -403,6 +408,7 @@ export default function BasicGamePhysics() {
               position={[9, 9, 9]}
               zoom={1}
             />
+            <hemisphereLight intensity={0.15} groundColor="black" />
             <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} />
             <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
             <OrbitControls
