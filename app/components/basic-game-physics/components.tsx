@@ -35,7 +35,7 @@ const Player = ({
   const mesh = useRef<THREE.InstancedMesh>(null!)
   let obj: THREE.Group | null = null
   const [fbxExists, setFbxExists] = useState(false)
-  const [bullets, setBullets] = useState<THREE.Mesh[]>([])
+  const [bullets, setProjectiles] = useState<THREE.Mesh[]>([])
 
   useEffect(() => {
     const checkFbxExists = async () => {
@@ -167,40 +167,36 @@ const Player = ({
       ).normalize()
 
       // Create bullets positioned in front of the character
-      const newBullets: THREE.Mesh[] = []
-      for (let i = 0; i < Math.floor(Math.random() * 10) + 1; i++) {
-        const projectiles = new THREE.Mesh(boxGeometry, boxMaterial)
-        // Position bullets 3 units in front, spaced 2 units apart
-        const bulletPosition = characterPosition
-          .clone()
-          .add(forwardDirection.clone().multiplyScalar(3 + i * 2))
-        projectiles.position.copy(bulletPosition)
-        projectiles.position.y = 0.5 // Slightly above ground
-        // Add random offset to bullet position
-        const randomOffsetX = (Math.random() - 0.5) * 4 // Random offset between -2 and 2
-        const randomOffsetZ = (Math.random() - 0.5) * 4 // Random offset between -2 and 2
-        bulletPosition.x += randomOffsetX
-        bulletPosition.z += randomOffsetZ
+      const projectiles = new THREE.Mesh(boxGeometry, boxMaterial)
 
-        // Add bullet to the scene and array
-        refScene.current?.add(projectiles)
-        newBullets.push(projectiles)
-      }
+      // Position bullets 8 units in front of the character
+      const bulletPosition = characterPosition
+        .clone()
+        .add(forwardDirection.clone().multiplyScalar(8))
+      projectiles.position.copy(bulletPosition)
+
+      // Make the box face the direction it's being thrown
+      const targetRotation = Math.atan2(forwardDirection.x, forwardDirection.z)
+      projectiles.rotation.y = targetRotation
+
+      // Add bullet to the scene and array
+      refScene.current?.add(projectiles)
+      bullets.push(projectiles)
 
       // Update bullets state
-      setBullets((prevBullets) => [...prevBullets, ...newBullets])
+      // setProjectiles((prevBullets) => [...prevBullets, ...bullets])
 
       // Clear bullets after 5 seconds
-      setTimeout(() => {
-        newBullets.forEach((bullet) => {
-          refScene.current?.remove(bullet)
-          bullet.geometry.dispose()
-          if (bullet.material instanceof THREE.Material) {
-            bullet.material.dispose()
-          }
-        })
-        setBullets((prevBullets) => prevBullets.filter((bullet) => !newBullets.includes(bullet)))
-      }, 100)
+      // setTimeout(() => {
+      //   bullets.forEach((bullet) => {
+      //     refScene.current?.remove(bullet)
+      //     bullet.geometry.dispose()
+      //     if (bullet.material instanceof THREE.Material) {
+      //       bullet.material.dispose()
+      //     }
+      //   })
+      //   setProjectiles((prevBullets) => prevBullets.filter((bullet) => !bullets.includes(bullet)))
+      // }, 100)
     }
 
     if (keysPressed.w) {
@@ -257,7 +253,7 @@ const Player = ({
 
     // Apply movement to mesh
     if (mesh.current) {
-      // if (!mouse.isDown && !mouse.isRight) {
+      // if (!mouse.isRight) {
       //   // Update camera to follow player from behind
       //   const cameraOffset = new THREE.Vector3(0, 9, 18) // Offset behind and above player
       //   const targetCameraPosition = mesh.current.position.clone().add(cameraOffset)
