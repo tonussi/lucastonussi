@@ -384,7 +384,7 @@ export default function BasicGamePhysics() {
             }}
           />
           <Ground active={true} />
-          <DungeonScene active={false} />
+          {/* <DungeonScene active={false} /> */}
         </scene>
       </Suspense>
     </Canvas>
