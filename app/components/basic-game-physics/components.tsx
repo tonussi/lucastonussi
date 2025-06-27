@@ -286,16 +286,16 @@ const Player = ({
 
     // Apply movement to mesh
     if (mesh.current) {
-      // // Update camera to follow the player from behind
-      // const cameraOffset = new THREE.Vector3(0, 5, 10) // Offset behind and above the player
-      // const targetCameraPosition = mesh.current.position.clone().add(cameraOffset)
+      // Update camera to follow player from behind
+      const cameraOffset = new THREE.Vector3(0, 9, 18) // Offset behind and above player
+      const targetCameraPosition = mesh.current.position.clone().add(cameraOffset)
 
       // Smooth camera movement
-      // const cameraSmoothness = 0.05
-      // camera.position.lerp(targetCameraPosition, cameraSmoothness)
+      refCamera.current.position.lerp(targetCameraPosition, 0.1)
 
-      // Make camera look at the player
-      // camera.lookAt(mesh.current.position)
+      // Make camera look at player
+      refCamera.current.lookAt(mesh.current.position)
+
       mesh.current.position.add(movement)
       // Update spotlight to follow the player
       const spotlight = refScene.current.getObjectByName('spotlight')
