@@ -5,6 +5,7 @@ import { Html, useProgress } from '@react-three/drei'
 import { extend, type ThreeElements } from '@react-three/fiber'
 import { Suspense, useEffect, useRef, useState, type RefObject } from 'react'
 
+import { Fullscreen } from 'lucide-react'
 import * as THREE from 'three'
 extend(THREE as any)
 
@@ -79,72 +80,38 @@ const Player = ({
   const [mouse, setMouse] = useState<{
     x: number
     y: number
-    isDown: boolean
     isLeft: boolean
+    isMiddle: boolean
     isRight: boolean
-    isUp: boolean
   }>({
     x: 0,
     y: 0,
-    isDown: false,
     isLeft: false,
+    isMiddle: false,
     isRight: false,
-    isUp: false,
   })
 
-  const handleMouseMove = (event: MouseEvent) => {
+  const handleMouse = (event: MouseEvent) => {
     setMouse({
       x: event.clientX,
       y: event.clientY,
-      isDown: event.buttons === 1,
-      isLeft: event.buttons === 2,
-      isRight: event.buttons === 4,
-      isUp: event.buttons === 8,
-    })
-  }
-
-  const handleMouseDown = (event: MouseEvent) => {
-    console.log('handleMouseDown', event)
-    setMouse({
-      ...mouse,
-      isDown: event.buttons === 1,
-      isLeft: event.buttons === 2,
-      isRight: event.buttons === 4,
-      isUp: event.buttons === 8,
-    })
-  }
-
-  const handleMouseUp = (event: MouseEvent) => {
-    console.log('handleMouseUp', event)
-    setMouse({
-      ...mouse,
-      isDown: event.buttons === 1,
-      isLeft: event.buttons === 2,
-      isRight: event.buttons === 4,
-      isUp: event.buttons === 8,
+      isLeft: event.buttons === 1,
+      isRight: event.buttons === 2,
+      isMiddle: event.buttons === 4,
     })
   }
 
   useEffect(() => {
-    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mousemove', handleMouse)
+    window.addEventListener('mousedown', handleMouse)
+    window.addEventListener('mouseup', handleMouse)
+
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mousemove', handleMouse)
+      window.removeEventListener('mousedown', handleMouse)
+      window.removeEventListener('mouseup', handleMouse)
     }
   }, [])
-
-  useEffect(() => {
-    window.addEventListener('mousedown', handleMouseDown)
-    return () => {
-      window.removeEventListener('mousedown', handleMouseDown)
-    }
-  }, [mouse])
-
-  useEffect(() => {
-    window.addEventListener('mouseup', handleMouseUp)
-    return () => {
-      window.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [mouse])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -182,7 +149,7 @@ const Player = ({
     const moveSpeed = 0.07
     const movement = new THREE.Vector3()
 
-    if (mouse.isDown) {
+    if (mouse.isDown && mouse.isLeft) {
       // Create bullets in front of the character
       const boxGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1)
       const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
@@ -286,15 +253,17 @@ const Player = ({
 
     // Apply movement to mesh
     if (mesh.current) {
-      // Update camera to follow player from behind
-      const cameraOffset = new THREE.Vector3(0, 9, 18) // Offset behind and above player
-      const targetCameraPosition = mesh.current.position.clone().add(cameraOffset)
+      // if (!mouse.isDown && !mouse.isRight) {
+      //   // Update camera to follow player from behind
+      //   const cameraOffset = new THREE.Vector3(0, 9, 18) // Offset behind and above player
+      //   const targetCameraPosition = mesh.current.position.clone().add(cameraOffset)
 
-      // Smooth camera movement
-      refCamera.current.position.lerp(targetCameraPosition, 0.1)
+      //   // Smooth camera movement
+      //   refCamera.current.position.lerp(targetCameraPosition, 0.1)
 
-      // Make camera look at player
-      refCamera.current.lookAt(mesh.current.position)
+      //   // Make camera look at player
+      //   refCamera.current.lookAt(mesh.current.position)
+      // }
 
       mesh.current.position.add(movement)
       // Update spotlight to follow the player
@@ -314,6 +283,19 @@ const Player = ({
       <primitive object={obj} position={[0, 0, 0]} />
     </instancedMesh>
   )
+}
+
+interface SavedProps {
+  height: string
+  width: string
+  position: string
+  top: string
+  left: string
+  zIndex: string
+  overflow: string
+  margin: string
+  padding: string
+  border: string
 }
 
 const DungeonScene = ({ active }: { active: boolean }) => {
@@ -344,49 +326,102 @@ export default function BasicGamePhysics() {
   const refCanvas = useRef<HTMLCanvasElement>(null!)
   const refScene = useRef<THREE.Scene>(null!)
   const refPlayer = useRef<THREE.Mesh>(null!)
+  const gameContainerRef = useRef<HTMLDivElement>(null!)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [savedProps, setSavedProps] = useState<SavedProps>({} as SavedProps)
 
   return (
-    <Canvas
-      ref={refCanvas}
-      dpr={[1, 2]}
-      fallback={
-        <div className="bg-gray-100 dark:bg-gray-800 text-xs ounded-lg flex items-center justify-center">
-          Sorry no WebGL supported!
-        </div>
-      }
-      className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 rounded-lg"
-      style={{
-        height: '100vh',
-      }}
-    >
-      <Suspense fallback={<Loader />}>
-        <scene ref={refScene}>
-          <Player refCamera={refCamera} refScene={refScene} refPlayer={refPlayer} />
-          <PerspectiveCamera
-            name="camera"
-            ref={refCamera}
-            makeDefault
-            position={[9, 9, 9]}
-            zoom={1}
-          />
-          <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} />
-          <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
-          <OrbitControls
-            enableZoom={true}
-            enablePan={true}
-            enableRotate={true}
-            zoomSpeed={Math.PI / 2}
-            panSpeed={Math.PI / 2}
-            // rotate around the player
-            rotateSpeed={Math.PI / 2}
-            mouseButtons={{
-              RIGHT: THREE.MOUSE.ROTATE,
-            }}
-          />
-          <Ground active={true} />
-          {/* <DungeonScene active={false} /> */}
-        </scene>
-      </Suspense>
-    </Canvas>
+    <div ref={gameContainerRef} className="rounded-lg overflow-hidden">
+      <Fullscreen
+        size={24}
+        color="white"
+        className="absolute top-4 right-4 z-10"
+        onClick={() => {
+          if (isFullscreen) {
+            setIsFullscreen(false)
+            setSavedProps({
+              height: gameContainerRef.current.style.height,
+              width: gameContainerRef.current.style.width,
+              position: gameContainerRef.current.style.position,
+              top: gameContainerRef.current.style.top,
+              left: gameContainerRef.current.style.left,
+              zIndex: gameContainerRef.current.style.zIndex,
+              overflow: gameContainerRef.current.style.overflow,
+              margin: gameContainerRef.current.style.margin,
+              padding: gameContainerRef.current.style.padding,
+              border: gameContainerRef.current.style.border,
+            })
+            if (gameContainerRef.current) {
+              gameContainerRef.current.style.height = '100vh'
+              gameContainerRef.current.style.width = '100vw'
+              gameContainerRef.current.style.position = 'fixed'
+              gameContainerRef.current.style.top = '0'
+              gameContainerRef.current.style.left = '0'
+              gameContainerRef.current.style.zIndex = '1000'
+              gameContainerRef.current.style.overflow = 'hidden'
+              gameContainerRef.current.style.margin = '0'
+              gameContainerRef.current.style.padding = '0'
+              gameContainerRef.current.style.border = 'none'
+            }
+          } else {
+            setIsFullscreen(true)
+            if (gameContainerRef.current) {
+              gameContainerRef.current.style.height = savedProps.height
+              gameContainerRef.current.style.width = savedProps.width
+              gameContainerRef.current.style.position = savedProps.position
+              gameContainerRef.current.style.top = savedProps.top
+              gameContainerRef.current.style.left = savedProps.left
+              gameContainerRef.current.style.zIndex = savedProps.zIndex
+              gameContainerRef.current.style.overflow = savedProps.overflow
+              gameContainerRef.current.style.margin = savedProps.margin
+              gameContainerRef.current.style.padding = savedProps.padding
+              gameContainerRef.current.style.border = savedProps.border
+            }
+          }
+        }}
+      />
+      <Canvas
+        ref={refCanvas}
+        dpr={[1, 2]}
+        fallback={
+          <div className="bg-gray-100 dark:bg-gray-800 text-xs rounded-lg flex items-center justify-center">
+            Sorry no WebGL supported!
+          </div>
+        }
+        className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800"
+        style={{
+          height: '100vh',
+        }}
+      >
+        <Suspense fallback={<Loader />}>
+          <scene ref={refScene}>
+            <Player refCamera={refCamera} refScene={refScene} refPlayer={refPlayer} />
+            <PerspectiveCamera
+              name="camera"
+              ref={refCamera}
+              makeDefault
+              position={[9, 9, 9]}
+              zoom={1}
+            />
+            <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} />
+            <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
+            <OrbitControls
+              enableZoom={true}
+              enablePan={true}
+              enableRotate={true}
+              zoomSpeed={Math.PI / 2}
+              panSpeed={Math.PI / 2}
+              // rotate around the player
+              rotateSpeed={Math.PI / 2}
+              mouseButtons={{
+                RIGHT: THREE.MOUSE.ROTATE,
+              }}
+            />
+            <Ground active={true} />
+            {/* <DungeonScene active={false} /> */}
+          </scene>
+        </Suspense>
+      </Canvas>
+    </div>
   )
 }
