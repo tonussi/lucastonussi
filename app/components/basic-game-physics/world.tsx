@@ -39,7 +39,7 @@ export default function BasicGamePhysics() {
             <Player refCamera={refCamera} refScene={refScene} />
             <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} />
             <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
-            <Controls />
+            <Controls refCamera={refCamera} />
             <CameraHelper refCamera={refCamera} />
             <Ground active={true} />
             <fog attach="fog" args={[0x000000, 10, 100]} />
