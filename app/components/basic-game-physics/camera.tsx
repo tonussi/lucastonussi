@@ -6,8 +6,10 @@ extend(THREE as any)
 
 function CameraHelper({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }) {
   const camera = new THREE.PerspectiveCamera(60, 1, 1, 3)
+  camera.position.set(0, 10, 10)
+  camera.rotation.set(-0.3, 0, 0)
   return (
-    <group position={[0, 2, -5]} rotation={[0, Math.PI, 0]} ref={refCamera}>
+    <group ref={refCamera}>
       <cameraHelper name="camera" args={[camera]} />
     </group>
   )

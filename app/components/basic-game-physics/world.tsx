@@ -20,19 +20,19 @@ export default function BasicGamePhysics() {
   return (
     <FullscreenWrapper>
       <Canvas
-        ref={refCanvas}
         fallback={'Sorry no WebGL supported!'}
         className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800"
         style={{
           height: '100vh',
         }}
-        camera={{
-          fov: 60,
-          near: 1,
-          far: 1000,
-          rotation: [-0.3, 0, 0],
-          position: [0, 10, 10],
-        }}
+        // camera={{
+        //   fov: 60,
+        //   near: 1,
+        //   far: 1000,
+        //   rotation: [-0.3, 0, 0],
+        //   position: [0, 10, 10],
+        // }}
+        camera={refCamera.current}
       >
         <Suspense fallback={<Loader />}>
           <scene ref={refScene}>
