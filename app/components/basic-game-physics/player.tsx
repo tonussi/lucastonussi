@@ -1,8 +1,10 @@
-import { useGLTF } from '@react-three/drei'
+import useInputHandler from './input-handler'
+import usePlayerModel from './model-loader'
+
 import { useFrame } from '@react-three/fiber'
 
 import { extend } from '@react-three/fiber'
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useRef, useState, type RefObject } from 'react'
 
 import * as THREE from 'three'
 extend(THREE as any)
@@ -15,38 +17,16 @@ const Player = ({
   refScene: RefObject<THREE.Scene>
 }) => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
-  let obj: THREE.Group | null = null
-  const [fbxExists, setFbxExists] = useState(false)
+
+  const { keysPressed, mouse } = useInputHandler()
+
+  const { obj, fbxExists } = usePlayerModel()
+
   const [bullets, setProjectiles] = useState<THREE.Mesh[]>([])
 
-  useEffect(() => {
-    const checkFbxExists = async () => {
-      try {
-        const response = await fetch('/models/misc/skeleton/pirate.glb', {
-          cache: 'force-cache',
-        })
-        setFbxExists(response.ok)
-      } catch (error) {
-        console.error('Error checking FBX file:', error)
-        setFbxExists(false)
-      }
-    }
-    checkFbxExists()
-  }, [])
-
-  if (fbxExists) {
-    const {
-      scene,
-      scene: { children },
-    } = useGLTF('/models/misc/skeleton/pirate.glb')
-    obj = scene
-  } else {
-    obj = new THREE.Group()
-    const box = new THREE.BoxGeometry(25, 200, 25)
-    box.translate(0, 100, 0)
-    const material = new THREE.MeshBasicMaterial({ color: 'magenta', wireframe: true })
-    const boxMesh = new THREE.Mesh(box, material)
-    obj.add(boxMesh)
+  // Only proceed if obj is loaded
+  if (!obj) {
+    return null
   }
 
   obj.scale.set(0.001, 0.001, 0.001)
@@ -76,80 +56,6 @@ const Player = ({
 
   const axesHelper = new THREE.AxesHelper(10)
   mesh.current?.add(axesHelper)
-
-  const [keysPressed, setKeysPressed] = useState<{
-    w: boolean
-    a: boolean
-    s: boolean
-    d: boolean
-    space: boolean
-  }>({
-    w: false,
-    a: false,
-    s: false,
-    d: false,
-    space: false,
-  })
-
-  const [mouse, setMouse] = useState<{
-    x: number
-    y: number
-    isLeft: boolean
-    isMiddle: boolean
-    isRight: boolean
-  }>({
-    x: 0,
-    y: 0,
-    isLeft: false,
-    isMiddle: false,
-    isRight: false,
-  })
-
-  useEffect(() => {
-    const handleMouse = (event: MouseEvent) => {
-      setMouse({
-        x: event.clientX,
-        y: event.clientY,
-        isLeft: event.buttons === 1,
-        isRight: event.buttons === 2,
-        isMiddle: event.buttons === 4,
-      })
-    }
-
-    window.addEventListener('mousemove', handleMouse)
-    window.addEventListener('mousedown', handleMouse)
-    window.addEventListener('mouseup', handleMouse)
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouse)
-      window.removeEventListener('mousedown', handleMouse)
-      window.removeEventListener('mouseup', handleMouse)
-    }
-  }, [])
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      setKeysPressed((prevKeys) => ({
-        ...prevKeys,
-        [event.code.toLowerCase().replace('key', '')]: true,
-      }))
-    }
-
-    const handleKeyUp = (event: KeyboardEvent) => {
-      setKeysPressed((prevKeys) => ({
-        ...prevKeys,
-        [event.code.toLowerCase().replace('key', '')]: false,
-      }))
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('keyup', handleKeyUp)
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('keyup', handleKeyUp)
-    }
-  }, [])
 
   useFrame(() => {
     // Get camera's forward vector
@@ -199,28 +105,28 @@ const Player = ({
       bullets.push(projectiles)
 
       // Update bullets state
-      // setProjectiles((prevBullets) => [...prevBullets, ...bullets])
-
       // Clear bullets after 5 seconds
-      // setTimeout(() => {
-      //   bullets.forEach((bullet) => {
-      //     refScene.current?.remove(bullet)
-      //     bullet.geometry.dispose()
-      //     if (bullet.material instanceof THREE.Material) {
-      //       bullet.material.dispose()
-      //     }
-      //   })
-      //   setProjectiles((prevBullets) => prevBullets.filter((bullet) => !bullets.includes(bullet)))
-      // }, 100)
+
+      setProjectiles((prevBullets) => [...prevBullets, ...bullets])
+      setTimeout(() => {
+        bullets.forEach((bullet) => {
+          refScene.current?.remove(bullet)
+          bullet.geometry.dispose()
+          if (bullet.material instanceof THREE.Material) {
+            bullet.material.dispose()
+          }
+        })
+        setProjectiles((prevBullets) => prevBullets.filter((bullet) => !bullets.includes(bullet)))
+      }, 100)
     }
 
     if (keysPressed.w) {
       // The projection make the vector translate to the obj forward direction
       const cameraDirectionClone = cameraDirection.clone()
       const projectedDirection = new THREE.Vector3(
-        cameraDirectionClone.x,
+        -cameraDirectionClone.x,
         0,
-        cameraDirectionClone.z
+        -cameraDirectionClone.z
       ).normalize()
       const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
       obj.rotation.y = targetRotation
@@ -231,9 +137,9 @@ const Player = ({
       // The projection make the vector translate to the obj backwards direction
       const cameraDirectionClone = cameraDirection.clone()
       const projectedDirection = new THREE.Vector3(
-        -cameraDirectionClone.x,
+        cameraDirectionClone.x,
         0,
-        -cameraDirectionClone.z
+        cameraDirectionClone.z
       ).normalize()
       const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
       obj.rotation.y = targetRotation
@@ -246,9 +152,9 @@ const Player = ({
       const right = new THREE.Vector3()
       right.crossVectors(cameraDirectionClone, camera.up).normalize()
       // Rotate object to face the direction of movement (left)
-      const targetRotation = Math.atan2(-right.x, -right.z)
+      const targetRotation = Math.atan2(right.x, right.z)
       obj.rotation.y = targetRotation
-      movement.add(right.clone().multiplyScalar(-moveSpeed))
+      movement.add(right.clone().multiplyScalar(moveSpeed))
     }
 
     if (keysPressed.d) {
@@ -257,9 +163,9 @@ const Player = ({
       const right = new THREE.Vector3()
       right.crossVectors(cameraDirectionClone, camera.up).normalize()
       // Rotate object to face the direction of movement (right)
-      const targetRotation = Math.atan2(right.x, right.z)
+      const targetRotation = Math.atan2(-right.x, -right.z)
       obj.rotation.y = targetRotation
-      movement.add(right.clone().multiplyScalar(moveSpeed))
+      movement.add(right.clone().multiplyScalar(-moveSpeed))
     }
 
     // Apply movement to mesh
