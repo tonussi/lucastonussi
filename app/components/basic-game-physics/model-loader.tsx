@@ -21,24 +21,24 @@ const usePlayerModel = () => {
     checkFbxExists()
   }, [])
 
-  let obj: THREE.Group | null = null
+  let player: THREE.Group | null = null
 
   if (fbxExists) {
     const {
       scene,
       scene: { children },
     } = useGLTF('/models/misc/skeleton/pirate.glb')
-    obj = scene
+    player = scene
   } else {
-    obj = new THREE.Group()
+    player = new THREE.Group()
     const box = new THREE.BoxGeometry(25, 200, 25)
-    box.translate(0, 100, 0)
-    const material = new THREE.MeshBasicMaterial({ color: 'magenta', wireframe: true })
+    box.translate(0, 0, 0)
+    const material = new THREE.MeshBasicMaterial({ color: 'magenta' })
     const boxMesh = new THREE.Mesh(box, material)
-    obj.add(boxMesh)
+    player.add(boxMesh)
   }
 
-  return { obj, fbxExists }
+  return { player }
 }
 
 export default usePlayerModel

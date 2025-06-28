@@ -20,20 +20,20 @@ const Player = ({
 
   const { keysPressed, mouse } = useInputHandler()
 
-  const { obj, fbxExists } = usePlayerModel()
+  const { player } = usePlayerModel()
 
   const [bullets, setProjectiles] = useState<THREE.Mesh[]>([])
 
   // Only proceed if obj is loaded
-  if (!obj) {
+  if (!player) {
     return null
   }
 
-  obj.scale.set(0.001, 0.001, 0.001)
+  player.scale.set(0.001, 0.001, 0.001)
 
   // Make all materials wireframe
-  if (obj) {
-    obj.traverse((child) => {
+  if (player) {
+    player.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
         if (Array.isArray(child.material)) {
           child.material.forEach((mat) => {
@@ -50,7 +50,7 @@ const Player = ({
     })
   }
 
-  const skeleton = new THREE.SkeletonHelper(obj)
+  const skeleton = new THREE.SkeletonHelper(player)
   skeleton.visible = true
   refScene.current?.add(skeleton)
 
@@ -80,7 +80,7 @@ const Player = ({
       })
 
       // Get the character's current position and forward direction
-      const characterPosition = mesh.current.position.clone()
+      const characterPosition = player.position.clone()
       const forwardDirection = new THREE.Vector3(
         characterPosition.x,
         0,
@@ -129,7 +129,7 @@ const Player = ({
         -cameraDirectionClone.z
       ).normalize()
       const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
-      obj.rotation.y = targetRotation
+      player.rotation.y = targetRotation
       movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
     }
 
@@ -142,7 +142,7 @@ const Player = ({
         cameraDirectionClone.z
       ).normalize()
       const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
-      obj.rotation.y = targetRotation
+      player.rotation.y = targetRotation
       movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
     }
 
@@ -153,7 +153,7 @@ const Player = ({
       right.crossVectors(cameraDirectionClone, camera.up).normalize()
       // Rotate object to face the direction of movement (left)
       const targetRotation = Math.atan2(right.x, right.z)
-      obj.rotation.y = targetRotation
+      player.rotation.y = targetRotation
       movement.add(right.clone().multiplyScalar(moveSpeed))
     }
 
@@ -164,7 +164,7 @@ const Player = ({
       right.crossVectors(cameraDirectionClone, camera.up).normalize()
       // Rotate object to face the direction of movement (right)
       const targetRotation = Math.atan2(-right.x, -right.z)
-      obj.rotation.y = targetRotation
+      player.rotation.y = targetRotation
       movement.add(right.clone().multiplyScalar(-moveSpeed))
     }
 
@@ -190,7 +190,7 @@ const Player = ({
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
-      <primitive object={obj} position={[0, 0, 0]} />
+      <primitive object={player} position={[0, 0, 0]} />
     </instancedMesh>
   )
 }
