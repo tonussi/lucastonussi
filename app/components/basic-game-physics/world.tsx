@@ -42,6 +42,16 @@ export default function BasicGamePhysics() {
             <Controls />
             <CameraHelper refCamera={refCamera} />
             <Ground active={true} />
+            <fog attach="fog" args={[0x000000, 10, 100]} />
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
+              <planeGeometry args={[100, 100]} />
+              <meshStandardMaterial
+                color="gray"
+                wireframe={false}
+                roughness={0.8}
+                metalness={0.2}
+              />
+            </mesh>
             {/* <DungeonScene active={false} /> */}
           </scene>
         </Suspense>
