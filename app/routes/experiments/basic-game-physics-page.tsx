@@ -1,4 +1,4 @@
-import BasicGamePhysics from '@/components/basic-game-physics/components'
+import BasicGamePhysics from '@/components/basic-game-physics/world'
 import type { Route } from '../+types/experiments'
 
 export function meta({}: Route.MetaArgs) {
