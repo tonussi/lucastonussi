@@ -172,9 +172,14 @@ const Player = ({
     if (mesh.current) {
       mesh.current.position.add(movement)
 
-      // Update camera to follow behind the player
-      // refCamera.current.lookAt(mesh.current.position)
-      cameraDirection.add(movement)
+      camera.position.copy(mesh.current.position)
+      camera.rotation.set(-0.3, 0, 0)
+      camera.position.set(
+        mesh.current.position.x,
+        mesh.current.position.y + 5,
+        mesh.current.position.z + 9
+      )
+      camera.updateMatrixWorld()
 
       // Update spotlight to follow the player
       const spotlight = refScene.current.getObjectByName('spotlight')

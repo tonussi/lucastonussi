@@ -30,7 +30,8 @@ export default function BasicGamePhysics() {
           fov: 60,
           near: 1,
           far: 1000,
-          position: [0, 0, -5],
+          rotation: [-0.3, 0, 0],
+          position: [0, 10, 10],
         }}
       >
         <Suspense fallback={<Loader />}>
