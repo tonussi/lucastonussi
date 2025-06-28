@@ -1,11 +1,10 @@
-import { useFBX } from '@react-three/drei'
 import useInputHandler from './input-handler'
 import usePlayerModel from './model-loader'
 
 import { useFrame } from '@react-three/fiber'
 
 import { extend } from '@react-three/fiber'
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useRef, useState, type RefObject } from 'react'
 
 import * as THREE from 'three'
 extend(THREE as any)
@@ -25,21 +24,6 @@ const Player = ({
   const { player } = usePlayerModel()
 
   const [bullets, setProjectiles] = useState<THREE.Mesh[]>([])
-
-  const actions = useFBX('/models/low-poly/animations/idle.fbx')
-  const mixer = useRef(new THREE.AnimationMixer(player))
-
-  useFrame((state, delta) => {
-    mixer.current.update(delta)
-  })
-
-  useEffect(() => {
-    if (actions.animations && actions.animations.length) {
-      actions.animations.forEach((clip) => {
-        mixer.current.clipAction(clip, player).play()
-      })
-    }
-  }, [actions])
 
   // Only proceed if obj is loaded
   if (!player) {
@@ -76,7 +60,7 @@ const Player = ({
 
   useFrame(() => {
     const delta = clock.getDelta()
-    mixer.current.update(delta)
+    console.debug(delta)
 
     const camera = refCamera.current
     if (!camera) return
@@ -113,7 +97,6 @@ const Player = ({
           mesh.current.position.y + 5,
           mesh.current.position.z + 9
         )
-        camera.lookAt(mesh.current.position)
         camera.updateMatrixWorld()
 
         // Update spotlight to follow the player
