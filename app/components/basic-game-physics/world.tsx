@@ -21,26 +21,20 @@ export default function BasicGamePhysics() {
     <FullscreenWrapper>
       <Canvas
         ref={refCanvas}
-        fallback={
-          <div className="bg-gray-100 dark:bg-gray-800 text-xs flex items-center justify-center">
-            Sorry no WebGL supported!
-          </div>
-        }
+        fallback={'Sorry no WebGL supported!'}
         className="bg-gradient-to-br from-gray-900 via-gray-800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800"
         style={{
           height: '100vh',
         }}
+        camera={{
+          fov: 60,
+          near: 1,
+          far: 1000,
+          position: [0, 0, -5],
+        }}
       >
         <Suspense fallback={<Loader />}>
           <scene ref={refScene}>
-            <group rotation={[0, Math.PI / 2, 0]}>
-              <lineSegments
-                args={[
-                  new THREE.BufferGeometry(),
-                  new THREE.LineBasicMaterial({ color: 0x00ff00 }),
-                ]}
-              ></lineSegments>
-            </group>
             <Player refCamera={refCamera} refScene={refScene} />
             <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} />
             <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />

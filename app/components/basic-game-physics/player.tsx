@@ -74,9 +74,6 @@ const Player = ({
   skeleton.visible = true
   refScene.current?.add(skeleton)
 
-  const gridHelper = new THREE.GridHelper(100, 100)
-  refScene.current?.add(gridHelper)
-
   const axesHelper = new THREE.AxesHelper(10)
   mesh.current?.add(axesHelper)
 
@@ -219,10 +216,11 @@ const Player = ({
 
     if (keysPressed.w) {
       // The projection make the vector translate to the obj forward direction
+      const cameraDirectionClone = cameraDirection.clone()
       const projectedDirection = new THREE.Vector3(
-        cameraDirection.x,
+        cameraDirectionClone.x,
         0,
-        cameraDirection.z
+        cameraDirectionClone.z
       ).normalize()
       const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
       obj.rotation.y = targetRotation
@@ -231,10 +229,11 @@ const Player = ({
 
     if (keysPressed.s) {
       // The projection make the vector translate to the obj backwards direction
+      const cameraDirectionClone = cameraDirection.clone()
       const projectedDirection = new THREE.Vector3(
-        -cameraDirection.x,
+        -cameraDirectionClone.x,
         0,
-        -cameraDirection.z
+        -cameraDirectionClone.z
       ).normalize()
       const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
       obj.rotation.y = targetRotation
@@ -243,8 +242,9 @@ const Player = ({
 
     if (keysPressed.a) {
       // Strafe left (perpendicular to camera direction)
+      const cameraDirectionClone = cameraDirection.clone()
       const right = new THREE.Vector3()
-      right.crossVectors(cameraDirection, camera.up).normalize()
+      right.crossVectors(cameraDirectionClone, camera.up).normalize()
       // Rotate object to face the direction of movement (left)
       const targetRotation = Math.atan2(-right.x, -right.z)
       obj.rotation.y = targetRotation
@@ -253,20 +253,13 @@ const Player = ({
 
     if (keysPressed.d) {
       // Strafe right (perpendicular to camera direction)
+      const cameraDirectionClone = cameraDirection.clone()
       const right = new THREE.Vector3()
-      right.crossVectors(cameraDirection, camera.up).normalize()
+      right.crossVectors(cameraDirectionClone, camera.up).normalize()
       // Rotate object to face the direction of movement (right)
       const targetRotation = Math.atan2(right.x, right.z)
       obj.rotation.y = targetRotation
       movement.add(right.clone().multiplyScalar(moveSpeed))
-    }
-
-    if (keysPressed.space) {
-      //obj.translateOnAxis(new THREE.Vector3(0, 20, 0), 0.01)
-      // const timeout = setTimeout(() => {
-      //   obj.translateOnAxis(new THREE.Vector3(0, -20, 0), 0.01)
-      // }, 200)
-      // return () => clearTimeout(timeout)
     }
 
     // Apply movement to mesh
@@ -274,7 +267,8 @@ const Player = ({
       mesh.current.position.add(movement)
 
       // Update camera to follow behind the player
-      refCamera.current.lookAt(mesh.current.position)
+      // refCamera.current.lookAt(mesh.current.position)
+      cameraDirection.add(movement)
 
       // Update spotlight to follow the player
       const spotlight = refScene.current.getObjectByName('spotlight')
