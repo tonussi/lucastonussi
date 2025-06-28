@@ -46,7 +46,7 @@ const Player = ({
     return null
   }
 
-  player.scale.set(0.001, 0.001, 0.001)
+  player.scale.set(0.002, 0.002, 0.002)
 
   // Make all materials wireframe
   if (player) {
@@ -78,16 +78,14 @@ const Player = ({
     const delta = clock.getDelta()
     mixer.current.update(delta)
 
-    // Get camera's forward vector
     const camera = refCamera.current
     if (!camera) return
 
     const cameraDirection = new THREE.Vector3()
     camera.getWorldDirection(cameraDirection)
 
-    // Calculate movement based on camera direction
-    const moveSpeed = 0.09
-    const movement = new THREE.Vector3()
+    let moveSpeed = 0.09
+    let movement = new THREE.Vector3()
 
     handleLeftMouseClick()
 
@@ -115,6 +113,7 @@ const Player = ({
           mesh.current.position.y + 5,
           mesh.current.position.z + 9
         )
+        camera.lookAt(mesh.current.position)
         camera.updateMatrixWorld()
 
         // Update spotlight to follow the player
@@ -188,23 +187,19 @@ const Player = ({
     function handleProjectilesAnimations() {
       bullets.forEach((bullet) => {
         // Add physics to bullets - make them fall and roll on ground
-        bullet.position.y -= 0.5 // Gravity effect
-
         // Keep bullets on ground level (y = 0)
-        if (bullet.position.y <= 0) {
-          bullet.position.y = 0
+        bullet.position.y = 3
 
-          // Add random rolling motion when on ground
-          bullet.rotation.x += (Math.random() - 0.5) * 0.2 // Random forward/backward roll
-          bullet.rotation.z += (Math.random() - 0.5) * 0.15 // Random side roll
-          bullet.rotation.y += (Math.random() - 0.5) * 0.1 // Random yaw rotation
+        // Add random rolling motion when on ground
+        bullet.rotation.x += (Math.random() - 0.5) * 0.2 // Random forward/backward roll
+        bullet.rotation.z += (Math.random() - 0.5) * 0.15 // Random side roll
+        bullet.rotation.y += (Math.random() - 0.5) * 0.1 // Random yaw rotation
 
-          // Add random movement on the ground
-          const randomX = (Math.random() - 0.5) * 0.1 // Reduced random X movement
-          const randomZ = (Math.random() - 0.5) * 0.1 // Reduced random Z movement
-          bullet.position.x += randomX
-          bullet.position.z += randomZ
-        }
+        // Add random movement on the ground
+        const randomX = (Math.random() - 0.5) * 0.1 // Reduced random X movement
+        const randomZ = (Math.random() - 0.5) * 0.1 // Reduced random Z movement
+        bullet.position.x += randomX
+        bullet.position.z += randomZ
       })
     }
 
@@ -232,7 +227,7 @@ const Player = ({
         // Position bullets 8 units in front of the character
         const bulletPosition = characterPosition
           .clone()
-          .add(forwardDirection.clone().multiplyScalar(8))
+          .add(forwardDirection.clone().multiplyScalar(10))
         projectiles.position.copy(bulletPosition)
 
         // Make the box face the direction it's being thrown
@@ -241,9 +236,7 @@ const Player = ({
 
         // Add bullet to the scene and array
         refScene.current?.add(projectiles)
-        if (bullets.length < 10) {
-          bullets.push(projectiles)
-        }
+        bullets.push(projectiles)
 
         // Update bullets state
         // Clear bullets after 5 seconds
@@ -257,7 +250,7 @@ const Player = ({
             }
           })
           setProjectiles((prevBullets) => prevBullets.filter((bullet) => !bullets.includes(bullet)))
-        }, 1000)
+        }, 100)
       }
     }
   })
