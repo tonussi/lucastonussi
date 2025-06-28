@@ -1,10 +1,11 @@
+import { useFBX } from '@react-three/drei'
 import useInputHandler from './input-handler'
 import usePlayerModel from './model-loader'
 
 import { useFrame } from '@react-three/fiber'
 
 import { extend } from '@react-three/fiber'
-import { useRef, useState, type RefObject } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 
 import * as THREE from 'three'
 extend(THREE as any)
@@ -17,12 +18,28 @@ const Player = ({
   refScene: RefObject<THREE.Scene>
 }) => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
+  const clock = new THREE.Clock()
 
   const { keysPressed, mouse } = useInputHandler()
 
   const { player } = usePlayerModel()
 
   const [bullets, setProjectiles] = useState<THREE.Mesh[]>([])
+
+  const actions = useFBX('/models/low-poly/animations/idle.fbx')
+  const mixer = useRef(new THREE.AnimationMixer(player))
+
+  useFrame((state, delta) => {
+    mixer.current.update(delta)
+  })
+
+  useEffect(() => {
+    if (actions.animations && actions.animations.length) {
+      actions.animations.forEach((clip) => {
+        mixer.current.clipAction(clip, player).play()
+      })
+    }
+  }, [actions])
 
   // Only proceed if obj is loaded
   if (!player) {
@@ -58,6 +75,9 @@ const Player = ({
   mesh.current?.add(axesHelper)
 
   useFrame(() => {
+    const delta = clock.getDelta()
+    mixer.current.update(delta)
+
     // Get camera's forward vector
     const camera = refCamera.current
     if (!camera) return
@@ -73,7 +93,7 @@ const Player = ({
       // Create bullets in front of the character
       const boxGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2)
       const boxMaterial = new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
+        color: Math.random() * 0xffffff,
         wireframe: true,
         transparent: true,
         opacity: 0.8,
@@ -81,11 +101,10 @@ const Player = ({
 
       // Get the character's current position and forward direction
       const characterPosition = player.position.clone()
-      const forwardDirection = new THREE.Vector3(
-        characterPosition.x,
-        0,
-        characterPosition.z
-      ).normalize()
+      const forwardDirection = new THREE.Vector3()
+      player.getWorldDirection(forwardDirection)
+      forwardDirection.y = 0 // Keep it horizontal
+      forwardDirection.normalize()
 
       // Create bullets positioned in front of the character
       const projectiles = new THREE.Mesh(boxGeometry, boxMaterial)
@@ -117,8 +136,29 @@ const Player = ({
           }
         })
         setProjectiles((prevBullets) => prevBullets.filter((bullet) => !bullets.includes(bullet)))
-      }, 100)
+      }, 1000)
     }
+
+    bullets.forEach((bullet) => {
+      // Add physics to bullets - make them fall and roll on ground
+      bullet.position.y -= 0.5 // Gravity effect
+
+      // Keep bullets on ground level (y = 0)
+      if (bullet.position.y <= 0) {
+        bullet.position.y = 0
+
+        // Add random rolling motion when on ground
+        bullet.rotation.x += (Math.random() - 0.5) * 0.2 // Random forward/backward roll
+        bullet.rotation.z += (Math.random() - 0.5) * 0.15 // Random side roll
+        bullet.rotation.y += (Math.random() - 0.5) * 0.1 // Random yaw rotation
+
+        // Add random movement on the ground
+        const randomX = (Math.random() - 0.5) * 0.1 // Reduced random X movement
+        const randomZ = (Math.random() - 0.5) * 0.1 // Reduced random Z movement
+        bullet.position.x += randomX
+        bullet.position.z += randomZ
+      }
+    })
 
     if (keysPressed.w) {
       // The projection make the vector translate to the obj forward direction

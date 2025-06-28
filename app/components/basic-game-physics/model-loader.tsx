@@ -24,21 +24,27 @@ const usePlayerModel = () => {
   let player: THREE.Group | null = null
 
   if (fbxExists) {
-    const {
-      scene,
-      scene: { children },
-    } = useGLTF('/models/misc/skeleton/pirate.glb')
-    player = scene
-  } else {
-    player = new THREE.Group()
-    const box = new THREE.BoxGeometry(25, 200, 25)
-    box.translate(0, 0, 0)
-    const material = new THREE.MeshBasicMaterial({ color: 'magenta' })
-    const boxMesh = new THREE.Mesh(box, material)
-    player.add(boxMesh)
+    const { scene, nodes, animations } = useGLTF('/models/misc/skeleton/pirate.glb')
+
+    return { player: scene, nodes, animations }
   }
+
+  player = new THREE.Group()
+  const box = new THREE.BoxGeometry(25, 200, 25)
+  box.translate(0, 0, 0)
+  const material = new THREE.MeshBasicMaterial({ color: 'magenta' })
+  const boxMesh = new THREE.Mesh(box, material)
+  player.add(boxMesh)
 
   return { player }
 }
 
 export default usePlayerModel
+
+// const mixer = new THREE.AnimationMixer(player)
+// const clips = player.animations
+
+// const clip = THREE.AnimationClip.findByName(clips, 'idle')
+// const action = mixer.clipAction(clip)
+// action?.play()
+// action?.setLoop(THREE.LoopOnce, 1)
