@@ -101,10 +101,10 @@ const Player = ({
 
     handleMoveRightwards()
 
-    // Apply movement to mesh
     applyActionsMovimentsEtc()
 
     function applyActionsMovimentsEtc() {
+      // Apply movement to mesh
       if (mesh.current) {
         mesh.current.position.add(movement)
 
