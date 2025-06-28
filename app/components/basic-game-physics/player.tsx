@@ -89,147 +89,174 @@ const Player = ({
     const moveSpeed = 0.09
     const movement = new THREE.Vector3()
 
-    if (mouse.isLeft) {
-      // Create bullets in front of the character
-      const boxGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2)
-      const boxMaterial = new THREE.MeshBasicMaterial({
-        color: Math.random() * 0xffffff,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.8,
-      })
+    handleLeftMouseClick()
 
-      // Get the character's current position and forward direction
-      const characterPosition = player.position.clone()
-      const forwardDirection = new THREE.Vector3()
-      player.getWorldDirection(forwardDirection)
-      forwardDirection.y = 0 // Keep it horizontal
-      forwardDirection.normalize()
+    handleProjectilesAnimations()
 
-      // Create bullets positioned in front of the character
-      const projectiles = new THREE.Mesh(boxGeometry, boxMaterial)
+    handleMoveForward()
 
-      // Position bullets 8 units in front of the character
-      const bulletPosition = characterPosition
-        .clone()
-        .add(forwardDirection.clone().multiplyScalar(8))
-      projectiles.position.copy(bulletPosition)
+    handleMoveBackwards()
 
-      // Make the box face the direction it's being thrown
-      const targetRotation = Math.atan2(forwardDirection.x, forwardDirection.z)
-      projectiles.rotation.y = targetRotation
+    handleMoveLeftwards()
 
-      // Add bullet to the scene and array
-      refScene.current?.add(projectiles)
-      bullets.push(projectiles)
-
-      // Update bullets state
-      // Clear bullets after 5 seconds
-
-      setProjectiles((prevBullets) => [...prevBullets, ...bullets])
-      setTimeout(() => {
-        bullets.forEach((bullet) => {
-          refScene.current?.remove(bullet)
-          bullet.geometry.dispose()
-          if (bullet.material instanceof THREE.Material) {
-            bullet.material.dispose()
-          }
-        })
-        setProjectiles((prevBullets) => prevBullets.filter((bullet) => !bullets.includes(bullet)))
-      }, 1000)
-    }
-
-    bullets.forEach((bullet) => {
-      // Add physics to bullets - make them fall and roll on ground
-      bullet.position.y -= 0.5 // Gravity effect
-
-      // Keep bullets on ground level (y = 0)
-      if (bullet.position.y <= 0) {
-        bullet.position.y = 0
-
-        // Add random rolling motion when on ground
-        bullet.rotation.x += (Math.random() - 0.5) * 0.2 // Random forward/backward roll
-        bullet.rotation.z += (Math.random() - 0.5) * 0.15 // Random side roll
-        bullet.rotation.y += (Math.random() - 0.5) * 0.1 // Random yaw rotation
-
-        // Add random movement on the ground
-        const randomX = (Math.random() - 0.5) * 0.1 // Reduced random X movement
-        const randomZ = (Math.random() - 0.5) * 0.1 // Reduced random Z movement
-        bullet.position.x += randomX
-        bullet.position.z += randomZ
-      }
-    })
-
-    if (keysPressed.w) {
-      // The projection make the vector translate to the obj forward direction
-      const cameraDirectionClone = cameraDirection.clone()
-      const projectedDirection = new THREE.Vector3(
-        -cameraDirectionClone.x,
-        0,
-        -cameraDirectionClone.z
-      ).normalize()
-      const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
-      player.rotation.y = targetRotation
-      movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
-    }
-
-    if (keysPressed.s) {
-      // The projection make the vector translate to the obj backwards direction
-      const cameraDirectionClone = cameraDirection.clone()
-      const projectedDirection = new THREE.Vector3(
-        cameraDirectionClone.x,
-        0,
-        cameraDirectionClone.z
-      ).normalize()
-      const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
-      player.rotation.y = targetRotation
-      movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
-    }
-
-    if (keysPressed.a) {
-      // Strafe left (perpendicular to camera direction)
-      const cameraDirectionClone = cameraDirection.clone()
-      const right = new THREE.Vector3()
-      right.crossVectors(cameraDirectionClone, camera.up).normalize()
-      // Rotate object to face the direction of movement (left)
-      const targetRotation = Math.atan2(right.x, right.z)
-      player.rotation.y = targetRotation
-      movement.add(right.clone().multiplyScalar(moveSpeed))
-    }
-
-    if (keysPressed.d) {
-      // Strafe right (perpendicular to camera direction)
-      const cameraDirectionClone = cameraDirection.clone()
-      const right = new THREE.Vector3()
-      right.crossVectors(cameraDirectionClone, camera.up).normalize()
-      // Rotate object to face the direction of movement (right)
-      const targetRotation = Math.atan2(-right.x, -right.z)
-      player.rotation.y = targetRotation
-      movement.add(right.clone().multiplyScalar(-moveSpeed))
-    }
+    handleMoveRightwards()
 
     // Apply movement to mesh
-    if (mesh.current) {
-      mesh.current.position.add(movement)
+    applyActionsMovimentsEtc()
 
-      camera.position.copy(mesh.current.position)
-      camera.rotation.set(-0.3, 0, 0)
-      camera.position.set(
-        mesh.current.position.x,
-        mesh.current.position.y + 5,
-        mesh.current.position.z + 9
-      )
-      camera.updateMatrixWorld()
+    function applyActionsMovimentsEtc() {
+      if (mesh.current) {
+        mesh.current.position.add(movement)
 
-      // Update spotlight to follow the player
-      const spotlight = refScene.current.getObjectByName('spotlight')
-      if (spotlight && spotlight instanceof THREE.SpotLight) {
-        spotlight.position.copy(mesh.current.position)
-        spotlight.position.y += 5 // Keep spotlight above the player
-        spotlight.target.position.copy(mesh.current.position)
-        spotlight.target.updateMatrixWorld()
+        camera.position.copy(mesh.current.position)
+        camera.rotation.set(-0.3, 0, 0)
+        camera.position.set(
+          mesh.current.position.x,
+          mesh.current.position.y + 5,
+          mesh.current.position.z + 9
+        )
+        camera.updateMatrixWorld()
+
+        // Update spotlight to follow the player
+        const spotlight = refScene.current.getObjectByName('spotlight')
+        if (spotlight && spotlight instanceof THREE.SpotLight) {
+          spotlight.position.copy(mesh.current.position)
+          spotlight.position.y += 5 // Keep spotlight above the player
+          spotlight.target.position.copy(mesh.current.position)
+          spotlight.target.updateMatrixWorld()
+        }
+        mesh.current.updateMatrix()
       }
-      mesh.current.updateMatrix()
+    }
+
+    function handleMoveRightwards() {
+      if (keysPressed.d) {
+        // Strafe right (perpendicular to camera direction)
+        const cameraDirectionClone = cameraDirection.clone()
+        const right = new THREE.Vector3()
+        right.crossVectors(cameraDirectionClone, camera.up).normalize()
+        // Rotate object to face the direction of movement (right)
+        const targetRotation = Math.atan2(-right.x, -right.z)
+        player.rotation.y = targetRotation
+        movement.add(right.clone().multiplyScalar(-moveSpeed))
+      }
+    }
+
+    function handleMoveLeftwards() {
+      if (keysPressed.a) {
+        // Strafe left (perpendicular to camera direction)
+        const cameraDirectionClone = cameraDirection.clone()
+        const right = new THREE.Vector3()
+        right.crossVectors(cameraDirectionClone, camera.up).normalize()
+        // Rotate object to face the direction of movement (left)
+        const targetRotation = Math.atan2(right.x, right.z)
+        player.rotation.y = targetRotation
+        movement.add(right.clone().multiplyScalar(moveSpeed))
+      }
+    }
+
+    function handleMoveBackwards() {
+      if (keysPressed.s) {
+        // The projection make the vector translate to the obj backwards direction
+        const cameraDirectionClone = cameraDirection.clone()
+        const projectedDirection = new THREE.Vector3(
+          cameraDirectionClone.x,
+          0,
+          cameraDirectionClone.z
+        ).normalize()
+        const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
+        player.rotation.y = targetRotation
+        movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
+      }
+    }
+
+    function handleMoveForward() {
+      if (keysPressed.w) {
+        // The projection make the vector translate to the obj forward direction
+        const cameraDirectionClone = cameraDirection.clone()
+        const projectedDirection = new THREE.Vector3(
+          -cameraDirectionClone.x,
+          0,
+          -cameraDirectionClone.z
+        ).normalize()
+        const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
+        player.rotation.y = targetRotation
+        movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
+      }
+    }
+
+    function handleProjectilesAnimations() {
+      bullets.forEach((bullet) => {
+        // Add physics to bullets - make them fall and roll on ground
+        bullet.position.y -= 0.5 // Gravity effect
+
+        // Keep bullets on ground level (y = 0)
+        if (bullet.position.y <= 0) {
+          bullet.position.y = 0
+
+          // Add random rolling motion when on ground
+          bullet.rotation.x += (Math.random() - 0.5) * 0.2 // Random forward/backward roll
+          bullet.rotation.z += (Math.random() - 0.5) * 0.15 // Random side roll
+          bullet.rotation.y += (Math.random() - 0.5) * 0.1 // Random yaw rotation
+
+          // Add random movement on the ground
+          const randomX = (Math.random() - 0.5) * 0.1 // Reduced random X movement
+          const randomZ = (Math.random() - 0.5) * 0.1 // Reduced random Z movement
+          bullet.position.x += randomX
+          bullet.position.z += randomZ
+        }
+      })
+    }
+
+    function handleLeftMouseClick() {
+      if (mouse.isLeft) {
+        // Create bullets in front of the character
+        const boxGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2)
+        const boxMaterial = new THREE.MeshBasicMaterial({
+          color: Math.random() * 0xffffff,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.8,
+        })
+
+        // Get the character's current position and forward direction
+        const characterPosition = player.position.clone()
+        const forwardDirection = new THREE.Vector3()
+        player.getWorldDirection(forwardDirection)
+        forwardDirection.y = 0 // Keep it horizontal
+        forwardDirection.normalize()
+
+        // Create bullets positioned in front of the character
+        const projectiles = new THREE.Mesh(boxGeometry, boxMaterial)
+
+        // Position bullets 8 units in front of the character
+        const bulletPosition = characterPosition
+          .clone()
+          .add(forwardDirection.clone().multiplyScalar(8))
+        projectiles.position.copy(bulletPosition)
+
+        // Make the box face the direction it's being thrown
+        const targetRotation = Math.atan2(forwardDirection.x, forwardDirection.z)
+        projectiles.rotation.y = targetRotation
+
+        // Add bullet to the scene and array
+        refScene.current?.add(projectiles)
+        bullets.push(projectiles)
+
+        // Update bullets state
+        // Clear bullets after 5 seconds
+        setProjectiles((prevBullets) => [...prevBullets, ...bullets])
+        setTimeout(() => {
+          bullets.forEach((bullet) => {
+            refScene.current?.remove(bullet)
+            bullet.geometry.dispose()
+            if (bullet.material instanceof THREE.Material) {
+              bullet.material.dispose()
+            }
+          })
+          setProjectiles((prevBullets) => prevBullets.filter((bullet) => !bullets.includes(bullet)))
+        }, 1000)
+      }
     }
   })
 
