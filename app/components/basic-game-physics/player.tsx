@@ -214,7 +214,7 @@ const Player = ({
         const boxGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2)
         const boxMaterial = new THREE.MeshBasicMaterial({
           color: Math.random() * 0xffffff,
-          wireframe: true,
+          wireframe: Math.random() > 0.5,
           transparent: true,
           opacity: 0.8,
         })
@@ -241,7 +241,9 @@ const Player = ({
 
         // Add bullet to the scene and array
         refScene.current?.add(projectiles)
-        bullets.push(projectiles)
+        if (bullets.length < 10) {
+          bullets.push(projectiles)
+        }
 
         // Update bullets state
         // Clear bullets after 5 seconds
