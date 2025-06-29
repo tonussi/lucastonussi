@@ -278,21 +278,23 @@ const Player = ({
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
-      {/* Direction arrow helper */}
-      {showArrow && Math.random() > 0.9 && (
-        <arrowHelper
-          args={[
-            arrowDirection, // direction
-            ZeroVector, // origin
-            10, // length
-            0x00ff00, // color
-            0.5, // head length
-            0.1, // head width
-          ]}
-          position={[0, 2, 0]}
-        />
-      )}
-      <primitive object={player} position={[0, 0, 0]} />
+      <group ref={refScene}>
+        {/* Direction arrow helper */}
+        {showArrow && Math.random() > 0.9 && (
+          <arrowHelper
+            args={[
+              arrowDirection, // direction
+              ZeroVector, // origin
+              10, // length
+              0x00ff00, // color
+              0.5, // head length
+              0.1, // head width
+            ]}
+            position={[0, 2, 0]}
+          />
+        )}
+        <primitive object={player} ref={mesh} position={[0, 0, 0]} />
+      </group>
     </instancedMesh>
   )
 }

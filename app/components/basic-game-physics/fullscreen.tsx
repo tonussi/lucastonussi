@@ -29,7 +29,6 @@ function FullscreenWrapper({ children, className = '', ...props }: FullscreenWra
     <div ref={gameContainerRef} className={`rounded-lg overflow-hidden ${className}`} {...props}>
       <Fullscreen
         size={24}
-        color="white"
         className="absolute top-4 right-4 z-10"
         onClick={() => {
           if (isFullscreen) {

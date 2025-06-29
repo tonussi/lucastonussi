@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef } from 'react'
 
-import { ContactShadows } from '@react-three/drei'
+import { ContactShadows, GizmoHelper } from '@react-three/drei'
 import * as THREE from 'three'
 import CameraHelper from './camera'
 import Controls from './controls'
@@ -57,6 +57,7 @@ export default function BasicGamePhysics() {
       >
         <Suspense fallback={<Progress />}>
           <scene ref={refScene}>
+            <GizmoHelper alignment="bottom-right" margin={[80, 80]} />
             {/* <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} /> */}
             <directionalLight
               name="directionalLight"
@@ -67,7 +68,7 @@ export default function BasicGamePhysics() {
             />
             {/* <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} /> */}
             <Controls />
-            <CameraHelper refCamera={refCamera} />
+            <CameraHelper refCamera={refCamera} refScene={refScene} />
             <Player refCamera={refCamera} refScene={refScene} />
             {/* <PointerLockControls camera={refCamera.current} /> */}
             {/* <fog attach="fog" args={[0x000000, 10, 100]} /> */}
