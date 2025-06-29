@@ -19,13 +19,7 @@ function CameraHelper({
   const camera = new THREE.PerspectiveCamera(60, 1, 1, 3)
 
   if (refScene.current) {
-    camera.position.copy(refScene.current.position)
-    camera.rotation.set(-0.3, 0, 0)
-    camera.position.set(
-      refScene.current.position.x,
-      refScene.current.position.y + 5,
-      refScene.current.position.z + 9
-    )
+    camera.position.set(0, 10, 0) // Adjust the '10' for desired height
     camera.lookAt(refScene.current.position)
     camera.updateMatrixWorld()
   }

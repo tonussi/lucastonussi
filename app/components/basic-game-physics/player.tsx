@@ -26,7 +26,7 @@ const Player = ({
 
   const { player, animations } = usePlayerModel()
 
-  const [bullets, setProjectiles] = useState<THREE.Mesh[]>([])
+  const [bullets, setProjectiles] = useState<THREE.Vector3[]>([])
   const [showArrow, setShowArrow] = useState(false)
   const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
   const [moveSpeed, setMoveSpeed] = useState(0.09)
@@ -112,7 +112,6 @@ const Player = ({
           mesh.current.position.y + 5,
           mesh.current.position.z + 9
         )
-        camera.lookAt(mesh.current.position)
 
         // Update spotlight to follow the player
         const spotlight = refScene.current.getObjectByName('spotlight')
@@ -193,31 +192,19 @@ const Player = ({
       bullets.forEach((bullet) => {
         // Add physics to bullets - make them fall and roll on ground
         // Keep bullets on ground level (y = 0)
-        bullet.position.y = 3
-
-        // Add random rolling motion when on ground
-        bullet.rotation.x += (Math.random() - 0.5) * 0.2 // Random forward/backward roll
-        bullet.rotation.z += (Math.random() - 0.5) * 0.15 // Random side roll
-        bullet.rotation.y += (Math.random() - 0.5) * 0.1 // Random yaw rotation
+        bullet.y = 3
 
         // Add random movement on the ground
         const randomX = (Math.random() - 0.5) * 0.1 // Reduced random X movement
         const randomZ = (Math.random() - 0.5) * 0.1 // Reduced random Z movement
-        bullet.position.x += randomX
-        bullet.position.z += randomZ
+        bullet.x += randomX
+        bullet.z += randomZ
       })
     }
 
     function handleLeftMouseClick() {
       if (mouse.isLeft) {
-        // Create bullets in front of the character
-        const boxGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2)
-        const boxMaterial = new THREE.MeshBasicMaterial({
-          color: Math.random() * 0xffffff,
-          wireframe: Math.random() > 0.5,
-          transparent: true,
-          opacity: 0.8,
-        })
+        if (bullets.length > 3) return
 
         // Get the character's current position and forward direction
         const characterPosition = player.position.clone()
@@ -227,34 +214,26 @@ const Player = ({
         forwardDirection.normalize()
 
         // Create bullets positioned in front of the character
-        const projectiles = new THREE.Mesh(boxGeometry, boxMaterial)
+        const projectiles = new THREE.Vector3()
 
         // Position bullets 8 units in front of the character
         const bulletPosition = characterPosition
           .clone()
           .add(forwardDirection.clone().multiplyScalar(10))
-        projectiles.position.copy(bulletPosition)
+        projectiles.copy(bulletPosition)
 
         // Make the box face the direction it's being thrown
         const targetRotation = Math.atan2(forwardDirection.x, forwardDirection.z)
-        projectiles.rotation.y = targetRotation
+        projectiles.y = targetRotation
 
         // Add bullet to the scene and array
-        refScene.current?.add(projectiles)
         bullets.push(projectiles)
 
         // Update bullets state
         // Clear bullets after 5 seconds
         setProjectiles((prevBullets) => [...prevBullets, ...bullets])
         setTimeout(() => {
-          bullets.forEach((bullet) => {
-            refScene.current?.remove(bullet)
-            bullet.geometry.dispose()
-            if (bullet.material instanceof THREE.Material) {
-              bullet.material.dispose()
-            }
-          })
-          setProjectiles((prevBullets) => prevBullets.filter((bullet) => !bullets.includes(bullet)))
+          setProjectiles([])
         }, 10000)
       }
     }
@@ -277,7 +256,7 @@ const Player = ({
         />
       )}
       {bullets.map((bullet, index) => (
-        <CubeTravel key={index} position={bullet.position} />
+        <CubeTravel key={index} position={bullet} />
       ))}
       <primitive
         castShadow
