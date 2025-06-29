@@ -100,16 +100,6 @@ const Player = ({
 
     applyActionsMovimentsEtc()
 
-    if (keysPressed.shift) {
-      if (moveSpeed === 0.09) {
-        setMoveSpeed(1)
-      }
-
-      if (moveSpeed === 1) {
-        setMoveSpeed(0.09)
-      }
-    }
-
     function applyActionsMovimentsEtc() {
       // Apply movement to mesh
       if (mesh.current) {
@@ -122,7 +112,6 @@ const Player = ({
           mesh.current.position.y + 5,
           mesh.current.position.z + 9
         )
-        camera.lookAt(camera.position)
         camera.lookAt(mesh.current.position)
 
         // Update spotlight to follow the player
