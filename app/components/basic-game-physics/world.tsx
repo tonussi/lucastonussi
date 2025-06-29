@@ -58,11 +58,11 @@ export default function BasicGamePhysics() {
       >
         <Suspense fallback={<Progress />}>
           <scene ref={refScene}>
-            <GizmoHelper alignment="bottom-right" margin={[80, 80]} />
+            <GizmoHelper alignment="center-left" margin={[80, 80]} />
             {/* <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} /> */}
             <directionalLight
               name="directionalLight"
-              position={[-5, 5, 5]}
+              position={[0, 10, 0]}
               castShadow
               shadow-mapSize-width={1024}
               shadow-mapSize-height={1024}

@@ -121,6 +121,8 @@ const Player = ({
           mesh.current.position.y + 5,
           mesh.current.position.z + 9
         )
+        camera.lookAt(camera.position)
+        camera.lookAt(mesh.current.position)
 
         // Update spotlight to follow the player
         const spotlight = refScene.current.getObjectByName('spotlight')
@@ -132,6 +134,7 @@ const Player = ({
         }
 
         camera.updateMatrixWorld()
+        camera.updateMatrix()
         mesh.current.updateMatrix()
       }
     }
@@ -268,24 +271,48 @@ const Player = ({
   })
 
   return (
-    <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
-      <group ref={refScene}>
-        {/* Direction arrow helper */}
-        {showArrow && Math.random() > 0.9 && (
-          <arrowHelper
-            args={[
-              arrowDirection, // direction
-              ZeroVector, // origin
-              10, // length
-              0x00ff00, // color
-              0.5, // head length
-              0.1, // head width
-            ]}
-            position={[0, 2, 0]}
-          />
-        )}
-        <primitive castShadow receiveShadow object={player} ref={mesh} position={[0, 0, 0]} />
-      </group>
+    <instancedMesh ref={refScene} args={[undefined, undefined, 1]}>
+      {/* Direction arrow helper */}
+      {showArrow && Math.random() > 0.9 && (
+        <arrowHelper
+          args={[
+            arrowDirection, // direction
+            ZeroVector, // origin
+            10, // length
+            0x00ff00, // color
+            0.5, // head length
+            0.1, // head width
+          ]}
+          position={[0, 2, 0]}
+        />
+      )}
+      <primitive
+        castShadow
+        receiveShadow
+        name="player"
+        rigidBody
+        colliders={['box']}
+        mass={1}
+        linearDamping={0.9}
+        angularDamping={0.7}
+        linearFactor={[1, 1, 1]}
+        angularFactor={[1, 1, 1]}
+        restitution={0.2}
+        friction={0.5}
+        angularVelocity={[0, 0, 0]}
+        linearVelocity={[0, 0, 0]}
+        linearVelocityFromRotation={[0, 0, 0]}
+        angularVelocityFromRotation={[0, 0, 0]}
+        linearVelocityFromRotationFactor={[1, 1, 1]}
+        angularVelocityFromRotationFactor={[1, 1, 1]}
+        linearVelocityFromRotationDamping={[0.9, 0.9, 0.9]}
+        angularVelocityFromRotationDamping={[0.9, 0.9, 0.9]}
+        linearVelocityFromRotationDampingFactor={[1, 1, 1]}
+        angularVelocityFromRotationDampingFactor={[1, 1, 1]}
+        object={player}
+        ref={mesh}
+        position={[0, 0, 0]}
+      />
     </instancedMesh>
   )
 }
