@@ -1,9 +1,10 @@
 import { RapierRigidBody, RigidBody } from '@react-three/rapier'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 const CubeTravel = ({ position }: { position: THREE.Vector3 }) => {
   const rigidBody = useRef<RapierRigidBody>(null)
+  const [color, setColor] = useState(Math.random() * 0xffffff)
 
   useEffect(() => {
     if (rigidBody.current) {
@@ -21,12 +22,7 @@ const CubeTravel = ({ position }: { position: THREE.Vector3 }) => {
     <RigidBody ref={rigidBody} colliders="cuboid" position={position} type="dynamic">
       <mesh>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial
-          color={Math.random() * 0xffffff}
-          wireframe
-          opacity={0.5}
-          transparent
-        />
+        <meshStandardMaterial color={color} wireframe opacity={0.5} transparent />
       </mesh>
     </RigidBody>
   )

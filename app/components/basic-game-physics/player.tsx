@@ -124,9 +124,9 @@ const Player = ({
           spotlight.target.updateMatrixWorld()
         }
 
-        camera.updateMatrixWorld()
-        camera.updateMatrix()
-        mesh.current.updateMatrix()
+        // camera.updateMatrixWorld()
+        // camera.updateMatrix()
+        // mesh.current.updateMatrix()
       }
     }
 
