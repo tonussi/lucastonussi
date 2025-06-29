@@ -120,7 +120,6 @@ const Player = ({
           mesh.current.position.y + 5,
           mesh.current.position.z + 9
         )
-        camera.updateMatrixWorld()
 
         // Update spotlight to follow the player
         const spotlight = refScene.current.getObjectByName('spotlight')
@@ -130,6 +129,8 @@ const Player = ({
           spotlight.target.position.copy(mesh.current.position)
           spotlight.target.updateMatrixWorld()
         }
+
+        camera.updateMatrixWorld()
         mesh.current.updateMatrix()
       }
     }
