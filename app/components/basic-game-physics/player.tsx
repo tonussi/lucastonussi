@@ -29,6 +29,7 @@ const Player = ({
   const [showArrow, setShowArrow] = useState(false)
   const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
   const [moveSpeed, setMoveSpeed] = useState(0.09)
+  let mixer: THREE.AnimationMixer | null = new THREE.AnimationMixer(player)
 
   // Only proceed if obj is loaded
   if (!player) {
@@ -63,13 +64,7 @@ const Player = ({
   const axesHelper = new THREE.AxesHelper(10)
   mesh.current?.add(axesHelper)
 
-  let mixer: THREE.AnimationMixer | null = null
-
   if (animations && animations.length > 0) {
-    mixer = new THREE.AnimationMixer(player)
-    animations.forEach((clip) => {
-      if (mixer) mixer.clipAction(clip).loop = THREE.LoopRepeat
-    })
     if (mixer) mixer.clipAction(animations[1]).play()
   }
 
@@ -116,10 +111,6 @@ const Player = ({
 
     function applyActionsMovimentsEtc() {
       // Apply movement to mesh
-      if (movement.equals(mesh.current.position)) {
-        return
-      }
-
       if (mesh.current) {
         mesh.current.position.add(movement)
 
@@ -293,7 +284,7 @@ const Player = ({
             position={[0, 2, 0]}
           />
         )}
-        <primitive object={player} ref={mesh} position={[0, 0, 0]} />
+        <primitive castShadow receiveShadow object={player} ref={mesh} position={[0, 0, 0]} />
       </group>
     </instancedMesh>
   )

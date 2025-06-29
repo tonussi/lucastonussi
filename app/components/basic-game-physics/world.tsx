@@ -43,6 +43,7 @@ export default function BasicGamePhysics() {
         fallback={'Sorry no WebGL supported!'}
         style={{
           height: '100vh',
+          backgroundColor: 'white',
         }}
         ref={refCanvas}
         // camera={{
@@ -73,7 +74,7 @@ export default function BasicGamePhysics() {
             {/* <PointerLockControls camera={refCamera.current} /> */}
             {/* <fog attach="fog" args={[0x000000, 10, 100]} /> */}
             <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
-              <planeGeometry args={[100, 100]} />
+              <planeGeometry args={[50, 50]} />
               <shadowMaterial transparent opacity={0.2} />
               <meshStandardMaterial color="white" />
             </mesh>
@@ -87,7 +88,15 @@ export default function BasicGamePhysics() {
               color="black"
             />
             <ambientLight intensity={5} />
-            <Ground active={true} />
+            <Ground active={false} />
+            <directionalLight
+              position={[2, 3, -0.16]}
+              intensity={5}
+              castShadow
+              shadow-mapSize-width={1024}
+              shadow-mapSize-height={1024}
+            />
+            <ambientLight intensity={5} />
             {/* <DungeonScene active={false} /> */}
           </scene>
         </Suspense>
