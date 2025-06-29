@@ -19,13 +19,11 @@ export default function BasicGamePhysics() {
 
   useEffect(() => {
     refCanvas.current.addEventListener('click', () => {
-      refCanvas.current.requestPointerLock()
       refCanvas.current.requestFullscreen()
     })
     return () => {
       if (refCanvas.current) {
         refCanvas.current.removeEventListener('click', () => {
-          refCanvas.current.requestPointerLock()
           refCanvas.current.requestFullscreen()
         })
       }
@@ -57,6 +55,7 @@ export default function BasicGamePhysics() {
             <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
             <Controls />
             <CameraHelper refCamera={refCamera} />
+            {/* <PointerLockControls camera={refCamera.current} /> */}
             <Ground active={true} />
             {/* <fog attach="fog" args={[0x000000, 10, 100]} /> */}
             {/* <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
