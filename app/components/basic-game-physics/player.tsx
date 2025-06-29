@@ -7,6 +7,7 @@ import { extend } from '@react-three/fiber'
 import { useRef, useState, type RefObject } from 'react'
 
 import * as THREE from 'three'
+import CubeTravel from './cube-travel'
 extend(THREE as any)
 
 const ZeroVector = new THREE.Vector3(0, 0, 0)
@@ -286,6 +287,9 @@ const Player = ({
           position={[0, 2, 0]}
         />
       )}
+      {bullets.map((bullet, index) => (
+        <CubeTravel key={index} position={bullet.position} />
+      ))}
       <primitive
         castShadow
         receiveShadow
