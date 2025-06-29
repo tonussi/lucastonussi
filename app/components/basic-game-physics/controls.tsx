@@ -13,6 +13,10 @@ function Controls() {
   // TODO: use refCamera.current
   return (
     <OrbitControls
+      // maxDistance={15}
+      // minDistance={1}
+      // minAzimuthAngle={-Math.PI / 2}
+      // maxAzimuthAngle={Math.PI / 2}
       camera={camera}
       enableZoom={true}
       enablePan={true}

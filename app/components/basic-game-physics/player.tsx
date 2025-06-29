@@ -28,6 +28,7 @@ const Player = ({
   const [bullets, setProjectiles] = useState<THREE.Mesh[]>([])
   const [showArrow, setShowArrow] = useState(false)
   const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
+  const [moveSpeed, setMoveSpeed] = useState(0.09)
 
   // Only proceed if obj is loaded
   if (!player) {
@@ -38,7 +39,7 @@ const Player = ({
 
   // Make all materials wireframe
   if (player) {
-    player.traverse((child) => {
+    player.traverse((child: THREE.Object3D) => {
       if (child instanceof THREE.Mesh && child.material) {
         if (Array.isArray(child.material)) {
           child.material.forEach((mat) => {
@@ -72,8 +73,6 @@ const Player = ({
     if (mixer) mixer.clipAction(animations[1]).play()
   }
 
-  const moveSpeed = 0.09
-
   useFrame(() => {
     const delta = clock.getDelta()
 
@@ -104,6 +103,16 @@ const Player = ({
     handleMoveRightwards()
 
     applyActionsMovimentsEtc()
+
+    if (keysPressed.shift) {
+      if (moveSpeed === 0.09) {
+        setMoveSpeed(1)
+      }
+
+      if (moveSpeed === 1) {
+        setMoveSpeed(0.09)
+      }
+    }
 
     function applyActionsMovimentsEtc() {
       // Apply movement to mesh

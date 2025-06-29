@@ -40,11 +40,3 @@ const usePlayerModel = () => {
 }
 
 export default usePlayerModel
-
-// const mixer = new THREE.AnimationMixer(player)
-// const clips = player.animations
-
-// const clip = THREE.AnimationClip.findByName(clips, 'idle')
-// const action = mixer.clipAction(clip)
-// action?.play()
-// action?.setLoop(THREE.LoopOnce, 1)

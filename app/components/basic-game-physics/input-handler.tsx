@@ -8,12 +8,14 @@ const useInputHandler = () => {
     s: boolean
     d: boolean
     space: boolean
+    shift: boolean
   }>({
     w: false,
     a: false,
     s: false,
     d: false,
     space: false,
+    shift: false,
   })
 
   const [mouse, setMouse] = useState<{
@@ -58,6 +60,13 @@ const useInputHandler = () => {
         ...prevKeys,
         [event.code.toLowerCase().replace('key', '')]: true,
       }))
+
+      if (event.code === 'ShiftLeft') {
+        setKeysPressed((prevKeys) => ({
+          ...prevKeys,
+          shift: true,
+        }))
+      }
     }
 
     const handleKeyUp = (event: KeyboardEvent) => {
@@ -65,6 +74,13 @@ const useInputHandler = () => {
         ...prevKeys,
         [event.code.toLowerCase().replace('key', '')]: false,
       }))
+
+      if (event.code === 'ShiftLeft') {
+        setKeysPressed((prevKeys) => ({
+          ...prevKeys,
+          shift: false,
+        }))
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
