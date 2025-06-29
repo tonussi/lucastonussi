@@ -24,6 +24,16 @@ function Controls() {
         MIDDLE: THREE.MOUSE.PAN,
         RIGHT: THREE.MOUSE.ROTATE,
       }}
+      touches={{
+        ONE: THREE.TOUCH.ROTATE,
+        TWO: THREE.TOUCH.DOLLY_PAN,
+      }}
+      keys={{
+        LEFT: 'ArrowLeft',
+        UP: 'ArrowUp',
+        RIGHT: 'ArrowRight',
+        BOTTOM: 'ArrowDown',
+      }}
     />
   )
 }
