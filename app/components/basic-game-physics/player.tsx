@@ -74,7 +74,6 @@ const Player = ({
 
   useFrame(() => {
     const delta = clock.getDelta()
-    if (mixer) mixer.update(delta)
 
     const camera = refCamera.current
     if (!camera) return
@@ -87,6 +86,8 @@ const Player = ({
 
     // Check if any movement key is pressed
     const isMoving = keysPressed.w || keysPressed.a || keysPressed.s || keysPressed.d
+    if (mixer && isMoving) mixer.update(delta)
+
     setShowArrow(isMoving)
 
     handleLeftMouseClick()
