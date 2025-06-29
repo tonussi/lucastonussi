@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 
 import { extend } from '@react-three/fiber'
-import { Suspense, useRef } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 
 import * as THREE from 'three'
 import CameraHelper from './camera'
@@ -17,6 +17,21 @@ export default function BasicGamePhysics() {
   const refCanvas = useRef<HTMLCanvasElement>(null!)
   const refScene = useRef<THREE.Scene>(null!)
 
+  useEffect(() => {
+    refCanvas.current.addEventListener('click', () => {
+      refCanvas.current.requestPointerLock()
+      refCanvas.current.requestFullscreen()
+    })
+    return () => {
+      if (refCanvas.current) {
+        refCanvas.current.removeEventListener('click', () => {
+          refCanvas.current.requestPointerLock()
+          refCanvas.current.requestFullscreen()
+        })
+      }
+    }
+  }, [])
+
   return (
     <FullscreenWrapper>
       <Canvas
@@ -25,14 +40,15 @@ export default function BasicGamePhysics() {
         style={{
           height: '100vh',
         }}
-        // camera={{
-        //   fov: 60,
-        //   near: 1,
-        //   far: 1000,
-        //   rotation: [-0.3, 0, 0],
-        //   position: [0, 10, 10],
-        // }}
-        camera={refCamera.current}
+        ref={refCanvas}
+        camera={{
+          fov: 60,
+          near: 1,
+          far: 1000,
+          rotation: [-0.3, 0, 0],
+          position: [0, 10, 10],
+        }}
+        // camera={refCamera.current}
       >
         <Suspense fallback={<Progress />}>
           <scene ref={refScene}>
