@@ -31,7 +31,7 @@ const usePlayerModel = () => {
 
   player = new THREE.Group()
   const box = new THREE.BoxGeometry(25, 200, 25)
-  box.translate(0, 0, 0)
+  box.translate(0, 5, 0)
   const material = new THREE.MeshBasicMaterial({ color: 'magenta' })
   const boxMesh = new THREE.Mesh(box, material)
   player.add(boxMesh)

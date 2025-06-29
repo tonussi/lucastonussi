@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef } from 'react'
 
-import { ContactShadows, GizmoHelper } from '@react-three/drei'
+import { ContactShadows } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraHelper from './camera'
@@ -53,11 +53,10 @@ export default function BasicGamePhysics() {
         <Suspense fallback={<Progress />}>
           <Physics>
             <scene ref={refScene}>
-              <GizmoHelper alignment="center-left" margin={[80, 80]} />
               {/* <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} /> */}
+              <ambientLight />
               <directionalLight
-                name="directionalLight"
-                position={[0, 10, 0]}
+                position={[-5, 5, 5]}
                 castShadow
                 shadow-mapSize-width={1024}
                 shadow-mapSize-height={1024}
@@ -70,7 +69,7 @@ export default function BasicGamePhysics() {
               {/* <fog attach="fog" args={[0x000000, 10, 100]} /> */}
               <RigidBody colliders="cuboid" type="fixed">
                 <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
-                  <planeGeometry args={[50, 50]} />
+                  <planeGeometry args={[40, 40]} />
                   <shadowMaterial transparent opacity={0.2} />
                   <meshStandardMaterial color="white" />
                 </mesh>
