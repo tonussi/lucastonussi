@@ -3,7 +3,6 @@ import { Canvas } from '@react-three/fiber'
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef } from 'react'
 
-import { ContactShadows } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraHelper from './camera'
@@ -47,24 +46,24 @@ export default function BasicGamePhysics() {
           backgroundColor: 'white',
         }}
         ref={refCanvas}
-        camera={refCamera.current}
         shadows
       >
         <Suspense fallback={<Progress />}>
           <Physics>
             <scene ref={refScene}>
-              {/* <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} /> */}
-              <ambientLight />
+              <Controls />
+              <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} />
               <directionalLight
                 position={[-5, 5, 5]}
                 castShadow
                 shadow-mapSize-width={1024}
                 shadow-mapSize-height={1024}
               />
-              {/* <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} /> */}
-              <Controls />
+              <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
               <CameraHelper refCamera={refCamera} refScene={refScene} />
+              {/* <RigidBody position={[0, 0.5, 0]} colliders="cuboid" type="fixed"> */}
               <Player refCamera={refCamera} refScene={refScene} />
+              {/* </RigidBody> */}
               {/* <PointerLockControls camera={refCamera.current} /> */}
               {/* <fog attach="fog" args={[0x000000, 10, 100]} /> */}
               <RigidBody colliders="cuboid" type="fixed">
@@ -74,25 +73,7 @@ export default function BasicGamePhysics() {
                   <meshStandardMaterial color="white" />
                 </mesh>
               </RigidBody>
-              <ContactShadows
-                frames={10}
-                position={[0, -2, -0.16]}
-                rotation={[0, -Math.PI / 2, 0]}
-                scale={0.8}
-                opacity={0.1}
-                blur={0.5}
-                color="black"
-              />
-              <ambientLight intensity={5} />
               <Ground active={true} />
-              <directionalLight
-                position={[2, 30, -0.16]}
-                intensity={0.5}
-                castShadow
-                shadow-mapSize-width={100}
-                shadow-mapSize-height={100}
-              />
-              <ambientLight intensity={0.5} />
               {/* <DungeonScene active={false} /> */}
             </scene>
           </Physics>
