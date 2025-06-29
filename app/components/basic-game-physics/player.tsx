@@ -72,6 +72,8 @@ const Player = ({
     if (mixer) mixer.clipAction(animations[1]).play()
   }
 
+  const moveSpeed = 0.09
+
   useFrame(() => {
     const delta = clock.getDelta()
 
@@ -81,8 +83,7 @@ const Player = ({
     const cameraDirection = new THREE.Vector3()
     camera.getWorldDirection(cameraDirection)
 
-    let moveSpeed = 0.09
-    let movement = new THREE.Vector3()
+    const movement = new THREE.Vector3()
 
     // Check if any movement key is pressed
     const isMoving = keysPressed.w || keysPressed.a || keysPressed.s || keysPressed.d
