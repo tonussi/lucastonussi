@@ -1,8 +1,8 @@
 import { Html, useProgress } from '@react-three/drei'
 
-function Loader() {
+function Progress() {
   const { progress } = useProgress()
   return <Html center>{progress.toFixed(2)} % loaded</Html>
 }
 
-export default Loader
+export default Progress

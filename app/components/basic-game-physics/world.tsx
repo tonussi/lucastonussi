@@ -8,8 +8,8 @@ import CameraHelper from './camera'
 import Controls from './controls'
 import FullscreenWrapper from './fullscreen'
 import Ground from './ground'
-import Loader from './loader'
 import Player from './player'
+import Progress from './progress'
 extend(THREE as any)
 
 export default function BasicGamePhysics() {
@@ -34,7 +34,7 @@ export default function BasicGamePhysics() {
         // }}
         camera={refCamera.current}
       >
-        <Suspense fallback={<Loader />}>
+        <Suspense fallback={<Progress />}>
           <scene ref={refScene}>
             <Player refCamera={refCamera} refScene={refScene} />
             <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} />

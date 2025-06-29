@@ -24,6 +24,9 @@ const Player = ({
   const { player } = usePlayerModel()
 
   const [bullets, setProjectiles] = useState<THREE.Mesh[]>([])
+  const [movementState, setMovementState] = useState(new THREE.Vector3())
+  const [showArrow, setShowArrow] = useState(false)
+  const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
 
   // Only proceed if obj is loaded
   if (!player) {
@@ -58,9 +61,21 @@ const Player = ({
   const axesHelper = new THREE.AxesHelper(10)
   mesh.current?.add(axesHelper)
 
+  // let mixer: THREE.AnimationMixer | null = null
+
+  // if (player.animations.length > 0) {
+  //   console.log(player.animations)
+
+  //   mixer = new THREE.AnimationMixer(player)
+  //   player.animations.forEach((clip) => {
+  //     if (mixer) mixer.clipAction(clip).loop = THREE.LoopRepeat
+  //   })
+  //   if (mixer) mixer.clipAction(player.animations[0]).play()
+  // }
+
   useFrame(() => {
-    const delta = clock.getDelta()
-    console.debug(delta)
+    // const delta = clock.getDelta()
+    // if (mixer) mixer.update(delta)
 
     const camera = refCamera.current
     if (!camera) return
@@ -70,6 +85,15 @@ const Player = ({
 
     let moveSpeed = 0.09
     let movement = new THREE.Vector3()
+
+    // Update movement state whenever movement changes
+    if (!movement.equals(movementState)) {
+      setMovementState(movement.clone())
+    }
+
+    // Check if any movement key is pressed
+    const isMoving = keysPressed.w || keysPressed.a || keysPressed.s || keysPressed.d
+    setShowArrow(isMoving)
 
     handleLeftMouseClick()
 
@@ -87,6 +111,10 @@ const Player = ({
 
     function applyActionsMovimentsEtc() {
       // Apply movement to mesh
+      if (movement.equals(mesh.current.position)) {
+        return
+      }
+
       if (mesh.current) {
         mesh.current.position.add(movement)
 
@@ -121,6 +149,7 @@ const Player = ({
         const targetRotation = Math.atan2(-right.x, -right.z)
         player.rotation.y = targetRotation
         movement.add(right.clone().multiplyScalar(-moveSpeed))
+        setArrowDirection(right.clone().multiplyScalar(-1))
       }
     }
 
@@ -134,6 +163,7 @@ const Player = ({
         const targetRotation = Math.atan2(right.x, right.z)
         player.rotation.y = targetRotation
         movement.add(right.clone().multiplyScalar(moveSpeed))
+        setArrowDirection(right)
       }
     }
 
@@ -149,6 +179,7 @@ const Player = ({
         const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
         player.rotation.y = targetRotation
         movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
+        setArrowDirection(projectedDirection)
       }
     }
 
@@ -164,6 +195,7 @@ const Player = ({
         const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
         player.rotation.y = targetRotation
         movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
+        setArrowDirection(projectedDirection)
       }
     }
 
@@ -240,6 +272,20 @@ const Player = ({
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
+      {/* Direction arrow helper */}
+      {showArrow && (
+        <arrowHelper
+          args={[
+            arrowDirection, // direction
+            new THREE.Vector3(0, 0, 0), // origin
+            10, // length
+            0x00ff00, // color
+            0.5, // head length
+            0.1, // head width
+          ]}
+          position={[0, 10, 0]}
+        />
+      )}
       <primitive object={player} position={[0, 0, 0]} />
     </instancedMesh>
   )

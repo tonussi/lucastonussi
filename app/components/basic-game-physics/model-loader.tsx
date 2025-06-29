@@ -9,7 +9,7 @@ const usePlayerModel = () => {
   useEffect(() => {
     const checkFbxExists = async () => {
       try {
-        const response = await fetch('/models/misc/skeleton/pirate.glb', {
+        const response = await fetch('/models/misc/skeleton/pirate.gltf', {
           cache: 'force-cache',
         })
         setFbxExists(response.ok)
@@ -24,7 +24,7 @@ const usePlayerModel = () => {
   let player: THREE.Group | null = null
 
   if (fbxExists) {
-    const { scene, nodes, animations } = useGLTF('/models/misc/skeleton/pirate.glb')
+    const { scene, nodes, animations } = useGLTF('/models/misc/skeleton/pirate.gltf')
 
     return { player: scene, nodes, animations }
   }
