@@ -24,7 +24,7 @@ const Player = ({
 
   const { keysPressed, mouse } = useInputHandler()
 
-  const { player, animations } = usePlayerModel()
+  const { player, animations, type } = usePlayerModel()
 
   const [bullets, setProjectiles] = useState<THREE.Vector3[]>([])
   const [showArrow, setShowArrow] = useState(false)
@@ -66,7 +66,9 @@ const Player = ({
   mesh.current?.add(axesHelper)
 
   if (animations && animations.length > 0) {
-    if (mixer) mixer.clipAction(animations[1]).play()
+    if (type === 'gltf') {
+      if (mixer) mixer.clipAction(animations[1]).play()
+    }
   }
 
   useFrame(() => {
@@ -265,6 +267,7 @@ const Player = ({
         rigidBody
         colliders={['box']}
         mass={1}
+        gravity={[0, -9.86, 0]}
         linearDamping={0.9}
         angularDamping={0.7}
         linearFactor={[1, 1, 1]}

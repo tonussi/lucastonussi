@@ -23,20 +23,20 @@ const usePlayerModel = () => {
 
   let player: THREE.Group | null = null
 
-  if (fbxExists) {
+  if (!fbxExists) {
     const { scene, nodes, animations } = useGLTF('/models/misc/skeleton/pirate.gltf')
 
-    return { player: scene, nodes, animations: animations as THREE.AnimationClip[] }
+    return { type: 'gltf', player: scene, nodes, animations: animations as THREE.AnimationClip[] }
   }
 
   player = new THREE.Group()
-  const box = new THREE.BoxGeometry(25, 200, 25)
+  const box = new THREE.BoxGeometry(125, 3200, 125)
   box.translate(0, 5, 0)
   const material = new THREE.MeshBasicMaterial({ color: 'magenta' })
   const boxMesh = new THREE.Mesh(box, material)
   player.add(boxMesh)
 
-  return { player }
+  return { type: 'box', player, animations: [] as THREE.AnimationClip[] }
 }
 
 export default usePlayerModel
