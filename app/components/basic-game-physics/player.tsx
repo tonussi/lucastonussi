@@ -9,6 +9,8 @@ import { useRef, useState, type RefObject } from 'react'
 import * as THREE from 'three'
 extend(THREE as any)
 
+const ZeroVector = new THREE.Vector3(0, 0, 0)
+
 const Player = ({
   refCamera,
   refScene,
@@ -17,14 +19,13 @@ const Player = ({
   refScene: RefObject<THREE.Scene>
 }) => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
-  const clock = new THREE.Clock()
+  const clock = new THREE.Clock(true)
 
   const { keysPressed, mouse } = useInputHandler()
 
-  const { player } = usePlayerModel()
+  const { player, animations } = usePlayerModel()
 
   const [bullets, setProjectiles] = useState<THREE.Mesh[]>([])
-  const [movementState, setMovementState] = useState(new THREE.Vector3())
   const [showArrow, setShowArrow] = useState(false)
   const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
 
@@ -61,21 +62,19 @@ const Player = ({
   const axesHelper = new THREE.AxesHelper(10)
   mesh.current?.add(axesHelper)
 
-  // let mixer: THREE.AnimationMixer | null = null
+  let mixer: THREE.AnimationMixer | null = null
 
-  // if (player.animations.length > 0) {
-  //   console.log(player.animations)
-
-  //   mixer = new THREE.AnimationMixer(player)
-  //   player.animations.forEach((clip) => {
-  //     if (mixer) mixer.clipAction(clip).loop = THREE.LoopRepeat
-  //   })
-  //   if (mixer) mixer.clipAction(player.animations[0]).play()
-  // }
+  if (animations && animations.length > 0) {
+    mixer = new THREE.AnimationMixer(player)
+    animations.forEach((clip) => {
+      if (mixer) mixer.clipAction(clip).loop = THREE.LoopRepeat
+    })
+    if (mixer) mixer.clipAction(animations[1]).play()
+  }
 
   useFrame(() => {
-    // const delta = clock.getDelta()
-    // if (mixer) mixer.update(delta)
+    const delta = clock.getDelta()
+    if (mixer) mixer.update(delta)
 
     const camera = refCamera.current
     if (!camera) return
@@ -85,11 +84,6 @@ const Player = ({
 
     let moveSpeed = 0.09
     let movement = new THREE.Vector3()
-
-    // Update movement state whenever movement changes
-    if (!movement.equals(movementState)) {
-      setMovementState(movement.clone())
-    }
 
     // Check if any movement key is pressed
     const isMoving = keysPressed.w || keysPressed.a || keysPressed.s || keysPressed.d
@@ -273,17 +267,17 @@ const Player = ({
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
       {/* Direction arrow helper */}
-      {showArrow && (
+      {showArrow && Math.random() > 0.9 && (
         <arrowHelper
           args={[
             arrowDirection, // direction
-            new THREE.Vector3(0, 0, 0), // origin
+            ZeroVector, // origin
             10, // length
             0x00ff00, // color
             0.5, // head length
             0.1, // head width
           ]}
-          position={[0, 10, 0]}
+          position={[0, 2, 0]}
         />
       )}
       <primitive object={player} position={[0, 0, 0]} />

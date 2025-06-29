@@ -26,7 +26,7 @@ const usePlayerModel = () => {
   if (fbxExists) {
     const { scene, nodes, animations } = useGLTF('/models/misc/skeleton/pirate.gltf')
 
-    return { player: scene, nodes, animations }
+    return { player: scene, nodes, animations: animations as THREE.AnimationClip[] }
   }
 
   player = new THREE.Group()
