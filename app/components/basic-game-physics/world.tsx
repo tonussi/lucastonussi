@@ -85,7 +85,7 @@ export default function BasicGamePhysics() {
                 color="black"
               />
               <ambientLight intensity={5} />
-              <Ground active={false} />
+              <Ground active={true} />
               <directionalLight
                 position={[2, 30, -0.16]}
                 intensity={0.5}

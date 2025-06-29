@@ -266,7 +266,7 @@ const Player = ({
             }
           })
           setProjectiles((prevBullets) => prevBullets.filter((bullet) => !bullets.includes(bullet)))
-        }, 100)
+        }, 10000)
       }
     }
   })
