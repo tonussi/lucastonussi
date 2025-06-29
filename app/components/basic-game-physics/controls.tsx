@@ -1,11 +1,10 @@
 import { OrbitControls } from '@react-three/drei'
 import { extend, useThree } from '@react-three/fiber'
-import type { RefObject } from 'react'
 
 import * as THREE from 'three'
 extend(THREE as any)
 
-function Controls({ refCamera }: { refCamera: RefObject<THREE.Camera> }) {
+function Controls() {
   const {
     camera,
     gl: { domElement },
