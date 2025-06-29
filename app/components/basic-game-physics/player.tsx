@@ -84,7 +84,7 @@ const Player = ({
 
     // Check if any movement key is pressed
     const isMoving = keysPressed.w || keysPressed.a || keysPressed.s || keysPressed.d
-    if (mixer && isMoving) mixer.update(delta)
+    if (mixer && isMoving && type === 'gltf') mixer.update(delta)
 
     setShowArrow(isMoving)
 
