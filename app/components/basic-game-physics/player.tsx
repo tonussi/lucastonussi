@@ -150,13 +150,13 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       if (keysPressed.a) {
         // Strafe left (perpendicular to camera direction)
         const cameraDirectionClone = cameraDirection.clone()
-        const right = new THREE.Vector3()
-        right.crossVectors(cameraDirectionClone, camera.up).normalize()
+        const left = new THREE.Vector3()
+        left.crossVectors(cameraDirectionClone, camera.up).normalize()
         // Rotate object to face the direction of movement (left)
-        const targetRotation = Math.atan2(right.x, right.z)
+        const targetRotation = Math.atan2(-left.x, -left.z)
         player.rotation.y = targetRotation
-        movement.add(right.clone().multiplyScalar(moveSpeed))
-        setArrowDirection(right)
+        movement.add(left.clone().multiplyScalar(-moveSpeed))
+        setArrowDirection(left.clone().multiplyScalar(-1))
       }
     }
 
@@ -183,10 +183,10 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
         const right = new THREE.Vector3()
         right.crossVectors(cameraDirectionClone, camera.up).normalize()
         // Rotate object to face the direction of movement (right)
-        const targetRotation = Math.atan2(-right.x, -right.z)
+        const targetRotation = Math.atan2(right.x, right.z)
         player.rotation.y = targetRotation
-        movement.add(right.clone().multiplyScalar(-moveSpeed))
-        setArrowDirection(right.clone().multiplyScalar(-1))
+        movement.add(right.clone().multiplyScalar(moveSpeed))
+        setArrowDirection(right.clone().multiplyScalar(1))
       }
     }
 
