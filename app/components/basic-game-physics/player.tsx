@@ -130,17 +130,19 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       }
     }
 
-    function handleMoveRightwards() {
-      if (keysPressed.d) {
-        // Strafe right (perpendicular to camera direction)
+    function handleMoveForward() {
+      if (keysPressed.w) {
+        // The projection make the vector translate to the obj forward direction
         const cameraDirectionClone = cameraDirection.clone()
-        const right = new THREE.Vector3()
-        right.crossVectors(cameraDirectionClone, camera.up).normalize()
-        // Rotate object to face the direction of movement (right)
-        const targetRotation = Math.atan2(-right.x, -right.z)
+        const projectedDirection = new THREE.Vector3(
+          cameraDirectionClone.x,
+          0,
+          cameraDirectionClone.z
+        ).normalize()
+        const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
         player.rotation.y = targetRotation
-        movement.add(right.clone().multiplyScalar(-moveSpeed))
-        setArrowDirection(right.clone().multiplyScalar(-1))
+        movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
+        setArrowDirection(projectedDirection)
       }
     }
 
@@ -174,19 +176,17 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       }
     }
 
-    function handleMoveForward() {
-      if (keysPressed.w) {
-        // The projection make the vector translate to the obj forward direction
+    function handleMoveRightwards() {
+      if (keysPressed.d) {
+        // Strafe right (perpendicular to camera direction)
         const cameraDirectionClone = cameraDirection.clone()
-        const projectedDirection = new THREE.Vector3(
-          cameraDirectionClone.x,
-          0,
-          cameraDirectionClone.z
-        ).normalize()
-        const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
+        const right = new THREE.Vector3()
+        right.crossVectors(cameraDirectionClone, camera.up).normalize()
+        // Rotate object to face the direction of movement (right)
+        const targetRotation = Math.atan2(-right.x, -right.z)
         player.rotation.y = targetRotation
-        movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
-        setArrowDirection(projectedDirection)
+        movement.add(right.clone().multiplyScalar(-moveSpeed))
+        setArrowDirection(right.clone().multiplyScalar(-1))
       }
     }
 
