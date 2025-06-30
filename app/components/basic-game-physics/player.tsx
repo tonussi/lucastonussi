@@ -30,6 +30,7 @@ const Player = ({
   const [showArrow, setShowArrow] = useState(false)
   const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
   const [moveSpeed, setMoveSpeed] = useState(0.09)
+  const [isJumping, setIsJumping] = useState(false)
   let mixer: THREE.AnimationMixer | null = new THREE.AnimationMixer(player)
 
   // Only proceed if obj is loaded
@@ -49,6 +50,7 @@ const Player = ({
             mat.transparent = true
             mat.opacity = 0.1
           })
+          debugger
         } else {
           child.material.wireframe = true
           child.material.transparent = true
@@ -108,11 +110,11 @@ const Player = ({
         mesh.current.position.add(movement)
 
         camera.position.copy(mesh.current.position)
-        camera.rotation.set(-0.3, 0, 0)
+        camera.rotation.set(-0.5, 0, 0)
         camera.position.set(
           mesh.current.position.x,
-          mesh.current.position.y + 5,
-          mesh.current.position.z + 9
+          mesh.current.position.y + 20,
+          mesh.current.position.z + 20
         )
 
         // Update spotlight to follow the player
@@ -242,7 +244,7 @@ const Player = ({
   })
 
   return (
-    <instancedMesh ref={refScene} args={[undefined, undefined, 1]}>
+    <instancedMesh ref={refScene} castShadow args={[undefined, undefined, 1]}>
       {/* Direction arrow helper */}
       {showArrow && Math.random() > 0.9 && (
         <arrowHelper
@@ -254,7 +256,7 @@ const Player = ({
             0.5, // head length
             0.1, // head width
           ]}
-          position={[0, 2, 0]}
+          position={player.position}
         />
       )}
       {bullets.map((bullet, index) => (
@@ -268,22 +270,22 @@ const Player = ({
         colliders={['box']}
         mass={1}
         gravity={[0, -9.86, 0]}
-        linearDamping={0.9}
-        angularDamping={0.7}
-        linearFactor={[1, 1, 1]}
-        angularFactor={[1, 1, 1]}
-        restitution={0.2}
-        friction={0.5}
-        angularVelocity={[0, 0, 0]}
-        linearVelocity={[0, 0, 0]}
-        linearVelocityFromRotation={[0, 0, 0]}
-        angularVelocityFromRotation={[0, 0, 0]}
-        linearVelocityFromRotationFactor={[1, 1, 1]}
-        angularVelocityFromRotationFactor={[1, 1, 1]}
-        linearVelocityFromRotationDamping={[0.9, 0.9, 0.9]}
-        angularVelocityFromRotationDamping={[0.9, 0.9, 0.9]}
-        linearVelocityFromRotationDampingFactor={[1, 1, 1]}
-        angularVelocityFromRotationDampingFactor={[1, 1, 1]}
+        // linearDamping={0.9}
+        // angularDamping={0.7}
+        // linearFactor={[1, 1, 1]}
+        // angularFactor={[1, 1, 1]}
+        // restitution={0.2}
+        // friction={0.5}
+        // angularVelocity={[0, 0, 0]}
+        // linearVelocity={[0, 0, 0]}
+        // linearVelocityFromRotation={[0, 0, 0]}
+        // angularVelocityFromRotation={[0, 0, 0]}
+        // linearVelocityFromRotationFactor={[1, 1, 1]}
+        // angularVelocityFromRotationFactor={[1, 1, 1]}
+        // linearVelocityFromRotationDamping={[0.9, 0.9, 0.9]}
+        // angularVelocityFromRotationDamping={[0.9, 0.9, 0.9]}
+        // linearVelocityFromRotationDampingFactor={[1, 1, 1]}
+        // angularVelocityFromRotationDampingFactor={[1, 1, 1]}
         object={player}
         ref={mesh}
         position={[0, 0, 0]}

@@ -14,7 +14,7 @@ function CameraHelper({
 
   return (
     <group ref={refCamera}>
-      <PerspectiveCamera fov={60} near={1} />
+      <PerspectiveCamera fov={60} near={1} far={1000} makeDefault castShadow />
       <cameraHelper name="camera" args={[camera]} />
     </group>
   )
