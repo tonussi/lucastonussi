@@ -2,20 +2,16 @@ import { PerspectiveCamera } from '@react-three/drei'
 import { type RefObject } from 'react'
 
 import * as THREE from 'three'
+import Controls from './controls'
 
-function CameraHelper({
-  refCamera,
-  refScene,
-}: {
-  refCamera: RefObject<THREE.PerspectiveCamera>
-  refScene: RefObject<THREE.Scene>
-}) {
+function CameraHelper({ refCamera }: { refCamera: RefObject<THREE.PerspectiveCamera> }) {
   const camera = new THREE.PerspectiveCamera(60, 1, 1, 3)
 
   return (
-    <group ref={refCamera}>
-      <PerspectiveCamera fov={60} near={1} far={1000} makeDefault castShadow />
-      <cameraHelper name="camera" args={[camera]} />
+    <group>
+      <PerspectiveCamera ref={refCamera} fov={60} near={1} far={1000} makeDefault castShadow />
+      <Controls camera={camera} />
+      {/* <cameraHelper name="camera" args={[camera]} /> */}
     </group>
   )
 }

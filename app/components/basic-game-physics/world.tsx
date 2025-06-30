@@ -3,13 +3,12 @@ import { Canvas } from '@react-three/fiber'
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef } from 'react'
 
-import { GizmoHelper, GizmoViewport, useHelper } from '@react-three/drei'
+import { useHelper } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 import * as THREE from 'three'
 import { DirectionalLightHelper, SpotLightHelper } from 'three'
 import CameraHelper from './camera'
-import Controls from './controls'
 import FullscreenWrapper from './fullscreen'
 import Ground from './ground'
 import Player from './player'
@@ -105,19 +104,14 @@ export default function BasicGamePhysics() {
         }}
         ref={refCanvas}
         shadows
-        camera={{
-          fov: 75,
-          near: 0.1,
-          far: 1000,
-        }}
       >
         <Suspense fallback={<Progress />}>
           <Physics>
             <scene ref={refScene}>
-              <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+              {/* <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
                 <GizmoViewport />
-              </GizmoHelper>
-              <Controls />
+              </GizmoHelper> */}
+              <CameraHelper refCamera={refCamera} />
               <ambientLight name="ambientLight" intensity={10} position={[0, 500, 0]} />
               <directionalLight
                 position={[-5, 500, 5]}
@@ -125,7 +119,6 @@ export default function BasicGamePhysics() {
                 shadow-mapSize-height={1024}
               />
               <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
-              <CameraHelper refCamera={refCamera} refScene={refScene} />
               {/* <RigidBody position={[0, 0.5, 0]} colliders="cuboid" type="fixed"> */}
               <Player refCamera={refCamera} refScene={refScene} />
               {/* </RigidBody> */}
@@ -135,7 +128,7 @@ export default function BasicGamePhysics() {
                 <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
                   <planeGeometry args={[40, 40]} />
                   <shadowMaterial transparent opacity={0.2} />
-                  <meshStandardMaterial color="white" />
+                  <meshStandardMaterial color="orange" />
                 </mesh>
               </RigidBody>
               <Ground active={true} />

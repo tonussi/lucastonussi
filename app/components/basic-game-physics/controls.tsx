@@ -1,16 +1,10 @@
 import { OrbitControls } from '@react-three/drei'
-import { extend, useThree } from '@react-three/fiber'
+import { extend } from '@react-three/fiber'
 
 import * as THREE from 'three'
 extend(THREE as any)
 
-function Controls() {
-  const {
-    camera,
-    gl: { domElement },
-  } = useThree()
-
-  // TODO: use refCamera.current
+function Controls({ camera }: { camera: THREE.PerspectiveCamera }) {
   return (
     <OrbitControls
       // maxDistance={15}
@@ -27,16 +21,6 @@ function Controls() {
       mouseButtons={{
         MIDDLE: THREE.MOUSE.PAN,
         RIGHT: THREE.MOUSE.ROTATE,
-      }}
-      touches={{
-        ONE: THREE.TOUCH.ROTATE,
-        TWO: THREE.TOUCH.DOLLY_PAN,
-      }}
-      keys={{
-        LEFT: 'ArrowLeft',
-        UP: 'ArrowUp',
-        RIGHT: 'ArrowRight',
-        BOTTOM: 'ArrowDown',
       }}
     />
   )
