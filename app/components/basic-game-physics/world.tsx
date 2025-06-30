@@ -111,24 +111,25 @@ export default function BasicGamePhysics() {
               {/* <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
                 <GizmoViewport />
               </GizmoHelper> */}
-              <CameraHelper refCamera={refCamera} />
-              <ambientLight name="ambientLight" intensity={10} position={[0, 500, 0]} />
+              <CameraHelper />
+              <ambientLight />
               <directionalLight
-                position={[-5, 500, 5]}
+                position={[-5, 5, 5]}
+                castShadow
                 shadow-mapSize-width={1024}
                 shadow-mapSize-height={1024}
               />
-              <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} />
+              {/* <spotLight name="spotlight" position={[0, 10, 0]} intensity={100} /> */}
               {/* <RigidBody position={[0, 0.5, 0]} colliders="cuboid" type="fixed"> */}
-              <Player refCamera={refCamera} refScene={refScene} />
+              <Player refScene={refScene} />
               {/* </RigidBody> */}
               {/* <PointerLockControls camera={refCamera.current} /> */}
               {/* <fog attach="fog" args={[0x000000, 10, 100]} /> */}
               <RigidBody colliders="cuboid" type="fixed">
-                <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
+                <mesh receiveShadow rotation={[-0.5 * Math.PI, 0, 0]} position={[0, 0, 0]}>
                   <planeGeometry args={[40, 40]} />
                   <shadowMaterial transparent opacity={0.2} />
-                  <meshStandardMaterial color="orange" />
+                  <meshStandardMaterial color="gray" />
                 </mesh>
               </RigidBody>
               <Ground active={true} />

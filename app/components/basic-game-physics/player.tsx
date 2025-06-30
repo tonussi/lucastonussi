@@ -12,13 +12,7 @@ extend(THREE as any)
 
 const ZeroVector = new THREE.Vector3(0, 0, 0)
 
-const Player = ({
-  refCamera,
-  refScene,
-}: {
-  refCamera: RefObject<THREE.PerspectiveCamera>
-  refScene: RefObject<THREE.Scene>
-}) => {
+const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
   const clock = new THREE.Clock(true)
 
@@ -30,8 +24,9 @@ const Player = ({
   const [showArrow, setShowArrow] = useState(false)
   const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
   const [moveSpeed, setMoveSpeed] = useState(0.09)
-  const [isJumping, setIsJumping] = useState(false)
   let mixer: THREE.AnimationMixer | null = new THREE.AnimationMixer(player)
+
+  const camera = refScene.current?.getObjectByName('camera') as THREE.PerspectiveCamera
 
   // Only proceed if obj is loaded
   if (!player) {
@@ -62,7 +57,7 @@ const Player = ({
 
   const skeleton = new THREE.SkeletonHelper(player)
   skeleton.visible = true
-  refScene.current?.add(skeleton)
+  mesh.current?.add(skeleton)
 
   const axesHelper = new THREE.AxesHelper(10)
   mesh.current?.add(axesHelper)
@@ -76,7 +71,6 @@ const Player = ({
   useFrame(() => {
     const delta = clock.getDelta()
 
-    const camera = refCamera.current
     if (!camera) return
 
     const cameraDirection = new THREE.Vector3()
