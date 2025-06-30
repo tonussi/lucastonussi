@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef } from 'react'
 
+import { GizmoHelper, GizmoViewport } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraHelper from './camera'
@@ -51,6 +52,9 @@ export default function BasicGamePhysics() {
         <Suspense fallback={<Progress />}>
           <Physics>
             <scene ref={refScene}>
+              <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+                <GizmoViewport />
+              </GizmoHelper>
               <Controls />
               <ambientLight name="ambientLight" intensity={10} position={[0, 1000, 0]} />
               <directionalLight
