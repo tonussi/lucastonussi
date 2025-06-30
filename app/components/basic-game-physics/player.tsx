@@ -121,9 +121,12 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
           spotlight.target.updateMatrixWorld()
         }
 
-        // camera.updateMatrixWorld()
-        // camera.updateMatrix()
-        // mesh.current.updateMatrix()
+        camera.updateMatrixWorld()
+        camera.updateMatrix()
+        mesh.current.updateMatrix()
+        mesh.current.updateMatrixWorld()
+        refScene.current.updateMatrixWorld()
+        refScene.current.updateMatrix()
       }
     }
 
@@ -160,9 +163,9 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
         // The projection make the vector translate to the obj backwards direction
         const cameraDirectionClone = cameraDirection.clone()
         const projectedDirection = new THREE.Vector3(
-          cameraDirectionClone.x,
+          -cameraDirectionClone.x,
           0,
-          cameraDirectionClone.z
+          -cameraDirectionClone.z
         ).normalize()
         const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
         player.rotation.y = targetRotation
@@ -176,9 +179,9 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
         // The projection make the vector translate to the obj forward direction
         const cameraDirectionClone = cameraDirection.clone()
         const projectedDirection = new THREE.Vector3(
-          -cameraDirectionClone.x,
+          cameraDirectionClone.x,
           0,
-          -cameraDirectionClone.z
+          cameraDirectionClone.z
         ).normalize()
         const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
         player.rotation.y = targetRotation
