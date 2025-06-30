@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import * as THREE from 'three'
 import Controls from './controls'
 
-function CameraHelper() {
+function CameraFollower() {
   const refCamera = useRef<THREE.PerspectiveCamera>(null!)
 
   return (
@@ -16,4 +16,4 @@ function CameraHelper() {
   )
 }
 
-export default CameraHelper
+export default CameraFollower

@@ -8,7 +8,7 @@ import { Physics, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 import * as THREE from 'three'
 import { DirectionalLightHelper, SpotLightHelper } from 'three'
-import CameraHelper from './camera'
+import CameraFollower from './camera'
 import FullscreenWrapper from './fullscreen'
 import Ground from './ground'
 import Player from './player'
@@ -111,7 +111,7 @@ export default function BasicGamePhysics() {
               {/* <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
                 <GizmoViewport />
               </GizmoHelper> */}
-              <CameraHelper />
+              <CameraFollower />
               <ambientLight />
               <directionalLight
                 position={[-5, 5, 5]}
