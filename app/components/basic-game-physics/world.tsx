@@ -73,15 +73,19 @@ export default function BasicGamePhysics() {
                 <mesh rotation={[-0.5 * Math.PI, 0, 0]} position={[0, 0, 0]}>
                   <mesh position={[0, 20, 5]}>
                     <boxGeometry args={[40, 1, 10]} />
+                    <meshStandardMaterial color="transparent" transparent opacity={0.1} />
                   </mesh>
                   <mesh position={[0, -20, 5]}>
                     <boxGeometry args={[40, 1, 10]} />
+                    <meshStandardMaterial color="transparent" transparent opacity={0.1} />
                   </mesh>
                   <mesh position={[20, 0, 5]}>
                     <boxGeometry args={[0, -40, 10]} />
+                    <meshStandardMaterial color="transparent" transparent opacity={0.1} />
                   </mesh>
                   <mesh position={[-20, 0, 5]}>
                     <boxGeometry args={[0, -40, 10]} />
+                    <meshStandardMaterial color="transparent" transparent opacity={0.1} />
                   </mesh>
                   <planeGeometry args={[40, 40]} />
                   <meshStandardMaterial color="white" />

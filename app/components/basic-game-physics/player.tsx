@@ -25,7 +25,6 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
   const [moveSpeed, setMoveSpeed] = useState(0.09)
   const [isPlayingRunningAnimation, setIsPlayingRunningAnimation] = useState(false)
-  const [animationIndex, setAnimationIndex] = useState(1)
   let mixer: THREE.AnimationMixer | null = new THREE.AnimationMixer(player)
 
   const camera = refScene.current?.getObjectByName('camera') as THREE.PerspectiveCamera
@@ -34,14 +33,6 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   if (!player) {
     return null
   }
-
-  // useEffect(() => {
-  //   if (mixer) mixer.clipAction(animations[animationIndex]).reset().fadeIn(0.5).play()
-
-  //   return () => {
-  //     if (mixer) mixer.clipAction(animations[animationIndex]).fadeOut(0.5)
-  //   }
-  // }, [animationIndex])
 
   useFrame(() => {
     const delta = clock.getDelta()
@@ -81,13 +72,13 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
         mesh.current.position.add(movement)
 
         // camera.position.copy(mesh.current.position)
-        // camera.rotation.set(-0.5, 0, 0)
+        // camera.rotation.set(-0.5, 0.5, 0)
         // camera.position.set(
         //   mesh.current.position.x,
         //   mesh.current.position.y + 20,
         //   mesh.current.position.z + 20
         // )
-        camera.lookAt(mesh.current.position)
+        // camera.lookAt(mesh.current.position)
 
         // Update spotlight to follow the player
         const spotlight = refScene.current.getObjectByName('spotlight')
@@ -217,7 +208,7 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   })
 
   return (
-    <instancedMesh ref={refScene} castShadow args={[undefined, undefined, 1]}>
+    <>
       {/* Direction arrow helper */}
       {showArrow && Math.random() > 0.9 && (
         <arrowHelper
@@ -236,7 +227,7 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
         <CubeTravel key={index} position={bullet} />
       ))}
       <primitive castShadow name="player" object={player} ref={mesh} position={[0, 0, 0]} />
-    </instancedMesh>
+    </>
   )
 
   function playRunningAnimation(isMoving: boolean) {
