@@ -13,11 +13,11 @@ function CameraFollower() {
         name="camera"
         makeDefault
         ref={refCamera}
-        fov={60}
-        near={1}
-        far={2000}
-        position={[0, 20, 20]}
-        rotation={[-0.5 * Math.PI, 0, 0]}
+        fov={20}
+        near={0.1}
+        far={100}
+        position={[0, 5, 5]}
+        rotation={[-0.5 * Math.PI, 0.5 * Math.PI, 0]}
       />
       <Controls camera={refCamera.current} />
     </group>

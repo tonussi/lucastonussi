@@ -24,6 +24,8 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   const [showArrow, setShowArrow] = useState(false)
   const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
   const [moveSpeed, setMoveSpeed] = useState(0.09)
+  const [isPlayingRunningAnimation, setIsPlayingRunningAnimation] = useState(false)
+  const [animationIndex, setAnimationIndex] = useState(1)
   let mixer: THREE.AnimationMixer | null = new THREE.AnimationMixer(player)
 
   const camera = refScene.current?.getObjectByName('camera') as THREE.PerspectiveCamera
@@ -33,40 +35,13 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
     return null
   }
 
-  player.scale.set(0.002, 0.002, 0.002)
+  // useEffect(() => {
+  //   if (mixer) mixer.clipAction(animations[animationIndex]).reset().fadeIn(0.5).play()
 
-  // Make all materials wireframe
-  if (player) {
-    player.traverse((child: THREE.Object3D) => {
-      if (child instanceof THREE.Mesh && child.material) {
-        if (Array.isArray(child.material)) {
-          child.material.forEach((mat) => {
-            mat.wireframe = true
-            mat.transparent = true
-            mat.opacity = 0.1
-          })
-          debugger
-        } else {
-          child.material.wireframe = true
-          child.material.transparent = true
-          child.material.opacity = 0.1
-        }
-      }
-    })
-  }
-
-  const skeleton = new THREE.SkeletonHelper(player)
-  skeleton.visible = true
-  mesh.current?.add(skeleton)
-
-  const axesHelper = new THREE.AxesHelper(10)
-  mesh.current?.add(axesHelper)
-
-  if (animations && animations.length > 0) {
-    if (type === 'gltf') {
-      if (mixer) mixer.clipAction(animations[1]).play()
-    }
-  }
+  //   return () => {
+  //     if (mixer) mixer.clipAction(animations[animationIndex]).fadeOut(0.5)
+  //   }
+  // }, [animationIndex])
 
   useFrame(() => {
     const delta = clock.getDelta()
@@ -87,6 +62,8 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
     handleLeftMouseClick()
 
     handleProjectilesAnimations()
+
+    playRunningAnimation(isMoving)
 
     handleMoveForward()
 
@@ -194,7 +171,7 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       bullets.forEach((bullet) => {
         // Add physics to bullets - make them fall and roll on ground
         // Keep bullets on ground level (y = 0)
-        bullet.y = 3
+        bullet.y = 0
 
         // Add random movement on the ground
         const randomX = (Math.random() - 0.5) * 0.1 // Reduced random X movement
@@ -206,7 +183,7 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
 
     function handleLeftMouseClick() {
       if (mouse.isLeft) {
-        if (bullets.length > 3) return
+        if (bullets.length > 0) return
 
         // Get the character's current position and forward direction
         const characterPosition = player.position.clone()
@@ -221,7 +198,7 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
         // Position bullets 8 units in front of the character
         const bulletPosition = characterPosition
           .clone()
-          .add(forwardDirection.clone().multiplyScalar(10))
+          .add(forwardDirection.clone().multiplyScalar(2))
         projectiles.copy(bulletPosition)
 
         // Make the box face the direction it's being thrown
@@ -233,10 +210,10 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
 
         // Update bullets state
         // Clear bullets after 5 seconds
-        setProjectiles((prevBullets) => [...prevBullets, ...bullets])
+        setProjectiles(bullets)
         setTimeout(() => {
           setProjectiles([])
-        }, 10000)
+        }, 1000)
       }
     }
   })
@@ -262,7 +239,6 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       ))}
       <primitive
         castShadow
-        receiveShadow
         name="player"
         rigidBody
         colliders={['box']}
@@ -290,6 +266,28 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       />
     </instancedMesh>
   )
+
+  function playRunningAnimation(isMoving: boolean) {
+    if (!isMoving) {
+      if (isPlayingRunningAnimation) {
+        console.log('stopping running animation')
+        setIsPlayingRunningAnimation(false)
+        if (mixer) mixer.clipAction(animations[1]).reset().fadeOut(0.5).stop()
+        return
+      }
+    }
+
+    if (isMoving && !isPlayingRunningAnimation) {
+      if (animations && animations.length > 0) {
+        if (type === 'gltf') {
+          console.log('playing running animation')
+          if (mixer) mixer.clipAction(animations[1]).reset().fadeIn(0.5).play()
+          setIsPlayingRunningAnimation(true)
+          return
+        }
+      }
+    }
+  }
 }
 
 export default Player
