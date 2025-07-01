@@ -196,9 +196,7 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
         const projectiles = new THREE.Vector3()
 
         // Position bullets 8 units in front of the character
-        const bulletPosition = characterPosition
-          .clone()
-          .add(forwardDirection.clone().multiplyScalar(2))
+        const bulletPosition = characterPosition.clone().add(forwardDirection.clone())
         projectiles.copy(bulletPosition)
 
         // Make the box face the direction it's being thrown
@@ -237,33 +235,7 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       {bullets.map((bullet, index) => (
         <CubeTravel key={index} position={bullet} />
       ))}
-      <primitive
-        castShadow
-        name="player"
-        rigidBody
-        colliders={['box']}
-        mass={1}
-        gravity={[0, -9.86, 0]}
-        // linearDamping={0.9}
-        // angularDamping={0.7}
-        // linearFactor={[1, 1, 1]}
-        // angularFactor={[1, 1, 1]}
-        // restitution={0.2}
-        // friction={0.5}
-        // angularVelocity={[0, 0, 0]}
-        // linearVelocity={[0, 0, 0]}
-        // linearVelocityFromRotation={[0, 0, 0]}
-        // angularVelocityFromRotation={[0, 0, 0]}
-        // linearVelocityFromRotationFactor={[1, 1, 1]}
-        // angularVelocityFromRotationFactor={[1, 1, 1]}
-        // linearVelocityFromRotationDamping={[0.9, 0.9, 0.9]}
-        // angularVelocityFromRotationDamping={[0.9, 0.9, 0.9]}
-        // linearVelocityFromRotationDampingFactor={[1, 1, 1]}
-        // angularVelocityFromRotationDampingFactor={[1, 1, 1]}
-        object={player}
-        ref={mesh}
-        position={[0, 0, 0]}
-      />
+      <primitive castShadow name="player" object={player} ref={mesh} position={[0, 0, 0]} />
     </instancedMesh>
   )
 
