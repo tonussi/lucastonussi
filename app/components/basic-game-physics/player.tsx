@@ -48,10 +48,6 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
     const isMoving = keysPressed.w || keysPressed.a || keysPressed.s || keysPressed.d
     if (mixer && isMoving && type === 'gltf') mixer.update(delta)
 
-    if (isMoving) {
-      camera.lookAt(mesh.current.position)
-    }
-
     setShowArrow(isMoving)
 
     handleLeftMouseClick()
@@ -74,6 +70,7 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       // Apply movement to mesh
       if (mesh.current) {
         mesh.current.position.add(movement)
+        camera.lookAt(mesh.current.position)
 
         // Update spotlight to follow the player
         const spotlight = refScene.current.getObjectByName('spotlight')
