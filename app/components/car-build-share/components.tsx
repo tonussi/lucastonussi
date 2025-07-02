@@ -22,7 +22,7 @@ const SteeringWheel = () => {
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
-      <primitive object={wheel} position={[0, -2, 0]} />
+      <primitive castShadow object={wheel} position={[0, -2, 0]} />
       <pointsMaterial
         color={'magenta'}
         size={0.02}
@@ -440,6 +440,7 @@ export default function CarBuildShare() {
                     Sorry no WebGL supported!
                   </div>
                 }
+                shadows
                 className="bg-gradient-to-br from-gray-200 via-gray-2800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 h-full w-full rounded-lg"
               >
                 <Suspense fallback={<Loader />}>
@@ -468,6 +469,8 @@ export default function CarBuildShare() {
                     panSpeed={0.5}
                     rotateSpeed={0.5}
                     makeDefault
+                    autoRotate
+                    autoRotateSpeed={5.4}
                     mouseButtons={{
                       MIDDLE: THREE.MOUSE.PAN,
                       RIGHT: THREE.MOUSE.ROTATE,
