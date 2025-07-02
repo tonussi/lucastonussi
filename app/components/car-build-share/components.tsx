@@ -18,18 +18,33 @@ function Loader() {
 const SteeringWheel = () => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
 
-  const wheel = useLoader(OBJLoader, '/models/misc/steering/shape.obj')
+  const wheel = useLoader(OBJLoader, '/models/steering/shape.obj')
+
+  // const material = useLoader(MTLLoader, '/models/steering/material.mtl')
+
+  wheel.traverse((child: THREE.Object3D) => {
+    child.castShadow = true
+    child.receiveShadow = true
+    if (child instanceof THREE.Mesh && child.material) {
+      if (Array.isArray(child.material)) {
+        child.material.forEach((mat) => {
+          mat.transparent = true
+          mat.opacity = 0.1
+          mat.wireframe = true
+          mat.color.set('gray')
+        })
+      } else {
+        child.material.transparent = true
+        child.material.opacity = 0.1
+        child.material.wireframe = true
+        child.material.color.set('blue')
+      }
+    }
+  })
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
       <primitive castShadow object={wheel} position={[0, -2, 0]} />
-      <pointsMaterial
-        color={'magenta'}
-        size={0.02}
-        transparent={false}
-        sizeAttenuation={false}
-        opacity={1}
-      />
     </instancedMesh>
   )
 }
