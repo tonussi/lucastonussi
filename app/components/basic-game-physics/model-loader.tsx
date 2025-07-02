@@ -49,7 +49,7 @@ const usePlayerModel = () => {
     checkModelFileExists()
   }, [])
 
-  let player: THREE.Group | null = null
+  // let player: THREE.Group | null = null
 
   const { scene, nodes, animations } = useGLTF(MODEL_PATH)
 
