@@ -2,8 +2,7 @@ import { useGLTF } from '@react-three/drei'
 import { useEffect, useState } from 'react'
 import * as THREE from 'three'
 
-// const MODEL_PATH = '/models/misc/woman/woman.gltf'
-const MODEL_PATH = '/models/misc/skeleton/pirate.gltf'
+const MODEL_PATH = '/models/skeleton/pirate.gltf'
 
 // Custom hook for loading player model
 const usePlayerModel = () => {
@@ -52,36 +51,25 @@ const usePlayerModel = () => {
 
   let player: THREE.Group | null = null
 
-  if (fbxExists) {
-    const { scene, nodes, animations } = useGLTF(MODEL_PATH)
+  const { scene, nodes, animations } = useGLTF(MODEL_PATH)
 
-    if (applyOneTimeOnlyThings) {
-      setApplyOneTimeOnlyThings(false)
-      scene.rotation.set(0, Math.PI, 0)
-      scene.scale.set(0.0005, 0.0005, 0.0005)
+  if (applyOneTimeOnlyThings) {
+    setApplyOneTimeOnlyThings(false)
+    scene.rotation.set(0, Math.PI, 0)
+    scene.scale.set(0.0005, 0.0005, 0.0005)
 
-      const skeleton = new THREE.SkeletonHelper(scene as THREE.Object3D)
-      const axesHelper = new THREE.AxesHelper(10)
+    const skeleton = new THREE.SkeletonHelper(scene as THREE.Object3D)
+    // const axesHelper = new THREE.AxesHelper(10)
 
-      skeleton.visible = true
-      axesHelper.visible = true
+    skeleton.visible = true
+    // axesHelper.visible = true
 
-      scene.add(skeleton)
-      scene.add(axesHelper)
-      traverseMaterialsApplyingEffects(scene)
-    }
-
-    return { type: 'gltf', player: scene, nodes, animations: animations as THREE.AnimationClip[] }
+    scene.add(skeleton)
+    // scene.add(axesHelper)
+    traverseMaterialsApplyingEffects(scene)
   }
 
-  player = new THREE.Group()
-  const box = new THREE.BoxGeometry(125, 3200, 125)
-  box.translate(0, 0, 0)
-  const material = new THREE.MeshBasicMaterial({ color: 'magenta' })
-  const boxMesh = new THREE.Mesh(box, material)
-  player.add(boxMesh)
-
-  return { type: 'box', player, animations: [] as THREE.AnimationClip[] }
+  return { type: 'gltf', player: scene, nodes, animations: animations as THREE.AnimationClip[] }
 }
 
 export default usePlayerModel

@@ -52,10 +52,15 @@ export default function BasicGamePhysics() {
           shadow-mapSize-height={1024}
         />
         <Suspense fallback={<Progress />}>
-          <Physics debug={true} gravity={[0, -9.81, 0]}>
+          <Physics gravity={[0, -9.81, 0]}>
             <scene ref={refScene}>
-              <RigidBody colliders={'cuboid'} type={'fixed'} restitution={2} position={[0, 0, 0]}>
-                <Torus args={[0.1, 0.4, 16, 64]} position={[5, 0.1, 0]} />
+              <RigidBody
+                colliders={'ball'}
+                type={'kinematicVelocity'}
+                restitution={2}
+                position={[5, 0.5, 0]}
+              >
+                <Torus args={[4.1, 0.4, 16, 64]} position={[5, 0.5, 0]} />
               </RigidBody>
               {/* <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
                 <GizmoViewport />
@@ -64,7 +69,7 @@ export default function BasicGamePhysics() {
               {/* <ambientLight /> */}
 
               {/* <spotLight name="spotlight" position={[0, 10, 0]} intensity={20}  /> */}
-              <RigidBody colliders={'cuboid'} type={'fixed'} position={[0, 0.5, 0]}>
+              <RigidBody colliders={'cuboid'} type={'fixed'} position={[0, 0, 0]}>
                 <Player refScene={refScene} />
               </RigidBody>
               {/* <PointerLockControls camera={refCamera.current} /> */}
