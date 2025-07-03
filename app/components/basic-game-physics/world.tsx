@@ -59,14 +59,11 @@ export default function BasicGamePhysics() {
       >
         <Ground active={true} />
         <directionalLight
-          position={[0, 10, 0]}
+          position={[10, 10, 10]}
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
-          castShadow
-          intensity={10}
+          intensity={0.5}
         />
-        <ambientLight intensity={0.5} castShadow />
-        <directionalLight position={[0, 10, 0]} castShadow />
         <Suspense fallback={<Progress />}>
           <Physics gravity={[0, -9.81, 0]}>
             <scene ref={refScene}>
