@@ -58,14 +58,6 @@ export default function BasicGamePhysics() {
         ref={refCanvas}
         shadows
       >
-        <Ground active={true} receiveShadow />
-        <directionalLight
-          position={[10, 10, 10]}
-          shadow-mapSize-width={1024}
-          shadow-mapSize-height={1024}
-          intensity={0.5}
-          castShadow
-        />
         <Suspense fallback={<Progress />}>
           <Physics>
             <scene ref={refScene}>
@@ -88,6 +80,15 @@ export default function BasicGamePhysics() {
                 <GizmoViewport />
               </GizmoHelper> */}
               <CameraFollower playerRef={playerRef} />
+              <Ground active={true} receiveShadow />
+              <directionalLight
+                position={[10, 10, 10]}
+                shadow-mapSize-width={1024}
+                shadow-mapSize-height={1024}
+                intensity={0.5}
+                castShadow
+              />
+              <ambientLight />
               {/* <ambientLight /> */}
 
               {/* <spotLight name="spotlight" position={[0, 10, 0]} intensity={20}  /> */}

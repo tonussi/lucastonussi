@@ -4,7 +4,7 @@ import usePlayerModel from './model-loader'
 import { useFrame } from '@react-three/fiber'
 
 import { extend } from '@react-three/fiber'
-import { forwardRef, useImperativeHandle, useRef, useState, type RefObject } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type RefObject } from 'react'
 
 import * as THREE from 'three'
 import CubeTravel from './cube-travel'
@@ -48,6 +48,23 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
     if (child instanceof THREE.Mesh) child.castShadow = true
   })
 
+  const [animationIndex, setAnimationIndex] = useState(0)
+
+  // Increment animationIndex every second
+  // Use a ref to avoid stale closure
+  const animationIndexRef = useRef(animationIndex)
+  animationIndexRef.current = animationIndex
+
+  if (mixer) mixer.clipAction(animations[1]).play()
+
+  // Set up interval to increment animationIndex every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAnimationIndex((prev) => prev + 1)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   useFrame(() => {
     const delta = clock.getDelta()
 
@@ -60,7 +77,7 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
 
     // Check if any movement key is pressed
     const isMoving = keysPressed.w || keysPressed.a || keysPressed.s || keysPressed.d
-    if (mixer && isMoving && type === 'gltf') mixer.update(delta)
+    if (mixer && isMoving) mixer.update(animationIndex + delta)
 
     setShowArrow(isMoving)
 
@@ -68,7 +85,7 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
 
     handleProjectilesAnimations()
 
-    playRunningAnimation(isMoving)
+    // playRunningAnimation(isMoving)
 
     handleMoveForward()
 
@@ -240,27 +257,27 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
     </>
   )
 
-  function playRunningAnimation(isMoving: boolean) {
-    if (!isMoving) {
-      if (isPlayingRunningAnimation) {
-        console.log('stopping running animation')
-        setIsPlayingRunningAnimation(false)
-        if (mixer) mixer.clipAction(animations[1]).reset().fadeOut(0.5).stop()
-        return
-      }
-    }
+  // function playRunningAnimation(isMoving: boolean) {
+  //   if (!isMoving) {
+  //     if (isPlayingRunningAnimation) {
+  //       console.log('stopping running animation')
+  //       setIsPlayingRunningAnimation(false)
+  //       if (mixer) mixer.clipAction(animations[1]).stop()
+  //       return
+  //     }
+  //   }
 
-    if (isMoving && !isPlayingRunningAnimation) {
-      if (animations && animations.length > 0) {
-        if (type === 'gltf') {
-          console.log('playing running animation')
-          if (mixer) mixer.clipAction(animations[1]).reset().fadeIn(0.5).play()
-          setIsPlayingRunningAnimation(true)
-          return
-        }
-      }
-    }
-  }
+  //   if (isMoving && !isPlayingRunningAnimation) {
+  //     if (animations && animations.length > 0) {
+  //       if (type === 'gltf') {
+  //         console.log('playing running animation')
+  //         if (mixer) mixer.clipAction(animations[1]).play()
+  //         setIsPlayingRunningAnimation(true)
+  //         return
+  //       }
+  //     }
+  //   }
+  // }
 })
 
 export default Player
