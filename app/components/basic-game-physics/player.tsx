@@ -43,6 +43,11 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
   // Add target rotation state
   const [targetRotation, setTargetRotation] = useState(player.rotation.x)
 
+  // Ensure all meshes in the player model cast shadows
+  player.traverse((child) => {
+    if (child instanceof THREE.Mesh) child.castShadow = true
+  })
+
   useFrame(() => {
     const delta = clock.getDelta()
 
@@ -231,7 +236,7 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
       {bullets.map((bullet, index) => (
         <CubeTravel key={index} position={bullet} />
       ))}
-      <primitive name="player" object={player} ref={mesh} position={[0, 0, 0]} />
+      <primitive name="player" object={player} ref={mesh} position={[0, 0, 0]} castShadow />
     </>
   )
 

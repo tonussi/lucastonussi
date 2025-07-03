@@ -56,14 +56,16 @@ export default function BasicGamePhysics() {
           backgroundColor: 'white',
         }}
         ref={refCanvas}
+        shadows
       >
         <Environment preset="dawn" />
-        <Ground active={true} />
+        <Ground active={true} receiveShadow />
         <directionalLight
           position={[10, 10, 10]}
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
           intensity={0.5}
+          castShadow
         />
         <Suspense fallback={<Progress />}>
           <Physics>
@@ -74,7 +76,7 @@ export default function BasicGamePhysics() {
                 restitution={2}
                 position={[5, 0.5, 0]}
               >
-                <mesh>
+                <mesh castShadow receiveShadow>
                   <Torus
                     args={[4.1, 0.4, 16, 64]}
                     position={[5, 4, 0]}
@@ -96,20 +98,20 @@ export default function BasicGamePhysics() {
               {/* <PointerLockControls camera={refCamera.current} /> */}
               {/* <fog attach="fog" args={[0x000000, 10, 100]} /> */}
               <RigidBody colliders={'cuboid'} type={'fixed'} restitution={0.5}>
-                <mesh rotation={[-0.5 * Math.PI, 0, 0]} position={[0, 0, 0]}>
-                  <mesh position={[0, 20, 5]}>
+                <mesh rotation={[-0.5 * Math.PI, 0, 0]} position={[0, 0, 0]} receiveShadow>
+                  <mesh position={[0, 20, 5]} castShadow receiveShadow>
                     <boxGeometry args={[40, 1, 10]} />
                     <meshStandardMaterial color="transparent" transparent opacity={0.1} />
                   </mesh>
-                  <mesh position={[0, -20, 5]}>
+                  <mesh position={[0, -20, 5]} castShadow receiveShadow>
                     <boxGeometry args={[40, 1, 10]} />
                     <meshStandardMaterial color="transparent" transparent opacity={0.1} />
                   </mesh>
-                  <mesh position={[20, 0, 5]}>
+                  <mesh position={[20, 0, 5]} castShadow receiveShadow>
                     <boxGeometry args={[0, -40, 10]} />
                     <meshStandardMaterial color="transparent" transparent opacity={0.1} />
                   </mesh>
-                  <mesh position={[-20, 0, 5]}>
+                  <mesh position={[-20, 0, 5]} castShadow receiveShadow>
                     <boxGeometry args={[0, -40, 10]} />
                     <meshStandardMaterial color="transparent" transparent opacity={0.1} />
                   </mesh>
