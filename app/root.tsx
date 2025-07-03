@@ -69,6 +69,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="bg-white dark:bg-black">
           <div className="fixed top-4 right-4 z-50">
             <select
+              id="language-select"
               className="fixed bottom-4 right-16 z-50 p-3 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white"
               value={language ?? i18n.language}
               onChange={(e) => {

@@ -18,6 +18,7 @@ export default function BasicGamePhysics() {
   const refCanvas = useRef<HTMLCanvasElement>(null!)
   const refScene = useRef<THREE.Scene>(null!)
   const [torusRotation, setTorusRotation] = useState(0)
+  const playerRef = useRef<THREE.Object3D>(null!)
 
   const handleTorusRotation = () => {
     setTorusRotation(torusRotation + 0.01)
@@ -85,12 +86,12 @@ export default function BasicGamePhysics() {
               {/* <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
                 <GizmoViewport />
               </GizmoHelper> */}
-              <CameraFollower />
+              <CameraFollower playerRef={playerRef} />
               {/* <ambientLight /> */}
 
               {/* <spotLight name="spotlight" position={[0, 10, 0]} intensity={20}  /> */}
               <RigidBody colliders={'cuboid'} type={'fixed'} position={[0, 0, 0]}>
-                <Player refScene={refScene} />
+                <Player ref={playerRef} refScene={refScene} />
               </RigidBody>
               {/* <PointerLockControls camera={refCamera.current} /> */}
               {/* <fog attach="fog" args={[0x000000, 10, 100]} /> */}

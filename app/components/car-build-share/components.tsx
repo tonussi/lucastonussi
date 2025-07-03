@@ -23,8 +23,6 @@ const SteeringWheel = () => {
   // const material = useLoader(MTLLoader, '/models/steering/material.mtl')
 
   wheel.traverse((child: THREE.Object3D) => {
-    child.castShadow = true
-    child.receiveShadow = true
     if (child instanceof THREE.Mesh && child.material) {
       if (Array.isArray(child.material)) {
         child.material.forEach((mat) => {
@@ -44,7 +42,7 @@ const SteeringWheel = () => {
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 1]}>
-      <primitive castShadow object={wheel} position={[0, -2, 0]} />
+      <primitive object={wheel} position={[0, -2, 0]} />
     </instancedMesh>
   )
 }
@@ -455,7 +453,6 @@ export default function CarBuildShare() {
                     Sorry no WebGL supported!
                   </div>
                 }
-                shadows
                 className="bg-gradient-to-br from-gray-200 via-gray-2800 to-black dark:from-black dark:via-gray-900 dark:to-gray-800 h-full w-full rounded-lg"
               >
                 <Suspense fallback={<Loader />}>
@@ -468,11 +465,11 @@ export default function CarBuildShare() {
                     decay={0}
                     intensity={Math.PI}
                   />
-                  <mesh position={[0, -2.5, 0]} receiveShadow>
+                  <mesh position={[0, -2.5, 0]}>
                     <boxGeometry args={[2, 0.2, 2]} />
                     <meshStandardMaterial color="#444444" roughness={0.5} metalness={0.8} />
                   </mesh>
-                  <mesh position={[0, -3, 0]} receiveShadow>
+                  <mesh position={[0, -3, 0]}>
                     <boxGeometry args={[3, 0.8, 3]} />
                     <meshStandardMaterial color="#333333" roughness={0.7} metalness={0.6} />
                   </mesh>

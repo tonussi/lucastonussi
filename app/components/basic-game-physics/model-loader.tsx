@@ -13,19 +13,19 @@ const usePlayerModel = () => {
     // Make all materials wireframe
     if (player) {
       player.traverse((child: THREE.Object3D) => {
-        child.castShadow = true
-        child.receiveShadow = true
         if (child instanceof THREE.Mesh && child.material) {
           if (Array.isArray(child.material)) {
             child.material.forEach((mat) => {
+              mat.transparent = true
               mat.opacity = 0.1
               mat.wireframe = true
-              mat.color.set('magenta')
+              mat.color.set(Math.random() * 0xffffff)
             })
           } else {
+            child.material.transparent = true
             child.material.opacity = 0.1
             child.material.wireframe = true
-            child.material.color.set('magenta')
+            child.material.color.set(Math.random() * 0xffffff)
           }
         }
       })

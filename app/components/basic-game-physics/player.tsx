@@ -4,7 +4,7 @@ import usePlayerModel from './model-loader'
 import { useFrame } from '@react-three/fiber'
 
 import { extend } from '@react-three/fiber'
-import { useRef, useState, type RefObject } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState, type RefObject } from 'react'
 
 import * as THREE from 'three'
 import CubeTravel from './cube-travel'
@@ -12,7 +12,7 @@ extend(THREE as any)
 
 const ZeroVector = new THREE.Vector3(0, 0, 0)
 
-const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
+const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, ref) => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
   const clock = new THREE.Clock(true)
 
@@ -23,7 +23,8 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   const [bullets, setProjectiles] = useState<THREE.Vector3[]>([])
   const [showArrow, setShowArrow] = useState(false)
   const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
-  const [moveSpeed, setMoveSpeed] = useState(0.09)
+  const [moveSpeed, setMoveSpeed] = useState(0.5)
+  const [turningVelocity, setTurningVelocity] = useState(0.6)
   const [isPlayingRunningAnimation, setIsPlayingRunningAnimation] = useState(false)
   let mixer: THREE.AnimationMixer | null = new THREE.AnimationMixer(player)
 
@@ -33,6 +34,14 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   if (!player) {
     return null
   }
+
+  // Expose mesh ref
+  useImperativeHandle(ref, () => mesh.current)
+
+  // Add target position state
+  const [targetPosition, setTargetPosition] = useState(new THREE.Vector3(0, 0, 0))
+  // Add target rotation state
+  const [targetRotation, setTargetRotation] = useState(player.rotation.x)
 
   useFrame(() => {
     const delta = clock.getDelta()
@@ -67,9 +76,13 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
     applyActionsMovimentsEtc()
 
     function applyActionsMovimentsEtc() {
-      // Apply movement to mesh
+      // Instead of mesh.current.position.add(movement), set target position
       if (mesh.current) {
-        mesh.current.position.add(movement)
+        setTargetPosition(mesh.current.position.clone().add(movement))
+        // Smoothly interpolate position
+        mesh.current.position.lerp(targetPosition, turningVelocity)
+        // Smoothly interpolate rotation
+        player.rotation.y += (targetRotation - player.rotation.y) * turningVelocity
         camera.lookAt(mesh.current.position)
 
         // Update spotlight to follow the player
@@ -99,8 +112,8 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
           0,
           cameraDirectionClone.z
         ).normalize()
-        const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
-        player.rotation.y = targetRotation
+        const newTargetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
+        setTargetRotation(newTargetRotation)
         movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
         setArrowDirection(projectedDirection)
       }
@@ -113,8 +126,8 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
         const left = new THREE.Vector3()
         left.crossVectors(cameraDirectionClone, camera.up).normalize()
         // Rotate object to face the direction of movement (left)
-        const targetRotation = Math.atan2(-left.x, -left.z)
-        player.rotation.y = targetRotation
+        const newTargetRotation = Math.atan2(-left.x, -left.z)
+        setTargetRotation(newTargetRotation)
         movement.add(left.clone().multiplyScalar(-moveSpeed))
         setArrowDirection(left.clone().multiplyScalar(-1))
       }
@@ -129,8 +142,8 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
           0,
           -cameraDirectionClone.z
         ).normalize()
-        const targetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
-        player.rotation.y = targetRotation
+        const newTargetRotation = Math.atan2(projectedDirection.x, projectedDirection.z)
+        setTargetRotation(newTargetRotation)
         movement.add(projectedDirection.clone().multiplyScalar(moveSpeed))
         setArrowDirection(projectedDirection)
       }
@@ -143,8 +156,8 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
         const right = new THREE.Vector3()
         right.crossVectors(cameraDirectionClone, camera.up).normalize()
         // Rotate object to face the direction of movement (right)
-        const targetRotation = Math.atan2(right.x, right.z)
-        player.rotation.y = targetRotation
+        const newTargetRotation = Math.atan2(right.x, right.z)
+        setTargetRotation(newTargetRotation)
         movement.add(right.clone().multiplyScalar(moveSpeed))
         setArrowDirection(right.clone().multiplyScalar(1))
       }
@@ -243,6 +256,6 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       }
     }
   }
-}
+})
 
 export default Player
