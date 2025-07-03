@@ -1,10 +1,11 @@
 import { Canvas } from '@react-three/fiber'
 
 import { extend } from '@react-three/fiber'
+import { Perf } from 'r3f-perf'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
 import { Torus } from '@react-three/drei'
-import { Physics, RigidBody } from '@react-three/rapier'
+import { Physics } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraFollower from './camera'
 import FullscreenWrapper from './fullscreen'
@@ -61,65 +62,47 @@ export default function BasicGamePhysics() {
         <Suspense fallback={<Progress />}>
           <Physics>
             <scene ref={refScene}>
-              <RigidBody
-                colliders={'ball'}
-                type={'kinematicVelocity'}
-                restitution={2}
-                position={[5, 0.5, 0]}
-              >
-                <mesh castShadow receiveShadow>
-                  <Torus
-                    args={[4.1, 0.4, 16, 64]}
-                    position={[5, 4, 0]}
-                    rotation={[0, torusRotation, 0]}
-                    onClick={handleTorusRotation}
-                  />
-                </mesh>
-              </RigidBody>
-              {/* <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
-                <GizmoViewport />
-              </GizmoHelper> */}
+              <mesh castShadow receiveShadow>
+                <Torus
+                  castShadow
+                  args={[4.1, 0.4, 16, 64]}
+                  position={[-5, 4, -5]}
+                  rotation={[0, torusRotation, 0]}
+                  onClick={handleTorusRotation}
+                />
+              </mesh>
               <CameraFollower playerRef={playerRef} />
               <Ground active={true} receiveShadow />
               <directionalLight
                 position={[10, 10, 10]}
                 shadow-mapSize-width={1024}
                 shadow-mapSize-height={1024}
-                intensity={0.5}
+                intensity={11.5}
                 castShadow
               />
-              <ambientLight />
-              {/* <ambientLight /> */}
-
-              {/* <spotLight name="spotlight" position={[0, 10, 0]} intensity={20}  /> */}
-              <RigidBody colliders={'cuboid'} type={'fixed'} position={[0, 0, 0]}>
-                <Player ref={playerRef} refScene={refScene} />
-              </RigidBody>
-              {/* <PointerLockControls camera={refCamera.current} /> */}
-              {/* <fog attach="fog" args={[0x000000, 10, 100]} /> */}
-              <RigidBody colliders={'cuboid'} type={'fixed'} restitution={0.5}>
-                <mesh rotation={[-0.5 * Math.PI, 0, 0]} position={[0, 0, 0]} receiveShadow>
-                  <mesh position={[0, 20, 5]} castShadow receiveShadow>
-                    <boxGeometry args={[40, 1, 10]} />
-                    <meshStandardMaterial color="transparent" transparent opacity={0.1} />
-                  </mesh>
-                  <mesh position={[0, -20, 5]} castShadow receiveShadow>
-                    <boxGeometry args={[40, 1, 10]} />
-                    <meshStandardMaterial color="transparent" transparent opacity={0.1} />
-                  </mesh>
-                  <mesh position={[20, 0, 5]} castShadow receiveShadow>
-                    <boxGeometry args={[0, -40, 10]} />
-                    <meshStandardMaterial color="transparent" transparent opacity={0.1} />
-                  </mesh>
-                  <mesh position={[-20, 0, 5]} castShadow receiveShadow>
-                    <boxGeometry args={[0, -40, 10]} />
-                    <meshStandardMaterial color="transparent" transparent opacity={0.1} />
-                  </mesh>
-                  <planeGeometry args={[40, 40]} />
-                  <meshStandardMaterial color="white" />
+              <Perf position="bottom-left" />
+              <spotLight name="spotlight" position={[0, 10, 0]} intensity={20} />
+              <Player ref={playerRef} refScene={refScene} />
+              <mesh rotation={[-0.5 * Math.PI, 0, 0]} position={[0, 0, 0]} receiveShadow>
+                <mesh position={[0, 20, 5]} castShadow receiveShadow>
+                  <boxGeometry args={[40, 1, 10]} />
+                  <meshStandardMaterial color="transparent" transparent opacity={0.1} />
                 </mesh>
-              </RigidBody>
-              {/* <DungeonScene active={false} /> */}
+                <mesh position={[0, -20, 5]} castShadow receiveShadow>
+                  <boxGeometry args={[40, 1, 10]} />
+                  <meshStandardMaterial color="transparent" transparent opacity={0.1} />
+                </mesh>
+                <mesh position={[20, 0, 5]} castShadow receiveShadow>
+                  <boxGeometry args={[0, -40, 10]} />
+                  <meshStandardMaterial color="transparent" transparent opacity={0.1} />
+                </mesh>
+                <mesh position={[-20, 0, 5]} castShadow receiveShadow>
+                  <boxGeometry args={[0, -40, 10]} />
+                  <meshStandardMaterial color="transparent" transparent opacity={0.1} />
+                </mesh>
+                <planeGeometry args={[40, 40]} />
+                <meshStandardMaterial color="white" />
+              </mesh>
             </scene>
           </Physics>
         </Suspense>
