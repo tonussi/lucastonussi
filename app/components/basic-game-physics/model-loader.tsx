@@ -18,13 +18,11 @@ const usePlayerModel = () => {
         if (child instanceof THREE.Mesh && child.material) {
           if (Array.isArray(child.material)) {
             child.material.forEach((mat) => {
-              mat.transparent = true
               mat.opacity = 0.1
               mat.wireframe = true
               mat.color.set('magenta')
             })
           } else {
-            child.material.transparent = true
             child.material.opacity = 0.1
             child.material.wireframe = true
             child.material.color.set('magenta')

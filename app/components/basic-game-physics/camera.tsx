@@ -13,14 +13,9 @@ function CameraFollower() {
         name="camera"
         makeDefault
         ref={refCamera}
-        fov={20}
-        near={0.1}
-        far={100}
-        position={[0, 5, 5]}
-        dispatchEvent={() => {
-          console.log('camera')
-        }}
-        rotation={[-0.5 * Math.PI, 0.5 * Math.PI, 0]}
+        fov={75}
+        position={[5, 5, 5]}
+        dispatchEvent={() => {}}
       />
       <Controls camera={refCamera.current} />
     </group>

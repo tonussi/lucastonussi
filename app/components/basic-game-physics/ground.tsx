@@ -8,7 +8,7 @@ function Ground({ active, ...props }: GroundProps) {
   return (
     <mesh {...props}>
       {active && <gridHelper args={[40, 40]} />}
-      <meshStandardMaterial color="transparent" transparent opacity={0.1} />
+      <meshStandardMaterial />
     </mesh>
   )
 }

@@ -218,7 +218,7 @@ const Player = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       {bullets.map((bullet, index) => (
         <CubeTravel key={index} position={bullet} />
       ))}
-      <primitive castShadow name="player" object={player} ref={mesh} position={[0, 0, 0]} />
+      <primitive name="player" object={player} ref={mesh} position={[0, 0, 0]} />
     </>
   )
 
