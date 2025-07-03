@@ -17,15 +17,13 @@ const usePlayerModel = () => {
           if (Array.isArray(child.material)) {
             child.material.forEach((mat) => {
               mat.transparent = true
-              mat.opacity = 0.5
+              mat.opacity = 0.1
               mat.wireframe = true
-              mat.color.set(Math.random() * 0xffffff)
             })
           } else {
             child.material.transparent = true
-            child.material.opacity = 0.5
+            child.material.opacity = 0.1
             child.material.wireframe = true
-            child.material.color.set(Math.random() * 0xffffff)
           }
         }
       })

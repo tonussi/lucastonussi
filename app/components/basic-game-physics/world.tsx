@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
-import { Environment, Torus } from '@react-three/drei'
+import { Torus } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraFollower from './camera'
@@ -58,7 +58,6 @@ export default function BasicGamePhysics() {
         ref={refCanvas}
         shadows
       >
-        <Environment preset="dawn" />
         <Ground active={true} receiveShadow />
         <directionalLight
           position={[10, 10, 10]}
