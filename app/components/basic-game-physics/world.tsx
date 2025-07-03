@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 
 import { extend } from '@react-three/fiber'
-import { Suspense, useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 
 import { Torus } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
@@ -17,6 +17,18 @@ extend(THREE as any)
 export default function BasicGamePhysics() {
   const refCanvas = useRef<HTMLCanvasElement>(null!)
   const refScene = useRef<THREE.Scene>(null!)
+  const [torusRotation, setTorusRotation] = useState(0)
+
+  const handleTorusRotation = () => {
+    setTorusRotation(torusRotation + 0.01)
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTorusRotation(torusRotation + 0.01)
+    }, 10)
+    return () => clearInterval(interval)
+  }, [torusRotation])
 
   useEffect(() => {
     refCanvas.current.addEventListener('click', () => {
@@ -50,7 +62,11 @@ export default function BasicGamePhysics() {
           position={[0, 10, 0]}
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
+          castShadow
+          intensity={10}
         />
+        <ambientLight intensity={0.5} castShadow />
+        <directionalLight position={[0, 10, 0]} castShadow />
         <Suspense fallback={<Progress />}>
           <Physics gravity={[0, -9.81, 0]}>
             <scene ref={refScene}>
@@ -60,7 +76,16 @@ export default function BasicGamePhysics() {
                 restitution={2}
                 position={[5, 0.5, 0]}
               >
-                <Torus args={[4.1, 0.4, 16, 64]} position={[5, 0.5, 0]} />
+                <mesh>
+                  <Torus
+                    args={[4.1, 0.4, 16, 64]}
+                    position={[5, 4, 0]}
+                    rotation={[0, torusRotation, 0]}
+                    onClick={handleTorusRotation}
+                    castShadow
+                    receiveShadow
+                  />
+                </mesh>
               </RigidBody>
               {/* <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
                 <GizmoViewport />

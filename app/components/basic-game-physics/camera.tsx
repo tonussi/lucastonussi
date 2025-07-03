@@ -17,6 +17,9 @@ function CameraFollower() {
         near={0.1}
         far={100}
         position={[0, 5, 5]}
+        dispatchEvent={() => {
+          console.log('camera')
+        }}
         rotation={[-0.5 * Math.PI, 0.5 * Math.PI, 0]}
       />
       <Controls camera={refCamera.current} />
