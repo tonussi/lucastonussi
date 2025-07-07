@@ -78,7 +78,6 @@ export default function BasicGamePhysics() {
                   <CuboidCollider
                     onCollisionEnter={(e) => console.log(`Collision! ${i}`, e)}
                     args={[position.x, 0, position.z]}
-                    collisionGroups={1}
                     key={i}
                     position={[position.x, 0, position.z]}
                   >
