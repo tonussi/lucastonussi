@@ -256,28 +256,6 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
       <primitive name="player" object={player} ref={mesh} position={[0, 0, 0]} castShadow />
     </>
   )
-
-  // function playRunningAnimation(isMoving: boolean) {
-  //   if (!isMoving) {
-  //     if (isPlayingRunningAnimation) {
-  //       console.log('stopping running animation')
-  //       setIsPlayingRunningAnimation(false)
-  //       if (mixer) mixer.clipAction(animations[1]).stop()
-  //       return
-  //     }
-  //   }
-
-  //   if (isMoving && !isPlayingRunningAnimation) {
-  //     if (animations && animations.length > 0) {
-  //       if (type === 'gltf') {
-  //         console.log('playing running animation')
-  //         if (mixer) mixer.clipAction(animations[1]).play()
-  //         setIsPlayingRunningAnimation(true)
-  //         return
-  //       }
-  //     }
-  //   }
-  // }
 })
 
 export default Player

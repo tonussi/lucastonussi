@@ -5,7 +5,7 @@ import { Perf } from 'r3f-perf'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
 import { Torus } from '@react-three/drei'
-import { Physics } from '@react-three/rapier'
+import { CuboidCollider, Physics } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraFollower from './camera'
 import FullscreenWrapper from './fullscreen'
@@ -19,9 +19,20 @@ export default function BasicGamePhysics() {
   const refCanvas = useRef<HTMLCanvasElement>(null!)
   const refScene = useRef<THREE.Scene>(null!)
   const [torusRotation, setTorusRotation] = useState(0)
+  const [torusPositions, setTorusPositions] = useState<{ x: number; z: number }[]>([])
   const playerRef = useRef<THREE.Object3D>(null!)
 
-  const handleTorusRotation = () => {
+  // Initialize torus positions on mount
+  useEffect(() => {
+    const positions = Array.from({ length: 10 }, () => ({
+      x: Math.random() * 20 - 10,
+      z: Math.random() * 20 - 10,
+    }))
+    setTorusPositions(positions)
+  }, [])
+
+  const handleTorusRotation = (index: number) => {
+    console.log(index)
     setTorusRotation(torusRotation + 0.01)
   }
 
@@ -63,13 +74,24 @@ export default function BasicGamePhysics() {
           <Physics>
             <scene ref={refScene}>
               <mesh castShadow receiveShadow>
-                <Torus
-                  castShadow
-                  args={[4.1, 0.4, 16, 64]}
-                  position={[-5, 4, -5]}
-                  rotation={[0, torusRotation, 0]}
-                  onClick={handleTorusRotation}
-                />
+                {torusPositions.map((position, i) => (
+                  <CuboidCollider
+                    onCollisionEnter={(e) => console.log(`Collision! ${i}`, e)}
+                    args={[position.x, 0, position.z]}
+                    collisionGroups={1}
+                    key={i}
+                    position={[position.x, 0, position.z]}
+                  >
+                    <Torus
+                      key={i}
+                      castShadow
+                      args={[0.5, 0.1, 14, 14]}
+                      position={[position.x, 1, position.z]}
+                      rotation={[0, torusRotation, 0]}
+                      onClick={() => handleTorusRotation(i)}
+                    />
+                  </CuboidCollider>
+                ))}
               </mesh>
               <CameraFollower playerRef={playerRef} />
               <Ground active={true} receiveShadow />
