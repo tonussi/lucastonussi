@@ -44,7 +44,7 @@ export default function BasicGamePhysics() {
           backgroundColor: 'transparent',
         }}
         ref={refCanvas}
-        camera={{ position: [1, 4, 10], fov: 75, near: 0.1, far: 1000 }}
+        camera={{ position: [1, 2, 9], fov: 75, near: 0.1, far: 1000 }}
         shadows
       >
         <Suspense fallback={null}>
@@ -109,7 +109,7 @@ export default function BasicGamePhysics() {
                 shadow-mapSize-height={1024}
                 intensity={11.5}
               />
-              <OrbitControls />
+              <OrbitControls autoRotate />
               <spotLight name="spotlight" position={[0, 10, 0]} intensity={20} />
             </scene>
           </Physics>
