@@ -1,4 +1,5 @@
 import { Canvas } from '@react-three/fiber'
+import type { Route } from './+types/home'
 
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef, useState } from 'react'
@@ -9,7 +10,11 @@ import { useControls } from 'leva'
 import * as THREE from 'three'
 extend(THREE as any)
 
-export default function BasicGamePhysics() {
+export function meta({}: Route.MetaArgs) {
+  return [{ title: 'Atoms' }, { name: 'description', content: 'Atoms' }]
+}
+
+export default function Atoms() {
   const refCanvas = useRef<HTMLCanvasElement>(null!)
   const refScene = useRef<THREE.Scene>(null!)
   const [torusRotation, setTorusRotation] = useState(0)
