@@ -19,6 +19,7 @@ export default function BasicGamePhysics() {
   useEffect(() => {
     const positions = Array.from({ length: 10 }, () => ({
       x: Math.random() * 20 - 10,
+      y: Math.random() * 20 - 10,
       z: Math.random() * 20 - 10,
     }))
     setTorusPositions(positions)
@@ -44,7 +45,7 @@ export default function BasicGamePhysics() {
           backgroundColor: 'transparent',
         }}
         ref={refCanvas}
-        camera={{ position: [1, 2, 9], fov: 75, near: 0.1, far: 1000 }}
+        camera={{ position: [1, 2, 9], fov: 85, near: 0.25, far: 100 }}
         shadows
       >
         <Suspense fallback={null}>
