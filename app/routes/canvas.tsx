@@ -14,7 +14,7 @@ export default function BasicGamePhysics() {
   const refScene = useRef<THREE.Scene>(null!)
   const [torusRotation, setTorusRotation] = useState(0)
   const [torusPositions, setTorusPositions] = useState<{ x: number; z: number }[]>([])
-  const { color } = useControls('Fog', { color: '#ad6df4' })
+  const { color } = useControls('Fog', { color: '#a1a2c7' })
   const [bgColor, setBgColor] = useState('rgba(173,109,244,0.5)')
 
   useEffect(() => {
