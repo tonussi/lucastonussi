@@ -61,7 +61,9 @@ export default function BasicGamePhysics() {
                         args={[0.5, 0.09, 64, 64]}
                         position={[position.x, 1.1, position.z]}
                         rotation={[0, torusRotation * (i % 2 === 0 ? 1 : -1), 0]}
-                      />
+                      >
+                        <meshStandardMaterial />
+                      </Torus>
                       {/* Add tiny segments */}
                       {Array.from({ length: 12 }, (_, j) => (
                         <mesh
@@ -94,8 +96,9 @@ export default function BasicGamePhysics() {
                       args={[0.4, 0.09, 64, 64]}
                       position={[position.x, 1.1, position.z]} // Slightly offset vertically
                       rotation={[0, torusRotation * (i % 2 === 0 ? -1 : 1), 0]} // Opposite rotation
-                    />
-                    <meshStandardMaterial />
+                    >
+                      <meshStandardMaterial />
+                    </Torus>
                   </mesh>
                 </group>
               ))}

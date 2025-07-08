@@ -5,7 +5,7 @@ import { Perf } from 'r3f-perf'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
 import { Torus } from '@react-three/drei'
-import { CuboidCollider, Physics } from '@react-three/rapier'
+import { Physics } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraFollower from './camera'
 import FullscreenWrapper from './fullscreen'
@@ -75,21 +75,16 @@ export default function BasicGamePhysics() {
             <scene ref={refScene}>
               <mesh castShadow receiveShadow>
                 {torusPositions.map((position, i) => (
-                  <CuboidCollider
-                    onCollisionEnter={(e) => console.log(`Collision! ${i}`, e)}
-                    args={[position.x, 0, position.z]}
+                  <Torus
                     key={i}
-                    position={[position.x, 0, position.z]}
+                    castShadow
+                    args={[0.5, 0.1, 14, 14]}
+                    position={[position.x, 1, position.z]}
+                    rotation={[0, torusRotation, 0]}
+                    onClick={() => handleTorusRotation(i)}
                   >
-                    <Torus
-                      key={i}
-                      castShadow
-                      args={[0.5, 0.1, 14, 14]}
-                      position={[position.x, 1, position.z]}
-                      rotation={[0, torusRotation, 0]}
-                      onClick={() => handleTorusRotation(i)}
-                    />
-                  </CuboidCollider>
+                    <meshStandardMaterial />
+                  </Torus>
                 ))}
               </mesh>
               <CameraFollower playerRef={playerRef} />
