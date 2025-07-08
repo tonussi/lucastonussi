@@ -6,7 +6,7 @@ export function MainLayout() {
   return (
     <>
       <Navbar />
-      <main className="flex items-center justify-center overflow-x-hidden mt-30 mb-30">
+      <main>
         <Outlet />
       </main>
       <Footer />

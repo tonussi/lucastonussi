@@ -10,4 +10,5 @@ export default [
   ]),
   route("docs", "routes/docs.tsx"),
   route("contact", "routes/contact.tsx"),
+  route("canvas", "routes/canvas.tsx"),
 ] satisfies RouteConfig;

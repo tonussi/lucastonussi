@@ -42,7 +42,7 @@ const experiments = [
 
 export default function Experiments() {
   return (
-    <div className="max-w-10/12 sm:max-w mx-auto">
+    <div className="max-w-10/12 sm:max-w mx-auto mt-30 mb-30">
       <div className="text-center mb-8 md:mb-12">
         <h1 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 md:mb-4">
           Experiments Lab
