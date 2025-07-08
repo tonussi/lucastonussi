@@ -20,7 +20,7 @@ export default function Atoms() {
   const [torusRotation, setTorusRotation] = useState(0)
   const [torusPositions, setTorusPositions] = useState<{ x: number; z: number }[]>([])
   const { color } = useControls('Fog', { color: '#a1a2c7' })
-  const [bgColor, setBgColor] = useState('rgba(173,109,244,0.5)')
+  const [bgColor, setBgColor] = useState<string>('rgba(173,109,244,0.5)')
 
   useEffect(() => {
     const positions = Array.from({ length: 10 }, () => ({
@@ -47,13 +47,11 @@ export default function Atoms() {
 
   return (
     <>
-      {bgColor && (
-        <div className="top-0 -z-10 h-full w-full bg-white">
-          <div
-            className={`absolute bottom-auto left-auto right-0 top-0 h-[500px] w-[500px] -translate-x-[30%] translate-y-[20%] rounded-full bg-[${bgColor}] opacity-50 blur-[80px]`}
-          />
-        </div>
-      )}
+      <div className="top-0 -z-10 h-full w-full bg-white">
+        <div
+          className={`absolute bottom-auto left-auto right-0 top-0 h-[500px] w-[500px] -translate-x-[30%] translate-y-[20%] rounded-full bg-[rgba(235,167,112,0.5)] blur-[80px] opacity-50`}
+        />
+      </div>
       <Canvas
         fallback={'Sorry no WebGL supported!'}
         style={{
