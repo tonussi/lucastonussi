@@ -131,11 +131,6 @@ export default function BasicGamePhysics() {
                 </group>
               ))}
               <OrbitControls autoRotate />
-              <fog attach="fog" args={[color, 2, 10]} />
-              <mesh receiveShadow>
-                <boxGeometry args={[20, 0, 20]} />
-                <meshStandardMaterial color={'transparent'} />
-              </mesh>
             </scene>
           </Physics>
         </Suspense>
