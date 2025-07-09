@@ -4,8 +4,8 @@ import { extend } from '@react-three/fiber'
 import { Perf } from 'r3f-perf'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
-import { Torus } from '@react-three/drei'
-import { Physics } from '@react-three/rapier'
+import { Plane, Torus } from '@react-three/drei'
+import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraFollower from './camera'
 import FullscreenWrapper from './fullscreen'
@@ -120,6 +120,11 @@ export default function BasicGamePhysics() {
                 <meshStandardMaterial color="white" />
               </mesh>
             </scene>
+            <RigidBody colliders="cuboid">
+              <Plane args={[10, 10]} position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                <meshStandardMaterial color={'#000'} />
+              </Plane>
+            </RigidBody>
           </Physics>
         </Suspense>
       </Canvas>
