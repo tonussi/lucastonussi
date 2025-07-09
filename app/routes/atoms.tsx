@@ -4,6 +4,7 @@ import type { Route } from './+types/home'
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
+import Background from '@/components/background'
 import { OrbitControls, Torus } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { useControls } from 'leva'
@@ -19,8 +20,8 @@ export default function Atoms() {
   const refScene = useRef<THREE.Scene>(null!)
   const [torusRotation, setTorusRotation] = useState(0)
   const [torusPositions, setTorusPositions] = useState<{ x: number; z: number }[]>([])
-  const { color } = useControls('Fog', { color: '#a1a2c7' })
-  const [bgColor, setBgColor] = useState<string>('rgba(173,109,244,0.5)')
+
+  const { color } = useControls('Mesh Color', { color: '#a1a2c7' })
 
   useEffect(() => {
     const positions = Array.from({ length: 10 }, () => ({
@@ -47,11 +48,7 @@ export default function Atoms() {
 
   return (
     <>
-      <div className="top-0 -z-10 h-full w-full bg-white">
-        <div
-          className={`absolute bottom-auto left-auto right-0 top-0 h-[500px] w-[500px] -translate-x-[30%] translate-y-[20%] rounded-full bg-[rgba(235,167,112,0.5)] blur-[80px] opacity-50`}
-        />
-      </div>
+      <Background color={'rgba(235,167,112,0.5)'} color2={'rgba(108,151,233,0.5)'} />
       <Canvas
         fallback={'Sorry no WebGL supported!'}
         style={{
@@ -72,14 +69,14 @@ export default function Atoms() {
                 position={[10, 10, 10]}
                 shadow-mapSize-width={1024}
                 shadow-mapSize-height={1024}
-                intensity={11.5}
+                intensity={1.5}
               />
               {torusPositions.map((position, i) => (
                 <group key={i}>
                   <group>
                     <mesh castShadow>
                       <Torus
-                        args={[0.5, 0.09, 64, 64]}
+                        args={[0.5, 0.01, 64, 64]}
                         position={[position.x, 1.1, position.z]}
                         rotation={[0, torusRotation * (i % 2 === 0 ? 1 : -1), 0]}
                       >
@@ -89,7 +86,6 @@ export default function Atoms() {
                           metalness={0.5}
                           opacity={0.5}
                           transparent
-                          wireframe
                         />
                       </Torus>
                       {/* Add tiny segments */}
@@ -119,16 +115,11 @@ export default function Atoms() {
                   </group>
                   <mesh castShadow>
                     <Torus
-                      args={[0.4, 0.09, 64, 64]}
+                      args={[0.4, 0.01, 64, 64]}
                       position={[position.x, 1.1, position.z]} // Slightly offset vertically
                       rotation={[0, torusRotation * (i % 2 === 0 ? -1 : 1), 0]} // Opposite rotation
                     >
-                      <meshStandardMaterial
-                        color={color}
-                        roughness={0.5}
-                        metalness={0.5}
-                        opacity={0.5}
-                      />
+                      <meshLambertMaterial />
                     </Torus>
                   </mesh>
                 </group>
