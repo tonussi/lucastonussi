@@ -23,6 +23,37 @@ export default function Atoms() {
 
   const { color } = useControls('Mesh Color', { color: '#a1a2c7' })
   const { motherColor } = useControls('Mother Color', { motherColor: '#000' })
+  const { emissive } = useControls('Emissive', { emissive: '#000' })
+
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+  camera.position.z = 2
+
+  // Calculate random points on TorusKnot surface for both ends
+  const [linePoints, setLinePoints] = useState(() => {
+    const points = []
+    for (let i = 0; i < 16; i++) {
+      // Calculate start point
+      const u1 = Math.random() * Math.PI * 2
+      const v1 = Math.random() * Math.PI * 2
+      const start = new THREE.Vector3(
+        (1 + 0.2 * Math.cos(3 * v1)) * Math.cos(2 * u1),
+        (1 + 0.2 * Math.cos(3 * v1)) * Math.sin(2 * u1),
+        0.2 * Math.sin(3 * v1)
+      )
+
+      // Calculate end point (offset by rotation)
+      const u2 = (u1 + Math.PI) % (Math.PI * 2)
+      const v2 = (v1 + Math.PI) % (Math.PI * 2)
+      const end = new THREE.Vector3(
+        (1 + 0.2 * Math.cos(3 * v2)) * Math.cos(2 * u2),
+        (1 + 0.2 * Math.cos(3 * v2)) * Math.sin(2 * u2),
+        0.2 * Math.sin(3 * v2)
+      )
+
+      points.push({ start, end })
+    }
+    return points
+  })
 
   useEffect(() => {
     const positions = Array.from({ length: 10 }, () => ({
@@ -95,16 +126,18 @@ export default function Atoms() {
                     key={i}
                     args={[
                       new THREE.BufferGeometry().setFromPoints([
-                        new THREE.Vector3(0, 0.4, 0),
-                        new THREE.Vector3(
-                          Math.cos((i * Math.PI) / 4) * 5,
-                          Math.sin((i * Math.PI) / 4) * 5,
-                          Math.sin((i * Math.PI) / 4) * 2.5
-                        ),
+                        linePoints[i].start, // Starting point on TorusKnot
+                        linePoints[i].end, // Ending point on TorusKnot
                       ]),
                     ]}
                   >
-                    <lineBasicMaterial color={'white'} opacity={0.1} linewidth={1.12} />
+                    <lineBasicMaterial
+                      color={'white'}
+                      opacity={0.1}
+                      linewidth={5.12}
+                      transparent={true}
+                      depthTest={false}
+                    />
                   </lineSegments>
                 ))}
               </mesh>
@@ -114,7 +147,7 @@ export default function Atoms() {
                 <group>
                   <mesh castShadow>
                     <Torus
-                      args={[0.5, 0.01, 64, 64]}
+                      args={[0.5, 0.08, 64, 64]}
                       position={[position.x, 1.1, position.z]}
                       rotation={[0, torusRotation * (i % 2 === 0 ? 1 : -1), 0]}
                     >
@@ -153,11 +186,11 @@ export default function Atoms() {
                 </group>
                 <mesh castShadow>
                   <Torus
-                    args={[0.4, 0.01, 64, 64]}
+                    args={[0.4, 0.035, 8, 16]}
                     position={[position.x, 1.1, position.z]} // Slightly offset vertically
                     rotation={[0, torusRotation * (i % 2 === 0 ? -1 : 1), 0]} // Opposite rotation
                   >
-                    <meshLambertMaterial emissive={'#000'} />
+                    <meshStandardMaterial color={color} emissive={emissive} />
                   </Torus>
                 </mesh>
               </group>
