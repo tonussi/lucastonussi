@@ -9,5 +9,8 @@
   "contact": {
     "title": "For business inquiries, please contact me at",
     "email": "lptonussi@gmail.com"
+  },
+  "floatingWhatsApp": {
+    "chatMessage": "Hello, I'm Lucas Tonussi, how can I help you?"
   }
 }

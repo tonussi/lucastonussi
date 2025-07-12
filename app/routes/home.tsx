@@ -1,5 +1,7 @@
 import { MonitorSellsSection } from '@/components/monitor-sells/section'
 import { Slogan } from '@/components/slogan'
+import { t } from 'i18next'
+import { FloatingWhatsApp } from 'react-floating-whatsapp'
 import type { Route } from './+types/home'
 
 export function meta({}: Route.MetaArgs) {
@@ -39,6 +41,13 @@ export default function Home() {
       <div className="grid xs:grid-rows-2 3xl:grid-cols-1 gap-30">
         <Slogan />
         <MonitorSellsSection />
+        <FloatingWhatsApp
+          phoneNumber="5548988155946"
+          accountName="T Labs"
+          avatar="/apple-touch-icon.png"
+          chatMessage={t('floatingWhatsApp.chatMessage')}
+          buttonStyle={{ bottom: '100px' }}
+        />
       </div>
     </>
   )
