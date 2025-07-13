@@ -1,19 +1,16 @@
 import { Canvas } from '@react-three/fiber'
 
 import { extend } from '@react-three/fiber'
-import { Perf } from 'r3f-perf'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
-import { Box, Torus } from '@react-three/drei'
+import { Box, Torus, TorusKnot } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraFollower from './camera'
 import FullscreenWrapper from './fullscreen'
-import Player from './player'
+import PlayerMoviment from './player'
 import Progress from './progress'
-import ReflectiveSphere from './reflective-sphere'
 import Rotator from './rotator'
-import SphereOfPointsWithPhysics from './sphere'
 import GameInterface from './ui/interface'
 extend(THREE as any)
 
@@ -78,7 +75,7 @@ export default function BasicGamePhysics() {
             <scene ref={refScene}>
               <mesh castShadow receiveShadow>
                 {torusPositions.map((position, i) => (
-                  <RigidBody colliders="cuboid" gravityScale={0} position={[0, 0, 0]}>
+                  <RigidBody colliders="cuboid" gravityScale={0.5} position={[0, 0, 0]}>
                     <Torus
                       key={i}
                       castShadow
@@ -92,8 +89,8 @@ export default function BasicGamePhysics() {
                   </RigidBody>
                 ))}
               </mesh>
-              <CameraFollower playerRef={playerRef} />
-              {/* <Ground active={true} receiveShadow /> */}
+              <CameraFollower refScene={refScene} />
+              {/* <Ground active={false} /> */}
               <ambientLight intensity={0.5} />
               <directionalLight
                 position={[10, 10, 10]}
@@ -102,24 +99,23 @@ export default function BasicGamePhysics() {
                 intensity={11.5}
                 castShadow
               />
-              <Perf position="bottom-left" />
-              <ReflectiveSphere />
+              {/* <Perf position="bottom-left" /> */}
               <spotLight name="spotlight" position={[0, 10, 0]} intensity={20} />
-              <Player ref={playerRef} refScene={refScene} />
-              <SphereOfPointsWithPhysics />
-              <RigidBody colliders="cuboid" gravityScale={0} position={[0, 0, 0]}>
+              <PlayerMoviment refScene={refScene} />
+              {/* <SphereOfPointsWithPhysics /> */}
+              <RigidBody colliders="cuboid" gravityScale={9.8} position={[0, 0, 0]}>
                 <mesh position={[0, 0, 0]} castShadow receiveShadow>
-                  <boxGeometry args={[40, 0, 10]} />
+                  <boxGeometry args={[1000, 0, 1000]} />
                   <meshStandardMaterial color="white" transparent opacity={0} />
                 </mesh>
               </RigidBody>
               <Rotator>
                 <Box position={[15, 5, 5]}>
-                  <meshStandardMaterial color="red" />
+                  <meshStandardMaterial color="magenta" roughness={0.01} metalness={0.5} />
                 </Box>
-                <Box position={[-15, 5, 2]}>
-                  <meshStandardMaterial color="purple" />
-                </Box>
+                <TorusKnot position={[-15, 5, 2]}>
+                  <meshStandardMaterial color="black" roughness={0.01} metalness={0.5} />
+                </TorusKnot>
               </Rotator>
             </scene>
           </Physics>

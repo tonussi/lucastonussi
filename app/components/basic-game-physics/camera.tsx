@@ -5,9 +5,10 @@ import { useRef } from 'react'
 import * as THREE from 'three'
 import Controls from './controls'
 
-function CameraFollower({ playerRef }: { playerRef: React.RefObject<THREE.Object3D> }) {
+function CameraFollower({ refScene }: { refScene: React.RefObject<THREE.Scene> }) {
   const refCamera = useRef<THREE.PerspectiveCamera>(null!)
   const offset = new THREE.Vector3(0, 5, -10)
+  const playerRef = refScene.current?.getObjectByName('player') as THREE.Object3D
 
   useFrame(() => {
     if (playerRef.current && refCamera.current) {
