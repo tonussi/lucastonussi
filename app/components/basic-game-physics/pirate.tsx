@@ -10,7 +10,6 @@ Title: Skeleton Pirate " The Captin "
 
 import { useAnimations, useGLTF } from '@react-three/drei'
 import { useGraph } from '@react-three/fiber'
-import type { RefObject } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { type GLTF, SkeletonUtils } from 'three-stdlib'
@@ -34,13 +33,7 @@ type GLTFResult = GLTF & {
   animations: GLTFAction[]
 }
 
-function Pirate({
-  animationIndex,
-  refScene,
-}: {
-  animationIndex: number
-  refScene: RefObject<THREE.Scene>
-}) {
+function Pirate({ animationIndex }: { animationIndex: number }) {
   const group = useRef<THREE.Group>(null!)
   const { scene, animations } = useGLTF('/models/skeleton/pirate.glb')
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])

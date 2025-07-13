@@ -203,7 +203,7 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
         <CubeTravel key={index} player={player} position={bullet} />
       ))}
       <Mover moviment={movement}>
-        <Pirate refScene={refScene} animationIndex={animationIndex} />
+        <Pirate animationIndex={animationIndex} />
       </Mover>
     </>
   )
