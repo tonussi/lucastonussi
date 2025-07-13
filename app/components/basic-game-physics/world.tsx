@@ -4,14 +4,16 @@ import { extend } from '@react-three/fiber'
 import { Perf } from 'r3f-perf'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
-import { Plane, Torus } from '@react-three/drei'
+import { Box, Torus } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraFollower from './camera'
 import FullscreenWrapper from './fullscreen'
-import Ground from './ground'
 import Player from './player'
 import Progress from './progress'
+import ReflectiveSphere from './reflective-sphere'
+import Rotator from './rotator'
+import SphereOfPointsWithPhysics from './sphere'
 import GameInterface from './ui/interface'
 extend(THREE as any)
 
@@ -21,6 +23,7 @@ export default function BasicGamePhysics() {
   const [torusRotation, setTorusRotation] = useState(0)
   const [torusPositions, setTorusPositions] = useState<{ x: number; z: number }[]>([])
   const playerRef = useRef<THREE.Object3D>(null!)
+  const camera = refScene.current?.getObjectByName('camera') as THREE.PerspectiveCamera
 
   // Initialize torus positions on mount
   useEffect(() => {
@@ -75,20 +78,23 @@ export default function BasicGamePhysics() {
             <scene ref={refScene}>
               <mesh castShadow receiveShadow>
                 {torusPositions.map((position, i) => (
-                  <Torus
-                    key={i}
-                    castShadow
-                    args={[0.5, 0.1, 14, 14]}
-                    position={[position.x, 1, position.z]}
-                    rotation={[0, torusRotation, 0]}
-                    onClick={() => handleTorusRotation(i)}
-                  >
-                    <meshStandardMaterial />
-                  </Torus>
+                  <RigidBody colliders="cuboid" gravityScale={0} position={[0, 0, 0]}>
+                    <Torus
+                      key={i}
+                      castShadow
+                      args={[0.5, 0.1, 14, 14]}
+                      position={[position.x, 1, position.z]}
+                      rotation={[0, torusRotation, 0]}
+                      onClick={() => handleTorusRotation(i)}
+                    >
+                      <meshStandardMaterial />
+                    </Torus>
+                  </RigidBody>
                 ))}
               </mesh>
               <CameraFollower playerRef={playerRef} />
-              <Ground active={true} receiveShadow />
+              {/* <Ground active={true} receiveShadow /> */}
+              <ambientLight intensity={0.5} />
               <directionalLight
                 position={[10, 10, 10]}
                 shadow-mapSize-width={1024}
@@ -97,34 +103,25 @@ export default function BasicGamePhysics() {
                 castShadow
               />
               <Perf position="bottom-left" />
+              <ReflectiveSphere />
               <spotLight name="spotlight" position={[0, 10, 0]} intensity={20} />
               <Player ref={playerRef} refScene={refScene} />
-              <mesh rotation={[-0.5 * Math.PI, 0, 0]} position={[0, 0, 0]} receiveShadow>
-                <mesh position={[0, 20, 5]} castShadow receiveShadow>
-                  <boxGeometry args={[40, 1, 10]} />
-                  <meshStandardMaterial color="transparent" transparent opacity={0.1} />
+              <SphereOfPointsWithPhysics />
+              <RigidBody colliders="cuboid" gravityScale={0} position={[0, 0, 0]}>
+                <mesh position={[0, 0, 0]} castShadow receiveShadow>
+                  <boxGeometry args={[40, 0, 10]} />
+                  <meshStandardMaterial color="white" transparent opacity={0} />
                 </mesh>
-                <mesh position={[0, -20, 5]} castShadow receiveShadow>
-                  <boxGeometry args={[40, 1, 10]} />
-                  <meshStandardMaterial color="transparent" transparent opacity={0.1} />
-                </mesh>
-                <mesh position={[20, 0, 5]} castShadow receiveShadow>
-                  <boxGeometry args={[0, -40, 10]} />
-                  <meshStandardMaterial color="transparent" transparent opacity={0.1} />
-                </mesh>
-                <mesh position={[-20, 0, 5]} castShadow receiveShadow>
-                  <boxGeometry args={[0, -40, 10]} />
-                  <meshStandardMaterial color="transparent" transparent opacity={0.1} />
-                </mesh>
-                <planeGeometry args={[40, 40]} />
-                <meshStandardMaterial color="white" />
-              </mesh>
+              </RigidBody>
+              <Rotator>
+                <Box position={[15, 5, 5]}>
+                  <meshStandardMaterial color="red" />
+                </Box>
+                <Box position={[-15, 5, 2]}>
+                  <meshStandardMaterial color="purple" />
+                </Box>
+              </Rotator>
             </scene>
-            <RigidBody colliders="cuboid">
-              <Plane args={[10, 10]} position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-                <meshStandardMaterial color={'#000'} />
-              </Plane>
-            </RigidBody>
           </Physics>
         </Suspense>
       </Canvas>

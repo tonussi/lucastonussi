@@ -55,8 +55,6 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
   const animationIndexRef = useRef(animationIndex)
   animationIndexRef.current = animationIndex
 
-  if (mixer) mixer.clipAction(animations[1]).play()
-
   // Set up interval to increment animationIndex every second
   useEffect(() => {
     const interval = setInterval(() => {
@@ -64,6 +62,8 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
     }, 1000)
     return () => clearInterval(interval)
   }, [])
+
+  if (mixer) mixer.clipAction(animations[1]).play()
 
   useFrame(() => {
     const delta = clock.getDelta()
@@ -105,23 +105,6 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
         mesh.current.position.lerp(targetPosition, turningVelocity)
         // Smoothly interpolate rotation
         player.rotation.y += (targetRotation - player.rotation.y) * turningVelocity
-        camera.lookAt(mesh.current.position)
-
-        // Update spotlight to follow the player
-        const spotlight = refScene.current.getObjectByName('spotlight')
-        if (spotlight && spotlight instanceof THREE.SpotLight) {
-          spotlight.position.copy(mesh.current.position)
-          spotlight.position.y += 5 // Keep spotlight above the player
-          spotlight.target.position.copy(mesh.current.position)
-          spotlight.target.updateMatrixWorld()
-        }
-
-        camera.updateMatrixWorld()
-        camera.updateMatrix()
-        mesh.current.updateMatrix()
-        mesh.current.updateMatrixWorld()
-        refScene.current.updateMatrixWorld()
-        refScene.current.updateMatrix()
       }
     }
 
@@ -201,8 +184,6 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
 
     function handleLeftMouseClick() {
       if (mouse.isLeft) {
-        if (bullets.length > 0) return
-
         // Get the character's current position and forward direction
         const characterPosition = player.position.clone()
         const forwardDirection = new THREE.Vector3()
@@ -225,11 +206,11 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
         bullets.push(projectiles)
 
         // Update bullets state
-        // Clear bullets after 5 seconds
-        setProjectiles(bullets)
-        setTimeout(() => {
+        if (bullets.length > 10) {
           setProjectiles([])
-        }, 1000)
+        }
+
+        setProjectiles([...bullets])
       }
     }
   })
@@ -243,7 +224,7 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
             arrowDirection, // direction
             ZeroVector, // origin
             10, // length
-            0x00ff00, // color
+            0x000, // color
             0.5, // head length
             0.1, // head width
           ]}
@@ -251,7 +232,7 @@ const Player = forwardRef(({ refScene }: { refScene: RefObject<THREE.Scene> }, r
         />
       )}
       {bullets.map((bullet, index) => (
-        <CubeTravel key={index} position={bullet} />
+        <CubeTravel key={index} player={player} position={bullet} />
       ))}
       <primitive name="player" object={player} ref={mesh} position={[0, 0, 0]} castShadow />
     </>
