@@ -21,7 +21,7 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   const [bullets, setProjectiles] = useState<THREE.Vector3[]>([])
   const [showArrow, setShowArrow] = useState(false)
   const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
-  const [moveSpeed, setMoveSpeed] = useState(0.5)
+  const [moveSpeed, setMoveSpeed] = useState(0.05)
   const [turningVelocity, setTurningVelocity] = useState(0.6)
   const [animationIndex, setAnimationIndex] = useState(0)
   const [movement, setMovement] = useState<THREE.Vector3>(new THREE.Vector3(0, 0, 0))
@@ -63,16 +63,14 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       if (isMoving) {
         setAnimationIndex(1)
         setMovement(movementCalculation)
-        setTargetPosition(player.position.clone().add(movementCalculation))
-        // Smoothly interpolate position
-        player.position.lerp(targetPosition, turningVelocity)
-        // Smoothly interpolate rotation
-        player.rotation.y += (targetRotation - player.rotation.y) * turningVelocity
+        player.rotation.z = targetRotation
+        player.quaternion.slerp(
+          new THREE.Quaternion().setFromUnitVectors(cameraDirection, new THREE.Vector3(0, 0, -1)),
+          delta * turningVelocity
+        )
       } else {
         setAnimationIndex(0)
         setMovement(new THREE.Vector3(0, 0, 0))
-        player.position.lerp(targetPosition, turningVelocity)
-        player.rotation.y += (targetRotation - player.rotation.y) * turningVelocity
       }
     }
 
@@ -186,7 +184,7 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   return (
     <>
       {/* Direction arrow helper */}
-      {showArrow && Math.random() > 0.9 && (
+      {showArrow && Math.random() > 0.5 && (
         <arrowHelper
           args={[
             arrowDirection, // direction

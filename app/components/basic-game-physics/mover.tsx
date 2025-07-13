@@ -8,10 +8,9 @@ function Mover({ children, moviment }: { children: ReactNode; moviment: THREE.Ve
   const groupRef = useRef<Group>(null!)
 
   useFrame(() => {
-    console.log(moviment)
-
     groupRef.current.children.forEach((child) => {
       if (child.isObject3D) {
+        console.log(moviment)
         child.position.add(moviment)
       }
     })
