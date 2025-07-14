@@ -11,23 +11,15 @@ import {
   Plane,
   Torus,
   TorusKnot,
-  View,
 } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
-import { proxy } from 'valtio'
 import { CharacterController } from './character-controller'
 import { GRAVITY } from './constants'
 import FullscreenWrapper from './fullscreen'
 import Rotator from './rotator'
 import GameInterface from './ui/interface'
 extend(THREE as any)
-
-export const GameState = proxy({
-  map: 'desert',
-  characterPosition: new THREE.Vector3(0, 0, 0),
-  containerRotation: 0,
-})
 
 const keyboardMap = [
   { name: 'forward', keys: ['ArrowUp', 'KeyW'] },
@@ -93,20 +85,8 @@ export default function BasicGamePhysics() {
           ref={refCanvas}
           shadows
         >
-          <View.Port />
-        </Canvas>
-
-        <View
-          style={{
-            position: 'fixed',
-            width: '100%',
-            height: '100%',
-            top: 0,
-            left: 0,
-          }}
-        >
           <color attach="background" args={['#ececec']} />
-          <Environment preset="sunset" />
+          <Environment preset="park" />
           <directionalLight
             intensity={0.65}
             castShadow
@@ -187,20 +167,7 @@ export default function BasicGamePhysics() {
               </scene>
             </Physics>
           </Suspense>
-        </View>
-
-        {/* <View
-          style={{
-            position: 'fixed',
-            width: '320px',
-            height: '320px',
-            top: 16,
-            left: 16,
-            boxShadow: '0 0 10px rgba(0,0,0,0.5)',
-          }}
-        >
-          <Minimap />
-        </View> */}
+        </Canvas>
       </KeyboardControls>
     </FullscreenWrapper>
   )
