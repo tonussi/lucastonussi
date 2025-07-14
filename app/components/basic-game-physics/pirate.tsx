@@ -33,7 +33,15 @@ type GLTFResult = GLTF & {
   animations: GLTFAction[]
 }
 
-function Pirate({ animation, scale }: { animation: number; scale: number }) {
+function Pirate({
+  animation,
+  scale,
+  position,
+}: {
+  animation: number
+  scale: number
+  position: THREE.Vector3
+}) {
   const group = useRef<THREE.Group>(null!)
   const { scene, animations } = useGLTF('/models/skeleton/pirate.glb')
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
@@ -50,24 +58,24 @@ function Pirate({ animation, scale }: { animation: number; scale: number }) {
   return (
     <group name="player" ref={group} dispose={null}>
       <group name="Sketchfab_Scene">
-        <primitive object={nodes._rootJoint} position={[0, 0, 0]} scale={scale} />
+        <primitive object={nodes._rootJoint} scale={scale} position={position} />
         <skinnedMesh
           name="Object_9"
           geometry={nodes.Object_9.geometry}
           material={materials.Skeleton}
           skeleton={nodes.Object_9.skeleton}
-          position={[0, 0, 0]}
-          rotation={[0, 0, 0]}
           scale={scale}
+          castShadow
+          receiveShadow
         />
         <skinnedMesh
           name="Object_10"
           geometry={nodes.Object_10.geometry}
           material={materials.SkeletonGear}
           skeleton={nodes.Object_10.skeleton}
-          position={[0, 0, 0]}
-          rotation={[0, 0, 0]}
           scale={scale}
+          castShadow
+          receiveShadow
         />
       </group>
     </group>

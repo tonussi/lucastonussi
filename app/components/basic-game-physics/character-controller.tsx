@@ -8,6 +8,7 @@ import { useRef, useState } from 'react'
 import * as THREE from 'three'
 import { Vector3 } from 'three'
 import { degToRad, MathUtils } from 'three/src/math/MathUtils.js'
+import { GRAVITY } from './constants'
 import useInputHandler from './input-handler'
 import Pirate from './pirate'
 
@@ -141,12 +142,17 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
   })
 
   return (
-    <RigidBody colliders={false} lockRotations ref={rb}>
+    <RigidBody colliders={false} lockRotations ref={rb} gravityScale={GRAVITY} mass={1}>
       <group ref={container}>
         <group ref={cameraTarget} position-z={1.5} />
         <group ref={cameraPosition} position-y={4} position-z={-4} />
         <group ref={character}>
-          <Pirate scale={0.1} position-y={-0.25} animation={animationIndex} />
+          <Pirate
+            scale={0.1}
+            position-y={-0.25}
+            animation={animationIndex}
+            position={new Vector3(0, 0, 0)}
+          />
         </group>
       </group>
       <BallCollider args={[0.5]} position={[0, 1.5, 0]} />

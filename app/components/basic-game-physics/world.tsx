@@ -8,6 +8,7 @@ import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraFollower from './camera'
 import { CharacterController } from './character-controller'
+import { GRAVITY } from './constants'
 import FullscreenWrapper from './fullscreen'
 import Progress from './progress'
 import Rotator from './rotator'
@@ -80,22 +81,22 @@ export default function BasicGamePhysics() {
         >
           <color attach="background" args={['#ececec']} />
           <Suspense fallback={<Progress />}>
-            <Environment preset="sunset" />
-            <directionalLight
-              intensity={0.65}
-              castShadow
-              position={[-15, 10, 15]}
-              shadow-mapSize-width={2048}
-              shadow-mapSize-height={2048}
-              shadow-bias={-0.00005}
-            >
-              <CameraFollower refScene={refScene} />
-            </directionalLight>
-            <Physics debug>
+            <Physics debug gravity={[0, -GRAVITY, 0]}>
               <scene ref={refScene}>
+                <Environment preset="sunset" />
+                <directionalLight
+                  intensity={0.65}
+                  castShadow
+                  position={[-15, 10, 15]}
+                  shadow-mapSize-width={2048}
+                  shadow-mapSize-height={2048}
+                  shadow-bias={-0.00005}
+                >
+                  <CameraFollower refScene={refScene} />
+                </directionalLight>
                 <mesh castShadow receiveShadow>
                   {torusPositions.map((position, i) => (
-                    <RigidBody colliders="ball" gravityScale={0.5} position={[0, 0, 0]}>
+                    <RigidBody colliders="ball" gravityScale={9.86} position={[0, 0, 0]}>
                       <Torus
                         key={i}
                         castShadow
@@ -123,7 +124,12 @@ export default function BasicGamePhysics() {
                 {/* <spotLight name="spotlight" position={[0, 10, 0]} intensity={20} /> */}
                 <CharacterController refScene={refScene} />
                 {/* <SphereOfPointsWithPhysics /> */}
-                <RigidBody colliders="cuboid" gravityScale={9.8} position={[0, 0, 0]}>
+                <RigidBody
+                  colliders="cuboid"
+                  gravityScale={GRAVITY}
+                  position={[0, 0, 0]}
+                  mass={0.1}
+                >
                   <mesh position={[0, 0, 0]} castShadow receiveShadow>
                     <boxGeometry args={[1000, 0, 1000]} />
                     <meshStandardMaterial color="white" transparent opacity={0} />
@@ -142,8 +148,8 @@ export default function BasicGamePhysics() {
                     />
                   </TorusKnot>
                 </Rotator>
-                <RigidBody colliders="trimesh" gravityScale={0} position={[0, 0, 0]}>
-                  <Plane args={[100, 100]} position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} />
+                <RigidBody colliders="cuboid" gravityScale={GRAVITY} position={[0, 0, 0]} mass={10}>
+                  <Plane args={[40, 40]} position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} />
                 </RigidBody>
               </scene>
             </Physics>
