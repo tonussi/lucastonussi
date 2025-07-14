@@ -65,9 +65,9 @@ function Pirate({
   }, [animation])
 
   return (
-    <group ref={group} dispose={null}>
+    <group name="pirate-group" ref={group} dispose={null}>
       <group name="Sketchfab_Scene">
-        <primitive object={nodes._rootJoint} scale={scale} position={position} />
+        <primitive name="pirate" object={nodes._rootJoint} scale={scale} position={position} />
         <skinnedMesh
           name="Object_9"
           geometry={nodes.Object_9.geometry}

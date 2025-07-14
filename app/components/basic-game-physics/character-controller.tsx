@@ -149,11 +149,16 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
   })
 
   return (
-    <RigidBody colliders={false} lockRotations ref={rb} mass={1}>
-      <group ref={container}>
-        <group ref={cameraTarget} position-z={cameraTargetPositionZ} />
-        <group ref={cameraPosition} position-y={cameraPositionY} position-z={cameraPositionZ} />
-        <group name="player" ref={character}>
+    <RigidBody name="player-rb" colliders={false} lockRotations ref={rb} mass={1}>
+      <group name="player-container" ref={container}>
+        <group name="player-camera-target" ref={cameraTarget} position-z={cameraTargetPositionZ} />
+        <group
+          name="player-camera-position"
+          ref={cameraPosition}
+          position-y={cameraPositionY}
+          position-z={cameraPositionZ}
+        />
+        <group name="player-inner-group" ref={character}>
           <Pirate
             scale={0.1}
             position-y={-0.25}
