@@ -43,6 +43,14 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
       step: degToRad(0.1),
     },
   })
+  const { cameraTargetPositionZ, cameraPositionY, cameraPositionZ } = useControls(
+    'Camera Control',
+    {
+      cameraTargetPositionZ: { value: 5.5, min: -20, max: 20, step: 1 },
+      cameraPositionY: { value: 6, min: -20, max: 20, step: 1 },
+      cameraPositionZ: { value: -10, min: -20, max: 20, step: 1 },
+    }
+  )
   const rb = useRef<any>(null!)
   const container = useRef<THREE.Group>(null!)
   const character = useRef<THREE.Group>(null!)
@@ -135,6 +143,7 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
     if (cameraTarget.current) {
       cameraTarget.current.getWorldPosition(cameraLookAtWorldPosition.current)
       cameraLookAt.current.lerp(cameraLookAtWorldPosition.current, 0.1)
+
       camera.lookAt(cameraLookAt.current)
     }
   })
@@ -142,8 +151,8 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
   return (
     <RigidBody colliders={false} lockRotations ref={rb} mass={1}>
       <group ref={container}>
-        <group ref={cameraTarget} position-z={5.5} />
-        <group ref={cameraPosition} position-y={6} position-z={-10} />
+        <group ref={cameraTarget} position-z={cameraTargetPositionZ} />
+        <group ref={cameraPosition} position-y={cameraPositionY} position-z={cameraPositionZ} />
         <group name="player" ref={character}>
           <Pirate
             scale={0.1}
