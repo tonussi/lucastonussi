@@ -153,7 +153,7 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
         </group>
       </group>
       <BallCollider args={[0.8]} position={[0, 1.5, 0]} />
-      <CapsuleCollider args={[0.08, 0.15]} position={[0, 0.1, 0]} />
+      <CapsuleCollider args={[0.08, 0.5]} position={[0, 0.1, 0]} />
     </RigidBody>
   )
 }
