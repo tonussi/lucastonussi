@@ -50,9 +50,6 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
       cameraPositionZ: { value: -10, min: -20, max: 20, step: 1 },
     }
   )
-  const { characterPositionY } = useControls('Character Position', {
-    characterPositionY: { value: 1.5, min: -20, max: 20, step: 1 },
-  })
   const rb = useRef<any>(null!)
   const container = useRef<THREE.Group>(null!)
   const character = useRef<THREE.Group>(null!)
