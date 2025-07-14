@@ -10,8 +10,6 @@ Title: Skeleton Pirate " The Captin "
 
 import { useAnimations, useGLTF } from '@react-three/drei'
 import { useGraph } from '@react-three/fiber'
-import { RigidBody } from '@react-three/rapier'
-import type { RefObject } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { type GLTF, SkeletonUtils } from 'three-stdlib'
@@ -35,15 +33,7 @@ type GLTFResult = GLTF & {
   animations: GLTFAction[]
 }
 
-function Pirate({
-  animationIndex,
-  refScene,
-  player,
-}: {
-  animationIndex: number
-  refScene: RefObject<THREE.Scene>
-  player: THREE.Group
-}) {
+function Pirate({ animationIndex }: { animationIndex: number }) {
   const group = useRef<THREE.Group>(null!)
   const { scene, animations } = useGLTF('/models/skeleton/pirate.glb')
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
@@ -60,9 +50,7 @@ function Pirate({
   return (
     <group name="player" ref={group} dispose={null}>
       <group name="Sketchfab_Scene">
-        <RigidBody>
-          <primitive object={nodes._rootJoint} position={[0, 0, 0]} scale={0.1} />
-        </RigidBody>
+        <primitive object={nodes._rootJoint} position={[0, 0, 0]} scale={0.1} />
         <skinnedMesh
           name="Object_9"
           geometry={nodes.Object_9.geometry}
