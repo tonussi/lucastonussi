@@ -38,19 +38,19 @@ const Projectiles = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       // Get the character's current position and forward direction
       const characterPosition = player.position.clone()
       const forwardDirection = new THREE.Vector3()
-      player.getWorldDirection(forwardDirection)
-      forwardDirection.y = -10 // Keep it horizontal
-      forwardDirection.normalize()
+      const currentPlayerPos = player.getWorldDirection(forwardDirection)
+      currentPlayerPos.y = -10 // Keep it horizontal
+      currentPlayerPos.normalize()
 
       // Create bullets positioned in front of the character
       const projectiles = new THREE.Vector3()
 
       // Position bullets 8 units in front of the character
-      const bulletPosition = characterPosition.clone().add(forwardDirection.clone())
+      const bulletPosition = characterPosition.clone().add(currentPlayerPos.clone())
       projectiles.copy(bulletPosition)
 
       // Make the box face the direction it's being thrown
-      const targetRotation = Math.atan2(forwardDirection.x, forwardDirection.z)
+      const targetRotation = Math.atan2(currentPlayerPos.x, currentPlayerPos.z)
       projectiles.y = targetRotation
 
       // Add bullet to the scene and array
