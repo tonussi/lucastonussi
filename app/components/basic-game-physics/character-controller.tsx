@@ -1,6 +1,6 @@
 import { useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { CapsuleCollider, RigidBody } from '@react-three/rapier'
+import { BallCollider, CapsuleCollider, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 import { useRef, useState } from 'react'
 import * as THREE from 'three'
@@ -147,6 +147,7 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
           <Pirate scale={0.1} position-y={-0.25} animation={animationIndex} />
         </group>
       </group>
+      <BallCollider args={[0.5]} position={[0, 1.5, 0]} />
       <CapsuleCollider args={[0.08, 0.15]} position={[0, 0.1, 0]} />
     </RigidBody>
   )

@@ -95,7 +95,7 @@ export default function BasicGamePhysics() {
               <scene ref={refScene}>
                 <mesh castShadow receiveShadow>
                   {torusPositions.map((position, i) => (
-                    <RigidBody colliders="cuboid" gravityScale={0.5} position={[0, 0, 0]}>
+                    <RigidBody colliders="ball" gravityScale={0.5} position={[0, 0, 0]}>
                       <Torus
                         key={i}
                         castShadow
