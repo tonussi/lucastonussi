@@ -1,8 +1,12 @@
 import { Html, useProgress } from '@react-three/drei'
 
-function Progress() {
+function PercentageProgress() {
   const { progress } = useProgress()
-  return <Html center>{progress.toFixed(0)} %</Html>
+  return (
+    <Html center style={{ fontSize: '2rem' }}>
+      {progress.toFixed(0)}
+    </Html>
+  )
 }
 
-export default Progress
+export default PercentageProgress

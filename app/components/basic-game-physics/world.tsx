@@ -11,6 +11,7 @@ import CameraFollower from './camera'
 import { CharacterController } from './character-controller'
 import { GRAVITY } from './constants'
 import FullscreenWrapper from './fullscreen'
+import PercentageProgress from './progress'
 import Projectiles from './projectiles'
 import Rotator from './rotator'
 import GameInterface from './ui/interface'
@@ -98,7 +99,8 @@ export default function BasicGamePhysics() {
               attach={'shadow-camera'}
             />
           </directionalLight>
-          <Suspense fallback={null}>
+
+          <Suspense fallback={<PercentageProgress />}>
             <Physics debug gravity={[0, GRAVITY, 0]} colliders="trimesh">
               <scene ref={refScene}>
                 <mesh castShadow receiveShadow>
