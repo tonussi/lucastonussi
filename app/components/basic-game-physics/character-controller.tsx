@@ -34,8 +34,8 @@ const lerpAngle = (start: number, end: number, t: number) => {
 
 export const CharacterController = ({ refScene }: { refScene: React.RefObject<THREE.Scene> }) => {
   const { WALK_SPEED, RUN_SPEED, ROTATION_SPEED } = useControls('Character Control', {
-    WALK_SPEED: { value: 4, min: 0.1, max: 4, step: 0.1 },
-    RUN_SPEED: { value: 12, min: 0.2, max: 12, step: 0.1 },
+    WALK_SPEED: { value: 2, min: 0.1, max: 4, step: 0.1 },
+    RUN_SPEED: { value: 5, min: 0.2, max: 12, step: 0.1 },
     ROTATION_SPEED: {
       value: degToRad(0),
       min: degToRad(0.1),
