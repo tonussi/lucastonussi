@@ -7,7 +7,6 @@ import { useState, type RefObject } from 'react'
 
 import * as THREE from 'three'
 import CubeTravel from './cube-travel'
-import Mover from './mover'
 import Pirate from './pirate'
 extend(THREE as any)
 
@@ -40,18 +39,13 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
 
     handleProjectilesAnimations()
 
-    applyActionsMovimentsEtc(isMoving)
+    applyAnimations(isMoving)
 
     update(delta)
   })
 
-  function applyActionsMovimentsEtc(isMoving: boolean) {
-    // Instead of mesh.current.position.add(movement), set target position
-    if (isMoving) {
-      setAnimationIndex(1)
-    } else {
-      setAnimationIndex(0)
-    }
+  function applyAnimations(isMoving: boolean) {
+    setAnimationIndex(isMoving ? 1 : 0)
   }
 
   function update(delta: number) {
@@ -168,9 +162,8 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
       {bullets.map((bullet, index) => (
         <CubeTravel key={index} player={player} position={bullet} />
       ))}
-      <Mover moviment={player?.position}>
-        <Pirate refScene={refScene} player={player} animationIndex={animationIndex} />
-      </Mover>
+
+      <Pirate refScene={refScene} player={player} animationIndex={animationIndex} />
     </>
   )
 }
