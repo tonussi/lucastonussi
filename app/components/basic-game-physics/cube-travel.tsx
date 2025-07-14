@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber'
-import { RapierRigidBody, RigidBody } from '@react-three/rapier'
+import { BallCollider, RapierRigidBody, RigidBody } from '@react-three/rapier'
 import { useRef, useState } from 'react'
 import * as THREE from 'three'
 
@@ -61,10 +61,11 @@ const CubeTravel = ({ position, player }: { position: THREE.Vector3; player: THR
   })
 
   return (
-    <RigidBody ref={rigidBody} colliders="cuboid" gravityScale={9.8} position={position}>
+    <RigidBody ref={rigidBody} colliders={false} mass={0.1} position={position}>
       <mesh>
         <boxGeometry args={[0.5, 0.5, 0.5]} />
         <meshStandardMaterial color={color} roughness={0.05} metalness={0.5} />
+        <BallCollider args={[0.8]} position={[0, 0, 0]} />
       </mesh>
     </RigidBody>
   )

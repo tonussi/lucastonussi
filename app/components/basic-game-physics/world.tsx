@@ -10,6 +10,7 @@ import CameraFollower from './camera'
 import { CharacterController } from './character-controller'
 import { GRAVITY } from './constants'
 import FullscreenWrapper from './fullscreen'
+import Projectiles from './projectiles'
 import Rotator from './rotator'
 import GameInterface from './ui/interface'
 extend(THREE as any)
@@ -130,10 +131,10 @@ export default function BasicGamePhysics() {
                 <CharacterController refScene={refScene} />
                 {/* <SphereOfPointsWithPhysics /> */}
                 <Rotator>
-                  <Box position={[15, 5, 5]}>
+                  <Box position={[15, -10, 5]}>
                     <meshStandardMaterial color="magenta" roughness={0.01} metalness={0.5} />
                   </Box>
-                  <TorusKnot position={[-15, 5, 2]}>
+                  <TorusKnot position={[-15, -10, 2]}>
                     <meshStandardMaterial
                       color="black"
                       roughness={0.01}
@@ -142,6 +143,8 @@ export default function BasicGamePhysics() {
                     />
                   </TorusKnot>
                 </Rotator>
+
+                <Projectiles refScene={refScene} />
 
                 <RigidBody type="fixed" colliders="cuboid" position={[0, -10, 0]}>
                   <mesh position={[0, 0, 0]} castShadow receiveShadow>

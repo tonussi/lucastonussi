@@ -144,7 +144,7 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
       <group ref={container}>
         <group ref={cameraTarget} position-z={5.5} />
         <group ref={cameraPosition} position-y={6} position-z={-10} />
-        <group ref={character}>
+        <group name="player" ref={character}>
           <Pirate
             scale={0.1}
             position-y={-0.25}
