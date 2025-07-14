@@ -8,7 +8,6 @@ import { useRef, useState } from 'react'
 import * as THREE from 'three'
 import { Vector3 } from 'three'
 import { degToRad, MathUtils } from 'three/src/math/MathUtils.js'
-import useInputHandler from './input-handler'
 import Pirate from './pirate'
 
 const normalizeAngle = (angle: number) => {
@@ -68,9 +67,6 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
   const cameraLookAtWorldPosition = useRef(new Vector3())
   const cameraLookAt = useRef(new Vector3())
   const [, get] = useKeyboardControls()
-  const isClicking = useRef(false)
-
-  const { mouse } = useInputHandler()
 
   useFrame(({ camera }) => {
     if (rb.current) {
@@ -89,17 +85,6 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
       }
 
       let speed = get().run ? RUN_SPEED : WALK_SPEED
-
-      if (isClicking.current) {
-        console.log('clicking', mouse.x, mouse.y)
-        if (Math.abs(mouse.x) > 0.1) {
-          movement.x = -mouse.x
-        }
-        movement.z = mouse.y + 0.4
-        if (Math.abs(movement.x) > 0.5 || Math.abs(movement.z) > 0.5) {
-          speed = RUN_SPEED
-        }
-      }
 
       if (get().left) {
         movement.x = 1
