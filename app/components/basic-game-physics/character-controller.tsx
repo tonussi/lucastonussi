@@ -1,3 +1,5 @@
+// copied from https://youtu.be/yjpGVIe_Gy8
+
 import { useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, CapsuleCollider, RigidBody } from '@react-three/rapier'
