@@ -9,7 +9,9 @@ const Projectiles = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   const { mouse } = useInputHandler()
 
   const [bullets, setProjectiles] = useState<THREE.Vector3[]>([])
-  const player = refScene.current?.getObjectByName('player') as THREE.Group
+  const player = refScene.current?.getObjectByName('player-rb') as THREE.Group
+
+  console.log(player?.position)
 
   useEffect(() => {
     if (bullets.length > 5) setProjectiles([])
