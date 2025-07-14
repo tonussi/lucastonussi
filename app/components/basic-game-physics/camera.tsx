@@ -17,7 +17,7 @@ function CameraFollower({ refScene }: { refScene: React.RefObject<THREE.Scene> }
           ref={refCamera}
           fov={40}
           near={0.1}
-          position={[3, 3, 3]}
+          position={[0, 5, -10]}
           dispatchEvent={() => {}}
         />
       </directionalLight>

@@ -177,7 +177,7 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
           <group ref={cameraTarget} position-z={1.5} />
           <group ref={cameraPosition} position-y={4} position-z={-4} />
           <group ref={character}>
-            <Pirate animationIndex={animationIndex} />
+            <Pirate scale={0.1} position={new THREE.Vector3(0, 0, 0)} animation={animationIndex} />
           </group>
         </group>
         <CapsuleCollider args={[0.08, 0.15]} />

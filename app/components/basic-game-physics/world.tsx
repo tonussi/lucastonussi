@@ -3,17 +3,25 @@ import { Canvas } from '@react-three/fiber'
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
-import { Box, Environment, KeyboardControls, Plane, Torus, TorusKnot } from '@react-three/drei'
+import { Box, Environment, KeyboardControls, Torus, TorusKnot, View } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
+import { proxy } from 'valtio'
 import CameraFollower from './camera'
 import { CharacterController } from './character-controller'
 import { GRAVITY } from './constants'
 import FullscreenWrapper from './fullscreen'
-import Progress from './progress'
+import { Map } from './map'
+import { Minimap } from './minimap'
 import Rotator from './rotator'
 import GameInterface from './ui/interface'
 extend(THREE as any)
+
+export const GameState = proxy({
+  map: 'big_city',
+  characterPosition: new THREE.Vector3(0, 0, 0),
+  containerRotation: 0,
+})
 
 const keyboardMap = [
   { name: 'forward', keys: ['ArrowUp', 'KeyW'] },
@@ -79,9 +87,21 @@ export default function BasicGamePhysics() {
           ref={refCanvas}
           shadows
         >
+          <View.Port />
+        </Canvas>
+
+        <View
+          style={{
+            position: 'fixed',
+            width: '100%',
+            height: '100%',
+            top: 0,
+            left: 0,
+          }}
+        >
           <color attach="background" args={['#ececec']} />
-          <Suspense fallback={<Progress />}>
-            <Physics debug gravity={[0, -GRAVITY, 0]}>
+          <Suspense fallback={null}>
+            <Physics debug gravity={[0, GRAVITY, 0]}>
               <scene ref={refScene}>
                 <Environment preset="sunset" />
                 <directionalLight
@@ -96,7 +116,7 @@ export default function BasicGamePhysics() {
                 </directionalLight>
                 <mesh castShadow receiveShadow>
                   {torusPositions.map((position, i) => (
-                    <RigidBody colliders="ball" gravityScale={9.86} position={[0, 0, 0]}>
+                    <RigidBody colliders="ball" mass={0.0001} position={[0, 10, 0]}>
                       <Torus
                         key={i}
                         castShadow
@@ -148,13 +168,24 @@ export default function BasicGamePhysics() {
                     />
                   </TorusKnot>
                 </Rotator>
-                <RigidBody colliders="cuboid" gravityScale={GRAVITY} position={[0, 0, 0]} mass={10}>
-                  <Plane args={[40, 40]} position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} />
-                </RigidBody>
+                <Map model={`/maps/${GameState.map}/scene.gltf`} />
               </scene>
             </Physics>
           </Suspense>
-        </Canvas>
+        </View>
+
+        <View
+          style={{
+            position: 'fixed',
+            width: '320px',
+            height: '320px',
+            top: 16,
+            left: 16,
+            boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+          }}
+        >
+          <Minimap />
+        </View>
       </KeyboardControls>
     </FullscreenWrapper>
   )
