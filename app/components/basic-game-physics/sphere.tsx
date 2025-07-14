@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { RigidBody } from '@react-three/rapier'
+import { BallCollider, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 
 function SphereOfPointsWithPhysics() {
@@ -36,15 +36,16 @@ function SphereOfPointsWithPhysics() {
             args={[pointsData.positions, 3]}
           />
         </bufferGeometry>
-        <pointsMaterial size={0.1} sizeAttenuation color="gray" transparent />
+        <pointsMaterial size={0.01} sizeAttenuation opacity={0} transparent />
       </points>
 
       {pointsData.pointPositions.map((pos, index) => (
-        <RigidBody key={index} colliders="cuboid" position={pos} gravityScale={0}>
+        <RigidBody key={index} colliders={false} position={pos}>
           {/* Optionally, you can add a small mesh inside the RigidBody to visualize its collider */}
           <mesh>
-            <sphereGeometry args={[0.01, 32, 32]} />
-            <meshBasicMaterial color="gray" transparent />
+            <sphereGeometry args={[0.01, 64, 64]} />
+            <meshBasicMaterial color="magenta" transparent />
+            <BallCollider args={[0.1]} />
           </mesh>
         </RigidBody>
       ))}

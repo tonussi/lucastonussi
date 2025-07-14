@@ -5,6 +5,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 
 import { Box, KeyboardControls, OrthographicCamera, Torus, TorusKnot } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
+import { Perf } from 'r3f-perf'
 import * as THREE from 'three'
 import CameraFollower from './camera'
 import { CharacterController } from './character-controller'
@@ -12,6 +13,7 @@ import { GRAVITY } from './constants'
 import FullscreenWrapper from './fullscreen'
 import Projectiles from './projectiles'
 import Rotator from './rotator'
+import SphereOfPointsWithPhysics from './sphere'
 import GameInterface from './ui/interface'
 extend(THREE as any)
 
@@ -116,20 +118,15 @@ export default function BasicGamePhysics() {
                     </RigidBody>
                   ))}
                 </mesh>
+
                 <CameraFollower refScene={refScene} />
-                {/* <Ground active={false} /> */}
-                <ambientLight intensity={0.5} />
-                <directionalLight
-                  position={[10, 10, 10]}
-                  shadow-mapSize-width={1024}
-                  shadow-mapSize-height={1024}
-                  intensity={11.5}
-                  castShadow
-                />
-                {/* <Perf position="bottom-left" /> */}
-                {/* <spotLight name="spotlight" position={[0, 10, 0]} intensity={20} /> */}
+
+                <Perf position="bottom-left" />
+
                 <CharacterController refScene={refScene} />
-                {/* <SphereOfPointsWithPhysics /> */}
+
+                <SphereOfPointsWithPhysics />
+
                 <Rotator>
                   <Box position={[15, -10, 5]}>
                     <meshStandardMaterial color="magenta" roughness={0.01} metalness={0.5} />

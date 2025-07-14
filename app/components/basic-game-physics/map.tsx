@@ -11,8 +11,6 @@ export const Map = ({ model, ...props }: { model: string }) => {
   useEffect(() => {
     scene.traverse((child: THREE.Object3D) => {
       if (child instanceof THREE.Mesh) {
-        console.log(123)
-
         child.castShadow = true
         child.receiveShadow = true
       }

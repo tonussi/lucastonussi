@@ -49,6 +49,15 @@ function Pirate({
   const { actions, names } = useAnimations(animations, group)
 
   useEffect(() => {
+    scene.traverse((child: THREE.Object3D) => {
+      if (child instanceof THREE.Mesh) {
+        child.castShadow = true
+        child.receiveShadow = true
+      }
+    })
+  }, [scene])
+
+  useEffect(() => {
     actions?.[names[animation]]?.reset().fadeIn(0.5).play()
     return () => {
       actions?.[names[animation]]?.fadeOut(0.5)

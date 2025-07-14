@@ -11,7 +11,12 @@ function CameraFollower({ refScene }: { refScene: React.RefObject<THREE.Scene> }
 
   return (
     <group>
-      <directionalLight>
+      <directionalLight
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+        intensity={10}
+        castShadow
+      >
         <PerspectiveCamera
           makeDefault
           name="camera"
