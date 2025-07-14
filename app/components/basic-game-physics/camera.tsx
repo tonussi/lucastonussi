@@ -15,7 +15,7 @@ function CameraFollower({ refScene }: { refScene: React.RefObject<THREE.Scene> }
         <PerspectiveCamera
           name="camera"
           ref={refCamera}
-          fov={40}
+          fov={65}
           near={0.1}
           position={[0, 5, -10]}
           dispatchEvent={() => {}}

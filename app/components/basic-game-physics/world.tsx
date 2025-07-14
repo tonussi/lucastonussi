@@ -3,22 +3,28 @@ import { Canvas } from '@react-three/fiber'
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
-import { Box, Environment, KeyboardControls, Torus, TorusKnot, View } from '@react-three/drei'
+import {
+  Box,
+  Environment,
+  KeyboardControls,
+  OrthographicCamera,
+  Plane,
+  Torus,
+  TorusKnot,
+  View,
+} from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import { proxy } from 'valtio'
-import CameraFollower from './camera'
 import { CharacterController } from './character-controller'
 import { GRAVITY } from './constants'
 import FullscreenWrapper from './fullscreen'
-import { Map } from './map'
-import { Minimap } from './minimap'
 import Rotator from './rotator'
 import GameInterface from './ui/interface'
 extend(THREE as any)
 
 export const GameState = proxy({
-  map: 'big_city',
+  map: 'desert',
   characterPosition: new THREE.Vector3(0, 0, 0),
   containerRotation: 0,
 })
@@ -100,20 +106,27 @@ export default function BasicGamePhysics() {
           }}
         >
           <color attach="background" args={['#ececec']} />
+          <Environment preset="sunset" />
+          <directionalLight
+            intensity={0.65}
+            castShadow
+            position={[-15, 10, 15]}
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+            shadow-bias={-0.00005}
+          >
+            <OrthographicCamera
+              left={-22}
+              right={15}
+              top={10}
+              bottom={-20}
+              ref={shadowCameraRef}
+              attach={'shadow-camera'}
+            />
+          </directionalLight>
           <Suspense fallback={null}>
             <Physics debug gravity={[0, GRAVITY, 0]}>
               <scene ref={refScene}>
-                <Environment preset="sunset" />
-                <directionalLight
-                  intensity={0.65}
-                  castShadow
-                  position={[-15, 10, 15]}
-                  shadow-mapSize-width={2048}
-                  shadow-mapSize-height={2048}
-                  shadow-bias={-0.00005}
-                >
-                  <CameraFollower refScene={refScene} />
-                </directionalLight>
                 <mesh castShadow receiveShadow>
                   {torusPositions.map((position, i) => (
                     <RigidBody colliders="ball" mass={0.0001} position={[0, 10, 0]}>
@@ -168,13 +181,15 @@ export default function BasicGamePhysics() {
                     />
                   </TorusKnot>
                 </Rotator>
-                <Map model={`/maps/${GameState.map}/scene.gltf`} />
+                <Plane args={[20, 20]} position={[0, 0, 0]}>
+                  <meshStandardMaterial color="gray" />
+                </Plane>
               </scene>
             </Physics>
           </Suspense>
         </View>
 
-        <View
+        {/* <View
           style={{
             position: 'fixed',
             width: '320px',
@@ -185,7 +200,7 @@ export default function BasicGamePhysics() {
           }}
         >
           <Minimap />
-        </View>
+        </View> */}
       </KeyboardControls>
     </FullscreenWrapper>
   )

@@ -1,11 +1,10 @@
-import { Environment, Gltf, PerspectiveCamera, useTexture } from '@react-three/drei'
+import { Environment, PerspectiveCamera, useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useControls } from 'leva'
 import { useRef } from 'react'
 import * as THREE from 'three'
 import { Vector3 } from 'three'
 import { useSnapshot } from 'valtio'
-import { maps } from './maps'
 import { GameState } from './world'
 
 const tmpVector = new Vector3()
@@ -58,7 +57,6 @@ export const Minimap = () => {
           <meshBasicMaterial color="red" depthTest={false} />
         </mesh>
       </group>
-      <Gltf scale={maps[map].scale} position={maps[map].position} src={`/maps/${map}/scene.gltf`} />
     </>
   )
 }
