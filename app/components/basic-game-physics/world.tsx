@@ -13,7 +13,6 @@ import { GRAVITY } from './constants'
 import FullscreenWrapper from './fullscreen'
 import Projectiles from './projectiles'
 import Rotator from './rotator'
-import SphereOfPointsWithPhysics from './sphere'
 import GameInterface from './ui/interface'
 extend(THREE as any)
 
@@ -121,11 +120,9 @@ export default function BasicGamePhysics() {
 
                 <CameraFollower refScene={refScene} />
 
-                <Perf position="bottom-left" />
+                {!isMobile && <Perf position="bottom-left" />}
 
                 <CharacterController refScene={refScene} />
-
-                <SphereOfPointsWithPhysics />
 
                 <Rotator>
                   <Box position={[15, -10, 5]}>
