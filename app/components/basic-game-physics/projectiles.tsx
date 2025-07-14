@@ -14,9 +14,7 @@ const Projectiles = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   const player = refScene.current?.getObjectByName('player') as THREE.Group
 
   useEffect(() => {
-    if (bullets.length > 5) {
-      setProjectiles([])
-    }
+    if (bullets.length > 5) setProjectiles([])
     handleLeftMouseClick()
     handleProjectilesAnimations()
   }, [mouse])
