@@ -1,11 +1,9 @@
 import useInputHandler from './input-handler'
 
-import { extend } from '@react-three/fiber'
 import { useEffect, useState, type RefObject } from 'react'
 
 import * as THREE from 'three'
 import CubeTravel from './cube-travel'
-extend(THREE as any)
 
 const Projectiles = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   const { mouse } = useInputHandler()

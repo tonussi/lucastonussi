@@ -3,12 +3,10 @@ import { Canvas, useLoader } from '@react-three/fiber'
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js'
 
 import { Html, useProgress } from '@react-three/drei'
-import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
 import * as THREE from 'three'
 import { Input } from '../ui/input'
-extend(THREE as any)
 
 function Loader() {
   const { progress } = useProgress()

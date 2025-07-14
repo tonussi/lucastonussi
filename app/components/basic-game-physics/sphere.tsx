@@ -1,10 +1,7 @@
 import { useMemo } from 'react'
 
-import { extend } from '@react-three/fiber'
-
 import { RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
-extend(THREE as any)
 
 function SphereOfPointsWithPhysics() {
   const pointsData = useMemo(() => {

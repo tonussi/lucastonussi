@@ -1,8 +1,6 @@
 import { OrbitControls } from '@react-three/drei'
-import { extend } from '@react-three/fiber'
 
 import * as THREE from 'three'
-extend(THREE as any)
 
 function Controls({ camera }: { camera: THREE.PerspectiveCamera }) {
   return (
