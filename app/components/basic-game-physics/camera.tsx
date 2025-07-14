@@ -11,14 +11,16 @@ function CameraFollower({ refScene }: { refScene: React.RefObject<THREE.Scene> }
 
   return (
     <group>
-      <PerspectiveCamera
-        name="camera"
-        makeDefault
-        ref={refCamera}
-        fov={75}
-        position={[0, 5, 5]}
-        dispatchEvent={() => {}}
-      />
+      <directionalLight>
+        <PerspectiveCamera
+          name="camera"
+          makeDefault
+          ref={refCamera}
+          fov={75}
+          position={[0, 5, 5]}
+          dispatchEvent={() => {}}
+        />
+      </directionalLight>
       <Controls camera={refCamera.current} />
     </group>
   )

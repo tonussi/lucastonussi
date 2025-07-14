@@ -64,11 +64,11 @@ export default function BasicGamePhysics() {
         fallback={'Sorry no WebGL supported!'}
         style={{
           height: '100vh',
-          backgroundColor: 'white',
         }}
         ref={refCanvas}
         shadows
       >
+        <color attach="background" args={['#ececec']} />
         <Suspense fallback={<Progress />}>
           <Physics debug>
             <scene ref={refScene}>

@@ -19,44 +19,26 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   const { keysPressed, mouse } = useInputHandler()
 
   const [bullets, setProjectiles] = useState<THREE.Vector3[]>([])
-  const [showArrow, setShowArrow] = useState(false)
-  const [arrowDirection, setArrowDirection] = useState(new THREE.Vector3(0, 0, -1))
-  const [moveSpeed, setMoveSpeed] = useState(0.05)
-  const [turningVelocity, setTurningVelocity] = useState(0.6)
   const [animationIndex, setAnimationIndex] = useState(0)
-  const [movement, setMovement] = useState<THREE.Vector3>(new THREE.Vector3(0, 0, 0))
 
   const camera = refScene.current?.getObjectByName('camera') as THREE.PerspectiveCamera
   const player = refScene.current?.getObjectByName('player') as THREE.Group
 
-  const [targetPosition, setTargetPosition] = useState(new THREE.Vector3())
-  const [targetRotation, setTargetRotation] = useState(0)
-  const [directionOffset, setDirectionOffset] = useState(0)
   const [rotateAngle, setRotateAngle] = useState(new THREE.Vector3(0, 1, 0))
   const [walkDirection, setWalkDirection] = useState(new THREE.Vector3())
   const [cameraTarget, setCameraTarget] = useState(new THREE.Vector3())
+  const [moveSpeed, setMoveSpeed] = useState(5)
 
   useFrame(() => {
     const delta = clock.getDelta()
 
-    const cameraDirection = new THREE.Vector3()
-    camera.getWorldDirection(cameraDirection)
-
     setWalkDirection(new THREE.Vector3(0, 0, 0))
-    // Check if any movement key is pressed
+
     const isMoving = keysPressed.w || keysPressed.a || keysPressed.s || keysPressed.d
 
     handleLeftMouseClick()
 
     handleProjectilesAnimations()
-
-    handleMoveForward()
-
-    handleMoveBackwards()
-
-    handleMoveLeftwards()
-
-    handleMoveRightwards()
 
     applyActionsMovimentsEtc(isMoving)
 
@@ -67,10 +49,8 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
     // Instead of mesh.current.position.add(movement), set target position
     if (isMoving) {
       setAnimationIndex(1)
-      setMovement(walkDirection)
     } else {
       setAnimationIndex(0)
-      setMovement(new THREE.Vector3(0, 0, 0))
     }
   }
 
@@ -82,14 +62,14 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
     )
 
     // rotate model
-    player.quaternion.setFromAxisAngle(rotateAngle, angleYCameraDirection + directionOffset)
+    player.quaternion.setFromAxisAngle(rotateAngle, angleYCameraDirection + directionOffset())
     player.quaternion.rotateTowards(player.quaternion, 0.2)
 
     // calculate direction
     camera.getWorldDirection(walkDirection)
     walkDirection.y = 0
     walkDirection.normalize()
-    walkDirection.applyAxisAngle(rotateAngle, directionOffset)
+    walkDirection.applyAxisAngle(rotateAngle, directionOffset())
 
     // move model & camera
     const moveX = walkDirection.x * moveSpeed * delta
@@ -111,34 +91,30 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
     cameraTarget.z = player.position.z
   }
 
-  function handleMoveForward() {
+  function directionOffset() {
+    var directionOffset = 0 // w
+
     if (keysPressed.w) {
       if (keysPressed.a) {
-        setDirectionOffset(Math.PI / 4) // w+a
+        directionOffset = Math.PI / 4 // w+a
       } else if (keysPressed.d) {
-        setDirectionOffset(-Math.PI / 4) // w+d
+        directionOffset = -Math.PI / 4 // w+d
       }
-    }
-  }
-
-  function handleMoveLeftwards() {
-    setDirectionOffset(Math.PI / 2) // a
-  }
-
-  function handleMoveBackwards() {
-    if (keysPressed.s) {
+    } else if (keysPressed.s) {
       if (keysPressed.a) {
-        setDirectionOffset(Math.PI / 4 + Math.PI / 2) // s+a
+        directionOffset = Math.PI / 4 + Math.PI / 2 // s+a
       } else if (keysPressed.d) {
-        setDirectionOffset(-Math.PI / 4 - Math.PI / 2) // s+d
+        directionOffset = -Math.PI / 4 - Math.PI / 2 // s+d
       } else {
-        setDirectionOffset(Math.PI) // s
+        directionOffset = Math.PI // s
       }
+    } else if (keysPressed.a) {
+      directionOffset = Math.PI / 2 // a
+    } else if (keysPressed.d) {
+      directionOffset = -Math.PI / 2 // d
     }
-  }
 
-  function handleMoveRightwards() {
-    setDirectionOffset(-Math.PI / 2) // d
+    return directionOffset
   }
 
   function handleProjectilesAnimations() {
@@ -193,7 +169,7 @@ const PlayerMoviment = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
         <CubeTravel key={index} player={player} position={bullet} />
       ))}
       <Mover moviment={player?.position}>
-        <Pirate refScene={refScene} animationIndex={animationIndex} />
+        <Pirate refScene={refScene} player={player} animationIndex={animationIndex} />
       </Mover>
     </>
   )

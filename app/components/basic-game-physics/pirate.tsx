@@ -38,9 +38,11 @@ type GLTFResult = GLTF & {
 function Pirate({
   animationIndex,
   refScene,
+  player,
 }: {
   animationIndex: number
   refScene: RefObject<THREE.Scene>
+  player: THREE.Group
 }) {
   const group = useRef<THREE.Group>(null!)
   const { scene, animations } = useGLTF('/models/skeleton/pirate.glb')
