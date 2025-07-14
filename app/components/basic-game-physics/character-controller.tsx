@@ -37,7 +37,7 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
     WALK_SPEED: { value: 4, min: 0.1, max: 4, step: 0.1 },
     RUN_SPEED: { value: 12, min: 0.2, max: 12, step: 0.1 },
     ROTATION_SPEED: {
-      value: degToRad(0.5),
+      value: degToRad(0),
       min: degToRad(0.1),
       max: degToRad(5),
       step: degToRad(0.1),
@@ -135,7 +135,6 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
     if (cameraTarget.current) {
       cameraTarget.current.getWorldPosition(cameraLookAtWorldPosition.current)
       cameraLookAt.current.lerp(cameraLookAtWorldPosition.current, 0.1)
-
       camera.lookAt(cameraLookAt.current)
     }
   })
@@ -143,8 +142,8 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
   return (
     <RigidBody colliders={false} lockRotations ref={rb} mass={1}>
       <group ref={container}>
-        <group ref={cameraTarget} position-z={1.5} />
-        <group ref={cameraPosition} position-y={4} position-z={-4} />
+        <group ref={cameraTarget} position-z={5.5} />
+        <group ref={cameraPosition} position-y={6} position-z={-10} />
         <group ref={character}>
           <Pirate
             scale={0.1}

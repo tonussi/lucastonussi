@@ -3,17 +3,10 @@ import { Canvas } from '@react-three/fiber'
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
-import {
-  Box,
-  Environment,
-  KeyboardControls,
-  OrthographicCamera,
-  Plane,
-  Torus,
-  TorusKnot,
-} from '@react-three/drei'
+import { Box, KeyboardControls, OrthographicCamera, Torus, TorusKnot } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
+import CameraFollower from './camera'
 import { CharacterController } from './character-controller'
 import { GRAVITY } from './constants'
 import FullscreenWrapper from './fullscreen'
@@ -86,7 +79,6 @@ export default function BasicGamePhysics() {
           shadows
         >
           <color attach="background" args={['#ececec']} />
-          <Environment preset="park" />
           <directionalLight
             intensity={0.65}
             castShadow
@@ -98,14 +90,14 @@ export default function BasicGamePhysics() {
             <OrthographicCamera
               left={-22}
               right={15}
-              top={10}
+              top={40}
               bottom={-20}
               ref={shadowCameraRef}
               attach={'shadow-camera'}
             />
           </directionalLight>
           <Suspense fallback={null}>
-            <Physics debug gravity={[0, GRAVITY, 0]}>
+            <Physics debug gravity={[0, GRAVITY, 0]} colliders="trimesh">
               <scene ref={refScene}>
                 <mesh castShadow receiveShadow>
                   {torusPositions.map((position, i) => (
@@ -123,31 +115,20 @@ export default function BasicGamePhysics() {
                     </RigidBody>
                   ))}
                 </mesh>
-                {/* <CameraFollower refScene={refScene} /> */}
+                <CameraFollower refScene={refScene} />
                 {/* <Ground active={false} /> */}
-                {/* <ambientLight intensity={0.5} />
+                <ambientLight intensity={0.5} />
                 <directionalLight
                   position={[10, 10, 10]}
                   shadow-mapSize-width={1024}
                   shadow-mapSize-height={1024}
                   intensity={11.5}
                   castShadow
-                /> */}
+                />
                 {/* <Perf position="bottom-left" /> */}
                 {/* <spotLight name="spotlight" position={[0, 10, 0]} intensity={20} /> */}
                 <CharacterController refScene={refScene} />
                 {/* <SphereOfPointsWithPhysics /> */}
-                <RigidBody
-                  colliders="cuboid"
-                  gravityScale={GRAVITY}
-                  position={[0, 0, 0]}
-                  mass={0.1}
-                >
-                  <mesh position={[0, 0, 0]} castShadow receiveShadow>
-                    <boxGeometry args={[1000, 0, 1000]} />
-                    <meshStandardMaterial color="white" transparent opacity={0} />
-                  </mesh>
-                </RigidBody>
                 <Rotator>
                   <Box position={[15, 5, 5]}>
                     <meshStandardMaterial color="magenta" roughness={0.01} metalness={0.5} />
@@ -161,9 +142,20 @@ export default function BasicGamePhysics() {
                     />
                   </TorusKnot>
                 </Rotator>
-                <Plane args={[20, 20]} position={[0, 0, 0]}>
-                  <meshStandardMaterial color="gray" />
-                </Plane>
+
+                <RigidBody type="fixed" colliders="cuboid" position={[0, -10, 0]}>
+                  <mesh position={[0, 0, 0]} castShadow receiveShadow>
+                    <boxGeometry args={[20, 0, 20]} />
+                    <meshStandardMaterial color="red" transparent opacity={0.1} />
+                  </mesh>
+                </RigidBody>
+
+                <RigidBody type="fixed" colliders="cuboid" position={[-20, -20, 0]}>
+                  <mesh position={[0, 0, 0]} castShadow receiveShadow>
+                    <boxGeometry args={[20, 0, 20]} />
+                    <meshStandardMaterial color="blue" transparent opacity={0.1} />
+                  </mesh>
+                </RigidBody>
               </scene>
             </Physics>
           </Suspense>

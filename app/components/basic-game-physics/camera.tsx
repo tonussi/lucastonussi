@@ -13,6 +13,7 @@ function CameraFollower({ refScene }: { refScene: React.RefObject<THREE.Scene> }
     <group>
       <directionalLight>
         <PerspectiveCamera
+          makeDefault
           name="camera"
           ref={refCamera}
           fov={65}
