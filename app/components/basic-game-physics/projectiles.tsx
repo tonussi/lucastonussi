@@ -23,7 +23,7 @@ const Projectiles = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
     bullets.forEach((bullet) => {
       // Add physics to bullets - make them fall and roll on ground
       // Keep bullets on ground level (y = 0)
-      bullet.y = -10
+      bullet.y = -5
 
       // Add random movement on the ground
       const randomX = (Math.random() - 0.5) * 0.1 // Reduced random X movement
@@ -34,12 +34,12 @@ const Projectiles = ({ refScene }: { refScene: RefObject<THREE.Scene> }) => {
   }
 
   function handleLeftMouseClick() {
-    if (mouse.isLeft) {
+    if (mouse.isMiddle) {
       // Get the character's current position and forward direction
       const characterPosition = player.position.clone()
       const forwardDirection = new THREE.Vector3()
       const currentPlayerPos = player.getWorldDirection(forwardDirection)
-      currentPlayerPos.y = -10 // Keep it horizontal
+      currentPlayerPos.y = -5 // Keep it horizontal
       currentPlayerPos.normalize()
 
       // Create bullets positioned in front of the character
