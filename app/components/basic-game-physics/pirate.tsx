@@ -10,6 +10,7 @@ Title: Skeleton Pirate " The Captin "
 
 import { useAnimations, useGLTF } from '@react-three/drei'
 import { useGraph } from '@react-three/fiber'
+import { RigidBody } from '@react-three/rapier'
 import type { RefObject } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
@@ -55,9 +56,11 @@ function Pirate({
   }, [animationIndex])
 
   return (
-    <group ref={group} dispose={null}>
+    <group name="player" ref={group} dispose={null}>
       <group name="Sketchfab_Scene">
-        <primitive name="player" object={nodes._rootJoint} position={[0, 0, 0]} scale={0.1} />
+        <RigidBody>
+          <primitive object={nodes._rootJoint} position={[0, 0, 0]} scale={0.1} />
+        </RigidBody>
         <skinnedMesh
           name="Object_9"
           geometry={nodes.Object_9.geometry}

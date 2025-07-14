@@ -32,7 +32,6 @@ export default function BasicGamePhysics() {
   }, [])
 
   const handleTorusRotation = (index: number) => {
-    console.log(index)
     setTorusRotation(torusRotation + 0.01)
   }
 
@@ -71,7 +70,7 @@ export default function BasicGamePhysics() {
         shadows
       >
         <Suspense fallback={<Progress />}>
-          <Physics>
+          <Physics debug>
             <scene ref={refScene}>
               <mesh castShadow receiveShadow>
                 {torusPositions.map((position, i) => (

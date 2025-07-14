@@ -72,7 +72,6 @@ export default function Atoms() {
   }, [torusRotation])
 
   const hexToRgba = (hex: string) => {
-    console.log('hex', hex)
     if (!hex) return 'rgba(173,109,244,0.5)'
     const [r, g, b] = hex.match(/\w{2}/g)!.map((x) => parseInt(x, 16))
     return `rgba(${r},${g},${b},0.5)`
