@@ -14,7 +14,6 @@ function CameraFollower({ refScene }: { refScene: React.RefObject<THREE.Scene> }
       <directionalLight>
         <PerspectiveCamera
           name="camera"
-          makeDefault
           ref={refCamera}
           fov={75}
           position={[0, 5, 5]}

@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { extend } from '@react-three/fiber'
 import { Suspense, useEffect, useRef, useState } from 'react'
 
-import { Box, KeyboardControls, Plane, Torus, TorusKnot } from '@react-three/drei'
+import { Box, Environment, KeyboardControls, Plane, Torus, TorusKnot } from '@react-three/drei'
 import { Physics, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import CameraFollower from './camera'
@@ -64,6 +64,7 @@ export default function BasicGamePhysics() {
   }, [])
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+  const shadowCameraRef = useRef<THREE.OrthographicCamera>(null!)
 
   return (
     <FullscreenWrapper>
@@ -79,6 +80,17 @@ export default function BasicGamePhysics() {
         >
           <color attach="background" args={['#ececec']} />
           <Suspense fallback={<Progress />}>
+            <Environment preset="sunset" />
+            <directionalLight
+              intensity={0.65}
+              castShadow
+              position={[-15, 10, 15]}
+              shadow-mapSize-width={2048}
+              shadow-mapSize-height={2048}
+              shadow-bias={-0.00005}
+            >
+              <CameraFollower refScene={refScene} />
+            </directionalLight>
             <Physics debug>
               <scene ref={refScene}>
                 <mesh castShadow receiveShadow>
@@ -97,19 +109,19 @@ export default function BasicGamePhysics() {
                     </RigidBody>
                   ))}
                 </mesh>
-                <CameraFollower refScene={refScene} />
+                {/* <CameraFollower refScene={refScene} /> */}
                 {/* <Ground active={false} /> */}
-                <ambientLight intensity={0.5} />
+                {/* <ambientLight intensity={0.5} />
                 <directionalLight
                   position={[10, 10, 10]}
                   shadow-mapSize-width={1024}
                   shadow-mapSize-height={1024}
                   intensity={11.5}
                   castShadow
-                />
+                /> */}
                 {/* <Perf position="bottom-left" /> */}
-                <spotLight name="spotlight" position={[0, 10, 0]} intensity={20} />
-                <CharacterController />
+                {/* <spotLight name="spotlight" position={[0, 10, 0]} intensity={20} /> */}
+                <CharacterController refScene={refScene} />
                 {/* <SphereOfPointsWithPhysics /> */}
                 <RigidBody colliders="cuboid" gravityScale={9.8} position={[0, 0, 0]}>
                   <mesh position={[0, 0, 0]} castShadow receiveShadow>

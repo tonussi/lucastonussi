@@ -33,7 +33,7 @@ type GLTFResult = GLTF & {
   animations: GLTFAction[]
 }
 
-function Pirate({ animationIndex }: { animationIndex: number }) {
+function Pirate({ animation, scale }: { animation: number; scale: number }) {
   const group = useRef<THREE.Group>(null!)
   const { scene, animations } = useGLTF('/models/skeleton/pirate.glb')
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
@@ -41,16 +41,16 @@ function Pirate({ animationIndex }: { animationIndex: number }) {
   const { actions, names } = useAnimations(animations, group)
 
   useEffect(() => {
-    actions?.[names[animationIndex]]?.reset().fadeIn(0.5).play()
+    actions?.[names[animation]]?.reset().fadeIn(0.5).play()
     return () => {
-      actions?.[names[animationIndex]]?.fadeOut(0.5)
+      actions?.[names[animation]]?.fadeOut(0.5)
     }
-  }, [animationIndex])
+  }, [animation])
 
   return (
     <group name="player" ref={group} dispose={null}>
       <group name="Sketchfab_Scene">
-        <primitive object={nodes._rootJoint} position={[0, 0, 0]} scale={0.1} />
+        <primitive object={nodes._rootJoint} position={[0, 0, 0]} scale={scale} />
         <skinnedMesh
           name="Object_9"
           geometry={nodes.Object_9.geometry}
@@ -58,7 +58,7 @@ function Pirate({ animationIndex }: { animationIndex: number }) {
           skeleton={nodes.Object_9.skeleton}
           position={[0, 0, 0]}
           rotation={[0, 0, 0]}
-          scale={0.1}
+          scale={scale}
         />
         <skinnedMesh
           name="Object_10"
@@ -67,7 +67,7 @@ function Pirate({ animationIndex }: { animationIndex: number }) {
           skeleton={nodes.Object_10.skeleton}
           position={[0, 0, 0]}
           rotation={[0, 0, 0]}
-          scale={0.1}
+          scale={scale}
         />
       </group>
     </group>

@@ -4,8 +4,8 @@ import { CapsuleCollider, RigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 import { useRef, useState } from 'react'
 import * as THREE from 'three'
-import { MathUtils, Vector3 } from 'three'
-import { degToRad } from 'three/src/math/MathUtils.js'
+import { Vector3 } from 'three'
+import { degToRad, MathUtils } from 'three/src/math/MathUtils.js'
 import useInputHandler from './input-handler'
 import Pirate from './pirate'
 
@@ -30,10 +30,10 @@ const lerpAngle = (start: number, end: number, t: number) => {
   return normalizeAngle(start + (end - start) * t)
 }
 
-export const CharacterController = () => {
+export const CharacterController = ({ refScene }: { refScene: React.RefObject<THREE.Scene> }) => {
   const { WALK_SPEED, RUN_SPEED, ROTATION_SPEED } = useControls('Character Control', {
-    WALK_SPEED: { value: 0.8, min: 0.1, max: 4, step: 0.1 },
-    RUN_SPEED: { value: 1.6, min: 0.2, max: 12, step: 0.1 },
+    WALK_SPEED: { value: 4, min: 0.1, max: 4, step: 0.1 },
+    RUN_SPEED: { value: 12, min: 0.2, max: 12, step: 0.1 },
     ROTATION_SPEED: {
       value: degToRad(0.5),
       min: degToRad(0.1),
@@ -144,7 +144,7 @@ export const CharacterController = () => {
         <group ref={cameraTarget} position-z={1.5} />
         <group ref={cameraPosition} position-y={4} position-z={-4} />
         <group ref={character}>
-          <Pirate position-y={-0.25} animationIndex={animationIndex} />
+          <Pirate scale={0.1} position-y={-0.25} animation={animationIndex} />
         </group>
       </group>
       <CapsuleCollider args={[0.08, 0.15]} position={[0, 0.1, 0]} />
