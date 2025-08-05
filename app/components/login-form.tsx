@@ -58,14 +58,7 @@ export function InputOTPForm() {
   })
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast.success(t('login.otpSubmitDescription'), {
-      description: (
-        <pre className="mt-2 w-[320px] rounded-md bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 p-4">
-          <code className="text-gray-900 dark:text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    })
-
+    toast.success(t('login.otpSubmitDescription'))
     handleSubmit(data.email, data.pin)
   }
 
