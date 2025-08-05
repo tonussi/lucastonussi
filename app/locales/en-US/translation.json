@@ -36,5 +36,11 @@
     "otpSubmit": "Submit",
     "otpResend": "Resend code",
     "otpSubmitDescription": "You submitted the following values"
+  },
+  "zod": {
+    "errors": {
+      "emailInvalid": "Invalid email",
+      "pinInvalid": "Invalid pin"
+    }
   }
 }

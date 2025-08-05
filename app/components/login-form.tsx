@@ -22,20 +22,16 @@ import {
 } from '../components/ui/form'
 import { Input } from '../components/ui/input'
 
-const FormSchema = z.object({
-  email: z.string().email({
-    message: 'Invalid email address.',
-  }),
-  pin: z.string().min(6, {
-    message: 'Your one-time password must be 6 characters.',
-  }),
-})
-
 export function InputOTPForm() {
   const [error, setError] = useState('')
   const { login } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation()
+
+  const FormSchema = z.object({
+    email: z.email(t('zod.errors.emailInvalid')),
+    pin: z.string().min(6, t('zod.errors.pinInvalid')),
+  })
 
   const handleSubmit = async (email: string, pin: string) => {
     setError('')
@@ -171,7 +167,7 @@ export function LoginForm() {
     setError('')
 
     try {
-      const user = await authLogin(email, password)
+      const user = await authLogin(email, password, '')
       login(user)
       navigate('/')
     } catch (err) {

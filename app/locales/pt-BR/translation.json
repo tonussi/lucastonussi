@@ -36,5 +36,11 @@
     "otpSubmit": "Enviar",
     "otpResend": "Reenviar código",
     "otpSubmitDescription": "Você enviou os seguintes valores"
+  },
+  "zod": {
+    "errors": {
+      "emailInvalid": "E-mail inválido",
+      "pinInvalid": "Código de verificação inválido"
+    }
   }
 }
