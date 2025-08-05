@@ -25,7 +25,7 @@
     "error": "Invalid email or password",
     "otp": "OTP",
     "otpDemo": "OTP Demo",
-    "demo": "Demo: any email and password works, any totp code works",
+    "demo": "Demo: any email and password works, any OTP code works",
     "or": "Or",
     "google": "Google",
     "github": "GitHub",

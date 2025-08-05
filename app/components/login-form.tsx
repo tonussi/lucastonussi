@@ -22,44 +22,26 @@ import {
 } from '../components/ui/form'
 import { Input } from '../components/ui/input'
 
-export function InputOTPForm() {
-  const [error, setError] = useState('')
-  const { login } = useAuth()
-  const navigate = useNavigate()
+export function InputEmailResendForm() {
   const { t } = useTranslation()
 
-  const FormSchema = z.object({
+  const EmailSchema = z.object({
     email: z.email(t('zod.errors.emailInvalid')),
-    pin: z.string().min(6, t('zod.errors.pinInvalid')),
   })
 
-  const handleSubmit = async (email: string, pin: string) => {
-    setError('')
-
-    try {
-      const user = await authLogin(email, '', pin)
-      login(user)
-      navigate('/')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('login.error'))
-    }
+  const handleSubmit = async (email: string) => {
+    toast.success(t('login.otpResend'))
   }
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<z.infer<typeof EmailSchema>>({
+    resolver: zodResolver(EmailSchema),
     defaultValues: {
       email: '',
-      pin: '',
     },
   })
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast.success(t('login.otpSubmitDescription'))
-    handleSubmit(data.email, data.pin)
-  }
-
-  const handleOtpGenerate = () => {
-    toast.success(t('login.otpResend'))
+  function onSubmit(data: z.infer<typeof EmailSchema>) {
+    handleSubmit(data.email)
   }
 
   return (
@@ -77,17 +59,54 @@ export function InputOTPForm() {
                 </FormControl>
                 <FormMessage />
               </FormItem>
-              <Button
-                className="w-full"
-                type="button"
-                variant="outline"
-                onClick={() => handleOtpGenerate()}
-              >
+              <Button className="w-full" type="submit">
                 {t('login.otpResend')}
               </Button>
             </div>
           )}
         />
+      </form>
+    </Form>
+  )
+}
+
+export function InputOTPForm() {
+  const [error, setError] = useState('')
+  const { login } = useAuth()
+  const navigate = useNavigate()
+  const { t } = useTranslation()
+
+  const PinSchema = z.object({
+    pin: z.string().min(6, t('zod.errors.pinInvalid')),
+  })
+
+  const handleSubmit = async (pin: string) => {
+    setError('')
+
+    try {
+      const user = await authLogin('', '', pin)
+      login(user)
+      navigate('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('login.error'))
+    }
+  }
+
+  const form = useForm<z.infer<typeof PinSchema>>({
+    resolver: zodResolver(PinSchema),
+    defaultValues: {
+      pin: '',
+    },
+  })
+
+  function onSubmit(data: z.infer<typeof PinSchema>) {
+    toast.success(t('login.otpSubmitDescription'))
+    handleSubmit(data.pin)
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
         <FormField
           control={form.control}
           name="pin"
@@ -284,6 +303,9 @@ export function LoginForm() {
               <Divider />
               <div className="text-center">
                 <p className="text-sm text-gray-600 dark:text-gray-400">{t('login.otp')}</p>
+              </div>
+              <div className="mt-6 flex items-center justify-center">
+                <InputEmailResendForm />
               </div>
               <div className="mt-6 flex items-center justify-center">
                 <InputOTPForm />
