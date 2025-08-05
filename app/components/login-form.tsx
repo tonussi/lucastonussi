@@ -7,7 +7,7 @@ import { useAuth } from '../lib/auth-context'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
+import { toast, Toaster } from 'sonner'
 import { z } from 'zod'
 
 import { Button } from '../components/ui/button'
@@ -20,35 +20,85 @@ import {
   FormLabel,
   FormMessage,
 } from '../components/ui/form'
+import { Input } from '../components/ui/input'
 
 const FormSchema = z.object({
+  email: z.string().email({
+    message: 'Invalid email address.',
+  }),
   pin: z.string().min(6, {
     message: 'Your one-time password must be 6 characters.',
   }),
 })
 
 export function InputOTPForm() {
+  const [error, setError] = useState('')
+  const { login } = useAuth()
+  const navigate = useNavigate()
   const { t } = useTranslation()
+
+  const handleSubmit = async (email: string, pin: string) => {
+    setError('')
+
+    try {
+      const user = await authLogin(email, '', pin)
+      login(user)
+      navigate('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('login.error'))
+    }
+  }
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
+      email: '',
       pin: '',
     },
   })
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast('You submitted the following values', {
+    toast.success(t('login.otpSubmitDescription'), {
       description: (
-        <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        <pre className="mt-2 w-[320px] rounded-md bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 p-4">
+          <code className="text-gray-900 dark:text-white">{JSON.stringify(data, null, 2)}</code>
         </pre>
       ),
     })
+
+    handleSubmit(data.email, data.pin)
+  }
+
+  const handleOtpGenerate = () => {
+    toast.success(t('login.otpResend'))
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <div className="grid grid-rows-2 gap-2">
+              <FormItem>
+                <FormLabel>{t('login.email')}</FormLabel>
+                <FormControl>
+                  <Input className="w-full" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+              <Button
+                className="w-full"
+                type="button"
+                variant="outline"
+                onClick={() => handleOtpGenerate()}
+              >
+                {t('login.otpResend')}
+              </Button>
+            </div>
+          )}
+        />
         <FormField
           control={form.control}
           name="pin"
@@ -74,9 +124,6 @@ export function InputOTPForm() {
         />
 
         <div className="flex items-center justify-between gap-3">
-          <Button className="w-1/2" type="button" variant="outline">
-            {t('login.otpResend')}
-          </Button>
           <Button className="w-1/2" type="submit">
             {t('login.otpSubmit')}
           </Button>
@@ -143,6 +190,7 @@ export function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 px-4">
+      <Toaster />
       <div className="max-w-fit w-full">
         {/* Centralized Tailwind Card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">

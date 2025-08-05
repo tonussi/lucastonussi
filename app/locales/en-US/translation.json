@@ -34,6 +34,7 @@
     "otpLabel": "One-Time Password",
     "otpDescription": "Please enter the one-time password sent to your phone.",
     "otpSubmit": "Submit",
-    "otpResend": "Resend"
+    "otpResend": "Resend code",
+    "otpSubmitDescription": "You submitted the following values"
   }
 }

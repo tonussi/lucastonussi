@@ -2,40 +2,54 @@
 // In a real app, you'd want to use proper JWT tokens and secure storage
 
 export interface User {
-  email: string;
-  name?: string;
+  email: string
+  name?: string
 }
 
-const AUTH_KEY = 'auth_user';
+const AUTH_KEY = 'auth_user'
 
-export function login(email: string, password: string): Promise<User> {
+export function login(email: string, password: string, pin: string): Promise<User> {
+  if (pin.length) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (pin.length === 6) {
+          const user: User = { email, name: email.split('@')[0] }
+          localStorage.setItem(AUTH_KEY, JSON.stringify(user))
+          resolve(user)
+        } else {
+          reject(new Error('Invalid pin'))
+        }
+      }, 500)
+    })
+  }
+
   return new Promise((resolve, reject) => {
     // Simple mock authentication - replace with real API call
     setTimeout(() => {
       if (email && password) {
-        const user: User = { email, name: email.split('@')[0] };
-        localStorage.setItem(AUTH_KEY, JSON.stringify(user));
-        resolve(user);
+        const user: User = { email, name: email.split('@')[0] }
+        localStorage.setItem(AUTH_KEY, JSON.stringify(user))
+        resolve(user)
       } else {
-        reject(new Error('Invalid credentials'));
+        reject(new Error('Invalid credentials'))
       }
-    }, 500);
-  });
+    }, 500)
+  })
 }
 
 export function logout(): void {
-  localStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(AUTH_KEY)
 }
 
 export function getCurrentUser(): User | null {
   try {
-    const stored = localStorage.getItem(AUTH_KEY);
-    return stored ? JSON.parse(stored) : null;
+    const stored = localStorage.getItem(AUTH_KEY)
+    return stored ? JSON.parse(stored) : null
   } catch {
-    return null;
+    return null
   }
 }
 
 export function isAuthenticated(): boolean {
-  return getCurrentUser() !== null;
+  return getCurrentUser() !== null
 }

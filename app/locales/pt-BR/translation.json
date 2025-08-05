@@ -34,6 +34,7 @@
     "otpLabel": "Código de verificação",
     "otpDescription": "Por favor, insira o código de verificação enviado para seu telefone.",
     "otpSubmit": "Enviar",
-    "otpResend": "Reenviar"
+    "otpResend": "Reenviar código",
+    "otpSubmitDescription": "Você enviou os seguintes valores"
   }
 }
