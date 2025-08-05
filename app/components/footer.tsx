@@ -1,5 +1,3 @@
-import { Vaper } from './vaper'
-
 export function Footer() {
   return (
     <footer className="fixed bottom-0 left-0 p-4 text-xs w-full dark:bg-transparent bg-transparent">
@@ -26,7 +24,6 @@ export function Footer() {
           </svg>
           GitHub
         </a>
-        <Vaper color="#7ED4FD" particleCount={50} type="rounded" isActive={true} />
       </div>
     </footer>
   )

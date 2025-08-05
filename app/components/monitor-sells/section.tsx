@@ -1,4 +1,3 @@
-import { Vaper } from '../vaper'
 import { MonitorSellsCard } from './card'
 import { MonitorSellsDescription } from './description'
 
@@ -8,7 +7,6 @@ export function MonitorSellsSection() {
       <MonitorSellsDescription />
       <div className="lg:w-3/4 lg:h-2/4 justify-self-center">
         <MonitorSellsCard />
-        <Vaper color="gray" particleCount={10} type="rounded" isActive={true} />
       </div>
     </div>
   )
