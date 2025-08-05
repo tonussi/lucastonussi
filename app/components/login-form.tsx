@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '../components/ui/input-otp'
@@ -22,7 +22,11 @@ import {
 } from '../components/ui/form'
 import { Input } from '../components/ui/input'
 
-export function InputEmailResendForm() {
+export function InputEmailResendForm({
+  onSubmitEmail,
+}: {
+  onSubmitEmail: (email: string) => void
+}) {
   const { t } = useTranslation()
 
   const EmailSchema = z.object({
@@ -42,6 +46,7 @@ export function InputEmailResendForm() {
 
   function onSubmit(data: z.infer<typeof EmailSchema>) {
     handleSubmit(data.email)
+    onSubmitEmail(data.email)
   }
 
   return (
@@ -70,7 +75,7 @@ export function InputEmailResendForm() {
   )
 }
 
-export function InputOTPForm() {
+export function InputOTPForm({ email }: { email: string }) {
   const [error, setError] = useState('')
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -80,13 +85,25 @@ export function InputOTPForm() {
     pin: z.string().min(6, t('zod.errors.pinInvalid')),
   })
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error)
+    }
+  }, [error])
+
   const handleSubmit = async (pin: string) => {
     setError('')
 
     try {
-      const user = await authLogin('', '', pin)
+      if (!email) {
+        console.log(email)
+        setError(t('zod.errors.emailInvalid'))
+        return
+      }
+      const user = await authLogin(email, '', pin)
       login(user)
       navigate('/')
+      toast.success(t('login.otpSubmitDescription'))
     } catch (err) {
       setError(err instanceof Error ? err.message : t('login.error'))
     }
@@ -100,7 +117,6 @@ export function InputOTPForm() {
   })
 
   function onSubmit(data: z.infer<typeof PinSchema>) {
-    toast.success(t('login.otpSubmitDescription'))
     handleSubmit(data.pin)
   }
 
@@ -173,6 +189,7 @@ export function Divider() {
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
+  const [emailOtp, setEmailOtp] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -305,10 +322,10 @@ export function LoginForm() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">{t('login.otp')}</p>
               </div>
               <div className="mt-6 flex items-center justify-center">
-                <InputEmailResendForm />
+                <InputEmailResendForm onSubmitEmail={setEmailOtp} />
               </div>
               <div className="mt-6 flex items-center justify-center">
-                <InputOTPForm />
+                <InputOTPForm email={emailOtp} />
               </div>
             </div>
           </div>
