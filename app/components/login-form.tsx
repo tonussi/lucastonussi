@@ -74,8 +74,12 @@ export function InputOTPForm() {
         />
 
         <div className="flex items-center justify-between gap-3">
-          <Button type="button">{t('login.otpResend')}</Button>
-          <Button type="submit">{t('login.otpSubmit')}</Button>
+          <Button className="w-1/2" type="button" variant="outline">
+            {t('login.otpResend')}
+          </Button>
+          <Button className="w-1/2" type="submit">
+            {t('login.otpSubmit')}
+          </Button>
         </div>
       </form>
     </Form>
