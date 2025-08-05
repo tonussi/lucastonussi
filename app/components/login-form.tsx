@@ -28,6 +28,7 @@ const FormSchema = z.object({
 })
 
 export function InputOTPForm() {
+  const { t } = useTranslation()
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -53,7 +54,7 @@ export function InputOTPForm() {
           name="pin"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>One-Time Password</FormLabel>
+              <FormLabel>{t('login.otpLabel')}</FormLabel>
               <FormControl>
                 <InputOTP maxLength={6} {...field}>
                   <InputOTPGroup>
@@ -66,15 +67,16 @@ export function InputOTPForm() {
                   </InputOTPGroup>
                 </InputOTP>
               </FormControl>
-              <FormDescription>
-                Please enter the one-time password sent to your phone.
-              </FormDescription>
+              <FormDescription>{t('login.otpDescription')}</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit">Submit</Button>
+        <div className="flex items-center justify-between gap-3">
+          <Button type="button">{t('login.otpResend')}</Button>
+          <Button type="submit">{t('login.otpSubmit')}</Button>
+        </div>
       </form>
     </Form>
   )

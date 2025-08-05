@@ -30,6 +30,10 @@
     "google": "Google",
     "github": "GitHub",
     "facebook": "Facebook",
-    "signin": "Criar perfil"
+    "signin": "Criar perfil",
+    "otpLabel": "Código de verificação",
+    "otpDescription": "Por favor, insira o código de verificação enviado para seu telefone.",
+    "otpSubmit": "Enviar",
+    "otpResend": "Reenviar"
   }
 }

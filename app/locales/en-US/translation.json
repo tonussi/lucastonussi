@@ -30,6 +30,10 @@
     "google": "Google",
     "github": "GitHub",
     "facebook": "Facebook",
-    "signin": "Sign In"
+    "signin": "Sign In",
+    "otpLabel": "One-Time Password",
+    "otpDescription": "Please enter the one-time password sent to your phone.",
+    "otpSubmit": "Submit",
+    "otpResend": "Resend"
   }
 }
