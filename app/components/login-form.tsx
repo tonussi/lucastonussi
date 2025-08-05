@@ -54,8 +54,8 @@ export function Divider() {
 
   return (
     <div className="grid grid-rows-1 my-3">
-      <span className="text-left text-xs text-gray-300">{t('login.or')}</span>
-      <hr className="border-gray-200" />
+      <span className="text-left text-xs text-gray-300 dark:text-gray-400">{t('login.or')}</span>
+      <hr className="border-gray-200 dark:border-gray-700" />
     </div>
   )
 }
@@ -86,13 +86,15 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 px-4">
       <div className="max-w-md w-full">
         {/* Centralized Tailwind Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('login.title')}</h1>
-            <p className="text-gray-600">{t('login.subtitle')}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              {t('login.title')}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">{t('login.subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -103,7 +105,10 @@ export function LoginForm() {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2"
+              >
                 {t('login.email')}
               </label>
               <input
@@ -112,13 +117,16 @@ export function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
                 placeholder={t('login.emailPlaceholder')}
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2"
+              >
                 {t('login.password')}
               </label>
               <input
@@ -127,7 +135,7 @@ export function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
                 placeholder={t('login.passwordPlaceholder')}
               />
             </div>
@@ -135,7 +143,7 @@ export function LoginForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="w-full bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               {isLoading ? t('login.signingIn') : t('login.signIn')}
             </button>
@@ -144,7 +152,7 @@ export function LoginForm() {
 
             <div className="mt-6">
               <div className="text-center">
-                <p className="text-sm text-gray-600">{t('login.otp')}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('login.otp')}</p>
               </div>
               <div className="mt-6 flex items-center justify-center">
                 <InputOTPDemo />
@@ -156,7 +164,7 @@ export function LoginForm() {
             <div className="mt-6 flex items-center justify-center space-x-4">
               <a
                 href="/api/auth/google"
-                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 <div className="flex items-center gap-2">
                   <EnterIcon />
@@ -165,7 +173,7 @@ export function LoginForm() {
               </a>
               <a
                 href="/api/auth/github"
-                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 <div className="flex items-center gap-2">
                   <EnterIcon />
@@ -179,7 +187,7 @@ export function LoginForm() {
             <div className="mt-6 flex items-center justify-center space-x-4">
               <a
                 href="/api/auth/signin"
-                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 <div className="flex items-center gap-2">
                   <EnterIcon />
@@ -190,7 +198,7 @@ export function LoginForm() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">{t('login.demo')}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{t('login.demo')}</p>
           </div>
         </div>
       </div>
