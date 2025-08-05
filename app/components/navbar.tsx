@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router'
+import { LogoutButton } from './logout-button'
 
 export function Navbar() {
   return (
@@ -34,6 +35,7 @@ export function Navbar() {
         >
           Atoms
         </NavLink>
+        <LogoutButton />
       </nav>
     </div>
   )

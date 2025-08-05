@@ -1,15 +1,26 @@
 import { Footer } from '@/components/footer'
 import { Navbar } from '@/components/navbar'
-import { Outlet } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
+import { AuthProvider } from '../lib/auth-context'
+import { ProtectedRoute } from '../components/protected-route'
 
 export function MainLayout() {
+  const location = useLocation()
+  const isLoginPage = location.pathname === '/login'
+
   return (
-    <>
-      <Navbar />
-      <main>
+    <AuthProvider>
+      {isLoginPage ? (
         <Outlet />
-      </main>
-      <Footer />
-    </>
+      ) : (
+        <ProtectedRoute>
+          <Navbar />
+          <main>
+            <Outlet />
+          </main>
+          <Footer />
+        </ProtectedRoute>
+      )}
+    </AuthProvider>
   )
 }
