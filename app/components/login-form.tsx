@@ -81,6 +81,9 @@ export function InputOTPForm({ email }: { email: string }) {
   const navigate = useNavigate()
   const { t } = useTranslation()
 
+  const EmailSchema = z.object({
+    email: z.email(t('zod.errors.emailInvalid')),
+  })
   const PinSchema = z.object({
     pin: z.string().min(6, t('zod.errors.pinInvalid')),
   })
@@ -88,18 +91,23 @@ export function InputOTPForm({ email }: { email: string }) {
   useEffect(() => {
     if (error) {
       toast.error(error)
+      setError('')
     }
   }, [error])
 
   const handleSubmit = async (pin: string) => {
     setError('')
 
+    let validatedEmail
+
     try {
-      if (!email) {
-        console.log(email)
-        setError(t('zod.errors.emailInvalid'))
-        return
-      }
+      validatedEmail = EmailSchema.parse({ email })
+    } catch (err) {
+      setError(t('zod.errors.emailInvalid'))
+      return
+    }
+
+    try {
       const user = await authLogin(email, '', pin)
       login(user)
       navigate('/')
@@ -146,7 +154,6 @@ export function InputOTPForm({ email }: { email: string }) {
             </FormItem>
           )}
         />
-
         <div className="flex items-center justify-between gap-3">
           <Button className="w-1/2" type="submit">
             {t('login.otpSubmit')}
