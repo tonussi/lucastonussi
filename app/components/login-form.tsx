@@ -282,7 +282,7 @@ export function LoginForm() {
                   >
                     {t('login.email')}
                   </label>
-                  <input
+                  <Input
                     id="email"
                     type="email"
                     value={email}
@@ -300,7 +300,7 @@ export function LoginForm() {
                   >
                     {t('login.password')}
                   </label>
-                  <input
+                  <Input
                     id="password"
                     type="password"
                     value={password}
@@ -367,7 +367,7 @@ export function LoginForm() {
           {/* Mobile layout with tabs */}
           <div className="md:hidden">
             <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 mb-6">
-              <button
+              <Button
                 type="button"
                 onClick={() => setActiveTab('password')}
                 className={`flex-1 px-4 py-3 text-sm font-medium transition-colors focus:outline-none ${
@@ -379,8 +379,8 @@ export function LoginForm() {
                 role="tab"
               >
                 {t('login.emailPasswordTab') ?? 'Email & Password'}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => setActiveTab('otp')}
                 className={`flex-1 px-4 py-3 text-sm font-medium transition-colors border-l border-gray-200 dark:border-gray-700 focus:outline-none ${
@@ -392,7 +392,7 @@ export function LoginForm() {
                 role="tab"
               >
                 {t('login.otpTab') ?? 'One-Time Code'}
-              </button>
+              </Button>
             </div>
 
             {activeTab === 'password' && (
@@ -410,7 +410,7 @@ export function LoginForm() {
                   >
                     {t('login.email')}
                   </label>
-                  <input
+                  <Input
                     id="email"
                     type="email"
                     value={email}
@@ -428,7 +428,7 @@ export function LoginForm() {
                   >
                     {t('login.password')}
                   </label>
-                  <input
+                  <Input
                     id="password"
                     type="password"
                     value={password}
@@ -439,18 +439,14 @@ export function LoginForm() {
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
+                <Button type="submit" disabled={isLoading} className="w-full">
                   {isLoading ? t('login.signingIn') : t('login.signIn')}
                 </Button>
 
                 <div className="mt-6 flex items-center justify-center space-x-4">
                   <Button
                     onClick={() => {}}
-                    className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="inline-flex items-center justify-center px-4 py-2"
                   >
                     <div className="flex items-center gap-2">
                       <EnterIcon />
@@ -459,7 +455,7 @@ export function LoginForm() {
                   </Button>
                   <Button
                     onClick={() => {}}
-                    className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="inline-flex items-center justify-center px-4 py-2"
                   >
                     <div className="flex items-center gap-2">
                       <EnterIcon />
