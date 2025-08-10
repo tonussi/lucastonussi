@@ -527,7 +527,7 @@ export function LoginForm() {
         fields={formFieldsRegisterNewUser}
         onSubmit={(data) => console.log(data)}
         submitText="Save User"
-        initialData={{ name: 'John', email: 'john@example.com' }}
+        initialData={{ name: '', email: '' }}
       />
     </div>
   )
