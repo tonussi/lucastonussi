@@ -239,8 +239,8 @@ export function LoginForm() {
       type: 'select',
       required: true,
       options: [
-        { value: 'admin', label: 'Administrator' },
-        { value: 'user', label: 'Regular User' },
+        { value: 'visitor', label: 'Visitor' },
+        { value: 'user', label: 'User' },
       ],
     },
   ]
