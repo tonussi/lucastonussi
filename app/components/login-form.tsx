@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from '../components/ui/form'
 import { Input } from '../components/ui/input'
+import GenericModalForm, { type ModalFormField } from './generic-modal-form'
 
 export function InputEmailResendForm({
   onSubmitEmail,
@@ -210,6 +211,39 @@ export function LoginForm() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<'password' | 'otp'>('password')
+  const [isOpen, setIsOpen] = useState(false)
+
+  const formFields: ModalFormField[] = [
+    {
+      id: 'name',
+      label: 'Full Name',
+      type: 'text',
+      required: true,
+      placeholder: 'Enter your name',
+      validation: {
+        minLength: 3,
+        maxLength: 50,
+        message: 'Name must be between 3 and 50 characters',
+      },
+    },
+    {
+      id: 'email',
+      label: 'Email',
+      type: 'email',
+      required: true,
+      placeholder: 'your@email.com',
+    },
+    {
+      id: 'userType',
+      label: 'User Type',
+      type: 'select',
+      required: true,
+      options: [
+        { value: 'admin', label: 'Administrator' },
+        { value: 'user', label: 'Regular User' },
+      ],
+    },
+  ]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -293,44 +327,42 @@ export function LoginForm() {
               >
                 {isLoading ? t('login.signingIn') : t('login.signIn')}
               </button>
-
-              <Divider />
-
-              <div className="mt-6 flex items-center justify-center space-x-4">
-                <a
-                  href="/api/auth/google"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <EnterIcon />
-                    {t('login.google')}
-                  </div>
-                </a>
-                <a
-                  href="/api/auth/github"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <EnterIcon />
-                    {t('login.github')}
-                  </div>
-                </a>
-              </div>
-
-              <Divider />
-
-              <div className="mt-6 flex items-center justify-center space-x-4">
-                <a
-                  href="/api/auth/signin"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <EnterIcon />
-                    {t('login.signin')}
-                  </div>
-                </a>
-              </div>
             </form>
+
+            <div className="mt-6 flex items-center justify-center space-x-4">
+              <button
+                onClick={() => setIsOpen(true)}
+                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                <div className="flex items-center gap-2">
+                  <EnterIcon />
+                  {t('login.google')}
+                </div>
+              </button>
+              <button
+                onClick={() => {}}
+                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                <div className="flex items-center gap-2">
+                  <EnterIcon />
+                  {t('login.github')}
+                </div>
+              </button>
+            </div>
+
+            <Divider />
+
+            <div className="mt-6 flex items-center justify-center space-x-4">
+              <button
+                onClick={() => {}}
+                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                <div className="flex items-center gap-2">
+                  <EnterIcon />
+                  {t('login.signin')}
+                </div>
+              </button>
+            </div>
 
             <div className="mt-6">
               <Divider />
@@ -487,6 +519,16 @@ export function LoginForm() {
           </div>
         </div>
       </div>
+
+      <GenericModalForm
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="User Details"
+        fields={formFields}
+        onSubmit={(data) => console.log(data)}
+        submitText="Save User"
+        initialData={{ name: 'John', email: 'john@example.com' }}
+      />
     </div>
   )
 }
