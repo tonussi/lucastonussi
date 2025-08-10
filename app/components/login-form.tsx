@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '../components/ui/input-otp'
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from '../components/ui/input-otp'
 import { login as authLogin } from '../lib/auth'
 import { useAuth } from '../lib/auth-context'
 
@@ -51,7 +56,7 @@ export function InputEmailResendForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full md:w-2/3 space-y-6">
         <FormField
           control={form.control}
           name="email"
@@ -130,7 +135,7 @@ export function InputOTPForm({ email }: { email: string }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full md:w-2/3 space-y-6">
         <FormField
           control={form.control}
           name="pin"
@@ -143,6 +148,7 @@ export function InputOTPForm({ email }: { email: string }) {
                     <InputOTPSlot index={0} />
                     <InputOTPSlot index={1} />
                     <InputOTPSlot index={2} />
+                    <InputOTPSeparator />
                     <InputOTPSlot index={3} />
                     <InputOTPSlot index={4} />
                     <InputOTPSlot index={5} />
@@ -203,6 +209,7 @@ export function LoginForm() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const [activeTab, setActiveTab] = useState<'password' | 'otp'>('password')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -223,9 +230,9 @@ export function LoginForm() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 px-4">
       <Toaster />
-      <div className="max-w-fit w-full">
+      <div className="w-full max-w-xl md:max-w-4xl">
         {/* Centralized Tailwind Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               {t('login.title')}
@@ -233,7 +240,8 @@ export function LoginForm() {
             <p className="text-gray-600 dark:text-gray-400">{t('login.subtitle')}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-10">
+          {/* Desktop/Tablet layout */}
+          <div className="hidden md:grid grid-cols-2 gap-10">
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
@@ -335,6 +343,144 @@ export function LoginForm() {
                 <InputOTPForm email={emailOtp} />
               </div>
             </div>
+          </div>
+
+          {/* Mobile layout with tabs */}
+          <div className="md:hidden">
+            <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 mb-6">
+              <button
+                type="button"
+                onClick={() => setActiveTab('password')}
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors focus:outline-none ${
+                  activeTab === 'password'
+                    ? 'bg-gray-900 text-white dark:bg-gray-700'
+                    : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                }`}
+                aria-selected={activeTab === 'password'}
+                role="tab"
+              >
+                {t('login.emailPasswordTab') ?? 'Email & Password'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('otp')}
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors border-l border-gray-200 dark:border-gray-700 focus:outline-none ${
+                  activeTab === 'otp'
+                    ? 'bg-gray-900 text-white dark:bg-gray-700'
+                    : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                }`}
+                aria-selected={activeTab === 'otp'}
+                role="tab"
+              >
+                {t('login.otpTab') ?? 'One-Time Code'}
+              </button>
+            </div>
+
+            {activeTab === 'password' && (
+              <form onSubmit={handleSubmit} className="space-y-6" role="tabpanel">
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
+
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2"
+                  >
+                    {t('login.email')}
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
+                    placeholder={t('login.emailPlaceholder')}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2"
+                  >
+                    {t('login.password')}
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
+                    placeholder={t('login.passwordPlaceholder')}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  {isLoading ? t('login.signingIn') : t('login.signIn')}
+                </button>
+
+                <Divider />
+
+                <div className="mt-6 flex items-center justify-center space-x-4">
+                  <a
+                    href="/api/auth/google"
+                    className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <EnterIcon />
+                      {t('login.google')}
+                    </div>
+                  </a>
+                  <a
+                    href="/api/auth/github"
+                    className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <EnterIcon />
+                      {t('login.github')}
+                    </div>
+                  </a>
+                </div>
+
+                <Divider />
+
+                <div className="mt-6 flex items-center justify-center space-x-4">
+                  <a
+                    href="/api/auth/signin"
+                    className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <EnterIcon />
+                      {t('login.signin')}
+                    </div>
+                  </a>
+                </div>
+              </form>
+            )}
+
+            {activeTab === 'otp' && (
+              <div role="tabpanel">
+                <Divider />
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{t('login.otp')}</p>
+                </div>
+                <div className="mt-6 flex items-center justify-center">
+                  <InputEmailResendForm onSubmitEmail={setEmailOtp} />
+                </div>
+                <div className="mt-6 flex items-center justify-center">
+                  <InputOTPForm email={emailOtp} />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mt-6 text-center">

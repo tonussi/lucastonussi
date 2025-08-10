@@ -35,7 +35,9 @@
     "otpDescription": "Please enter the one-time password sent to your phone.",
     "otpSubmit": "Submit",
     "otpResend": "Resend code",
-    "otpSubmitDescription": "You submitted the following values"
+    "otpSubmitDescription": "You submitted the following values",
+    "emailPasswordTab": "Email & Password",
+    "otpTab": "One-Time Code"
   },
   "zod": {
     "errors": {
