@@ -277,93 +277,94 @@ export function LoginForm() {
 
           {/* Desktop/Tablet layout */}
           <div className="hidden md:grid grid-cols-2 gap-10">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                  {error}
-                </div>
-              )}
+            <div className="hidden md:grid grid-row-2 gap-10">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
 
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2"
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2"
+                  >
+                    {t('login.email')}
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
+                    placeholder={t('login.emailPlaceholder')}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2"
+                  >
+                    {t('login.password')}
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
+                    placeholder={t('login.passwordPlaceholder')}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
-                  {t('login.email')}
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
-                  placeholder={t('login.emailPlaceholder')}
-                />
+                  {isLoading ? t('login.signingIn') : t('login.signIn')}
+                </button>
+              </form>
+
+              <div className="mt-6 flex items-center justify-center space-x-4">
+                <button
+                  onClick={() => {}}
+                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <EnterIcon />
+                    {t('login.google')}
+                  </div>
+                </button>
+                <button
+                  onClick={() => {}}
+                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <EnterIcon />
+                    {t('login.github')}
+                  </div>
+                </button>
               </div>
 
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2"
+              <Divider />
+
+              <div className="mt-6 flex items-center justify-center space-x-4">
+                <button
+                  onClick={() => setIsOpen(true)}
+                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
-                  {t('login.password')}
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
-                  placeholder={t('login.passwordPlaceholder')}
-                />
+                  <div className="flex items-center gap-2">
+                    <EnterIcon />
+                    {t('login.signin')}
+                  </div>
+                </button>
               </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                {isLoading ? t('login.signingIn') : t('login.signIn')}
-              </button>
-            </form>
-
-            <div className="mt-6 flex items-center justify-center space-x-4">
-              <button
-                onClick={() => setIsOpen(true)}
-                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                <div className="flex items-center gap-2">
-                  <EnterIcon />
-                  {t('login.google')}
-                </div>
-              </button>
-              <button
-                onClick={() => {}}
-                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                <div className="flex items-center gap-2">
-                  <EnterIcon />
-                  {t('login.github')}
-                </div>
-              </button>
             </div>
-
-            <Divider />
-
-            <div className="mt-6 flex items-center justify-center space-x-4">
-              <button
-                onClick={() => {}}
-                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                <div className="flex items-center gap-2">
-                  <EnterIcon />
-                  {t('login.signin')}
-                </div>
-              </button>
-            </div>
-
             <div className="mt-6">
               <Divider />
               <div className="text-center">
