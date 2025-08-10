@@ -230,6 +230,7 @@ export function LoginForm() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 px-4">
       <Toaster />
+
       <div className="w-full max-w-xl md:max-w-4xl">
         {/* Centralized Tailwind Card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8">
@@ -428,41 +429,39 @@ export function LoginForm() {
                   {isLoading ? t('login.signingIn') : t('login.signIn')}
                 </button>
 
-                <Divider />
-
                 <div className="mt-6 flex items-center justify-center space-x-4">
-                  <a
-                    href="/api/auth/google"
+                  <button
+                    onClick={() => {}}
                     className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     <div className="flex items-center gap-2">
                       <EnterIcon />
                       {t('login.google')}
                     </div>
-                  </a>
-                  <a
-                    href="/api/auth/github"
+                  </button>
+                  <button
+                    onClick={() => {}}
                     className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     <div className="flex items-center gap-2">
                       <EnterIcon />
                       {t('login.github')}
                     </div>
-                  </a>
+                  </button>
                 </div>
 
                 <Divider />
 
                 <div className="mt-6 flex items-center justify-center space-x-4">
-                  <a
-                    href="/api/auth/signin"
+                  <button
+                    onClick={() => {}}
                     className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     <div className="flex items-center gap-2">
                       <EnterIcon />
                       {t('login.signin')}
                     </div>
-                  </a>
+                  </button>
                 </div>
               </form>
             )}
