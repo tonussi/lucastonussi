@@ -148,8 +148,9 @@ export default function GenericModalForm({
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
       ) => handleChange(field.id, e.target.value),
       placeholder: field.placeholder,
-      className: `mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
-        errors[field.id] ? 'border-red-500' : 'border-gray-300'
+      // inset 0 0 0px 1000px var(--tw-shadow-color, rgb(21 22 51 / 74%))
+      className: `mt-1 block w-full h-[48px] pl-4 rounded-md border-gray-100 shadow-sm sm:text-sm autofill:shadow-[inset_0_0_0px_1000px_var(--tw-shadow-color,rgb(21_22_51/_74%))] ${
+        errors[field.id] ? 'border-red-500' : 'border-gray-100'
       }`,
     }
 
@@ -178,7 +179,7 @@ export default function GenericModalForm({
               name={field.id}
               checked={!!formData[field.id]}
               onChange={(e) => handleChange(field.id, e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              className="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-600"
             />
           </div>
         )

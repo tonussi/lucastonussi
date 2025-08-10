@@ -288,7 +288,7 @@ export function LoginForm() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none autofill:shadow-[inset_0_0_0px_1000px_var(--tw-shadow-color,rgb(21_22_51/_74%))]"
                     placeholder={t('login.emailPlaceholder')}
                   />
                 </div>
@@ -306,7 +306,7 @@ export function LoginForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none autofill:shadow-[inset_0_0_0px_1000px_var(--tw-shadow-color,rgb(21_22_51/_74%))]"
                     placeholder={t('login.passwordPlaceholder')}
                   />
                 </div>
@@ -416,7 +416,7 @@ export function LoginForm() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none autofill:shadow-[inset_0_0_0px_1000px_var(--tw-shadow-color,rgb(21_22_51/_74%))]"
                     placeholder={t('login.emailPlaceholder')}
                   />
                 </div>
@@ -434,7 +434,7 @@ export function LoginForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none autofill:shadow-[inset_0_0_0px_1000px_var(--tw-shadow-color,rgb(21_22_51/_74%))]"
                     placeholder={t('login.passwordPlaceholder')}
                   />
                 </div>
