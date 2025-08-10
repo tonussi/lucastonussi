@@ -194,7 +194,7 @@ export function Divider() {
   const { t } = useTranslation()
 
   return (
-    <div className="grid grid-rows-1 my-3">
+    <div className="grid grid-rows-1 my-10">
       <span className="text-left text-xs text-gray-300 dark:text-gray-400">{t('login.or')}</span>
       <hr className="border-gray-200 dark:border-gray-700" />
     </div>
@@ -311,11 +311,7 @@ export function LoginForm() {
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
+                <Button type="submit" disabled={isLoading} className="w-full">
                   {isLoading ? t('login.signingIn') : t('login.signIn')}
                 </Button>
               </form>
@@ -323,7 +319,7 @@ export function LoginForm() {
               <div className="mt-6 flex items-center justify-center space-x-4">
                 <Button
                   onClick={() => {}}
-                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg"
                 >
                   <div className="flex items-center gap-2">
                     <EnterIcon />
@@ -332,7 +328,7 @@ export function LoginForm() {
                 </Button>
                 <Button
                   onClick={() => {}}
-                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg"
                 >
                   <div className="flex items-center gap-2">
                     <EnterIcon />
@@ -346,7 +342,7 @@ export function LoginForm() {
               <div className="flex items-center justify-center">
                 <Button
                   onClick={() => setIsOpen(true)}
-                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg"
                 >
                   <div className="flex items-center gap-2">
                     <EnterIcon />
@@ -356,7 +352,6 @@ export function LoginForm() {
               </div>
             </div>
             <div className="mt-6">
-              <Divider />
               <div className="text-center">
                 <p className="text-sm text-gray-600 dark:text-gray-400">{t('login.otp')}</p>
               </div>
