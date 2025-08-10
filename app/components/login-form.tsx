@@ -213,7 +213,7 @@ export function LoginForm() {
   const [activeTab, setActiveTab] = useState<'password' | 'otp'>('password')
   const [isOpen, setIsOpen] = useState(false)
 
-  const formFields: ModalFormField[] = [
+  const formFieldsRegisterNewUser: ModalFormField[] = [
     {
       id: 'name',
       label: 'Full Name',
@@ -524,7 +524,7 @@ export function LoginForm() {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title="User Details"
-        fields={formFields}
+        fields={formFieldsRegisterNewUser}
         onSubmit={(data) => console.log(data)}
         submitText="Save User"
         initialData={{ name: 'John', email: 'john@example.com' }}
