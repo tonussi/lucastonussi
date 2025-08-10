@@ -216,32 +216,22 @@ export function LoginForm() {
   const formFieldsRegisterNewUser: ModalFormField[] = [
     {
       id: 'name',
-      label: 'Full Name',
+      label: t('login.form.name'),
       type: 'text',
       required: true,
-      placeholder: 'Enter your name',
+      placeholder: t('login.form.namePlaceholder'),
       validation: {
         minLength: 3,
         maxLength: 50,
-        message: 'Name must be between 3 and 50 characters',
+        message: t('login.form.nameValidation'),
       },
     },
     {
       id: 'email',
-      label: 'Email',
+      label: t('login.form.email'),
       type: 'email',
       required: true,
-      placeholder: 'your@email.com',
-    },
-    {
-      id: 'userType',
-      label: 'User Type',
-      type: 'select',
-      required: true,
-      options: [
-        { value: 'visitor', label: 'Visitor' },
-        { value: 'user', label: 'User' },
-      ],
+      placeholder: t('login.form.emailPlaceholder'),
     },
   ]
 
@@ -524,10 +514,10 @@ export function LoginForm() {
       <GenericModalForm
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title="User Details"
+        title={t('login.form.title')}
         fields={formFieldsRegisterNewUser}
         onSubmit={(data) => console.log(data)}
-        submitText="Save User"
+        submitText={t('login.form.submitText')}
         initialData={{ name: '', email: '' }}
       />
     </div>

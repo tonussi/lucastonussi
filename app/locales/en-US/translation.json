@@ -37,7 +37,16 @@
     "otpResend": "Resend code",
     "otpSubmitDescription": "You submitted the following values",
     "emailPasswordTab": "Email & Password",
-    "otpTab": "One-Time Code"
+    "otpTab": "One-Time Code",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Enter your name",
+      "nameValidation": "Name must be between 3 and 50 characters",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "title": "User Details",
+      "submitText": "Save User"
+    }
   },
   "zod": {
     "errors": {

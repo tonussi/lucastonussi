@@ -37,7 +37,16 @@
     "otpResend": "Reenviar código",
     "otpSubmitDescription": "Você enviou os seguintes valores",
     "emailPasswordTab": "E-mail & Senha",
-    "otpTab": "Código de verificação"
+    "otpTab": "Código de verificação",
+    "form": {
+      "name": "Nome",
+      "namePlaceholder": "Digite seu nome",
+      "nameValidation": "Nome deve ter entre 3 e 50 caracteres",
+      "email": "E-mail",
+      "emailPlaceholder": "Digite seu e-mail",
+      "title": "Detalhes do Usuário",
+      "submitText": "Salvar Usuário"
+    }
   },
   "zod": {
     "errors": {
