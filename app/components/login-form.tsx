@@ -266,8 +266,8 @@ export function LoginForm() {
           </div>
 
           {/* Desktop/Tablet layout */}
-          <div className="hidden md:grid grid-cols-2 gap-10">
-            <div className="hidden md:grid grid-row-2 gap-10">
+          <div className="hidden md:grid grid-cols-2 gap-30">
+            <div className="hidden md:grid grid-row-2">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
@@ -311,17 +311,17 @@ export function LoginForm() {
                   />
                 </div>
 
-                <button
+                <Button
                   type="submit"
                   disabled={isLoading}
                   className="w-full bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                   {isLoading ? t('login.signingIn') : t('login.signIn')}
-                </button>
+                </Button>
               </form>
 
               <div className="mt-6 flex items-center justify-center space-x-4">
-                <button
+                <Button
                   onClick={() => {}}
                   className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
@@ -329,8 +329,8 @@ export function LoginForm() {
                     <EnterIcon />
                     {t('login.google')}
                   </div>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => {}}
                   className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
@@ -338,13 +338,13 @@ export function LoginForm() {
                     <EnterIcon />
                     {t('login.github')}
                   </div>
-                </button>
+                </Button>
               </div>
 
               <Divider />
 
-              <div className="mt-6 flex items-center justify-center space-x-4">
-                <button
+              <div className="flex items-center justify-center">
+                <Button
                   onClick={() => setIsOpen(true)}
                   className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
@@ -352,7 +352,7 @@ export function LoginForm() {
                     <EnterIcon />
                     {t('login.signin')}
                   </div>
-                </button>
+                </Button>
               </div>
             </div>
             <div className="mt-6">
@@ -444,16 +444,16 @@ export function LoginForm() {
                   />
                 </div>
 
-                <button
+                <Button
                   type="submit"
                   disabled={isLoading}
                   className="w-full bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                   {isLoading ? t('login.signingIn') : t('login.signIn')}
-                </button>
+                </Button>
 
                 <div className="mt-6 flex items-center justify-center space-x-4">
-                  <button
+                  <Button
                     onClick={() => {}}
                     className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
@@ -461,8 +461,8 @@ export function LoginForm() {
                       <EnterIcon />
                       {t('login.google')}
                     </div>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => {}}
                     className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
@@ -470,13 +470,13 @@ export function LoginForm() {
                       <EnterIcon />
                       {t('login.github')}
                     </div>
-                  </button>
+                  </Button>
                 </div>
 
                 <Divider />
 
                 <div className="mt-6 flex items-center justify-center space-x-4">
-                  <button
+                  <Button
                     onClick={() => {}}
                     className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
@@ -484,7 +484,7 @@ export function LoginForm() {
                       <EnterIcon />
                       {t('login.signin')}
                     </div>
-                  </button>
+                  </Button>
                 </div>
               </form>
             )}
