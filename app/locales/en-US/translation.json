@@ -53,5 +53,35 @@
       "emailInvalid": "Invalid email",
       "pinInvalid": "Invalid pin"
     }
+  },
+  "deleteUser": {
+    "metaTitle": "How to Delete Your User - T Labs",
+    "metaDescription": "Learn how to delete your account and all associated data from the T Labs purchasing inventory app.",
+    "title": "How to Delete Your User",
+    "subtitle": "We respect your right to privacy. Here's how you can request deletion of your account and all associated data from our purchasing inventory app.",
+    "cancelPlanTitle": "Cancel Your Payment Plan First",
+    "cancelPlanDescription": "Before deleting your account, you must cancel your active payment plan. Go to Configurações (Settings) in the mobile app and cancel your subscription under the payment section. Account deletion will not be possible while you have an active plan.",
+    "deletionSteps": "Deletion Steps",
+    "step1Title": "Go to Configurações (Settings)",
+    "step1Description": "Open the mobile application and navigate to Configurações (Settings). You can find it in the bottom menu or the side navigation panel.",
+    "step2Title": "Press the delete button",
+    "step2Description": "Inside Configurações, locate and press the \"Delete Account\" button. You will be asked to confirm your decision before proceeding.",
+    "step3Title": "We verify and process your request",
+    "step3Description": "For your security, the app will confirm your identity before processing the deletion. You may be asked to re-enter your credentials to proceed.",
+    "step4Title": "Your data is deleted",
+    "step4Description": "Once verified, we will permanently delete your account and all associated data, including purchasing history, inventory records, and personal information. This action cannot be undone.",
+    "whatGetsDeleted": "What Gets Deleted",
+    "deletedItem1": "Your account credentials",
+    "deletedItem2": "Personal profile information",
+    "deletedItem3": "Purchasing history & records",
+    "deletedItem4": "Inventory data & preferences",
+    "deletedItem5": "Uploaded files & attachments",
+    "deletedItem6": "All app usage analytics",
+    "processingTimeline": "Processing Timeline",
+    "timelineTitle": "Your request will be processed within 7 business days",
+    "timelineDescription": "You will receive a confirmation email once your data has been fully deleted. During this period, your account may be deactivated while deletion is being processed.",
+    "privacyTitle": "Your Privacy Matters",
+    "privacyDescription": "We are committed to protecting your personal data. We do not sell or share your information with third parties. Once deletion is complete, your data is permanently removed from our systems and cannot be recovered.",
+    "contactCta": "Questions? Contact us at"
   }
 }

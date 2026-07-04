@@ -53,5 +53,35 @@
       "emailInvalid": "E-mail inválido",
       "pinInvalid": "Código de verificação inválido"
     }
+  },
+  "deleteUser": {
+    "metaTitle": "Como Excluir Seu Usuário - T Labs",
+    "metaDescription": "Saiba como excluir sua conta e todos os dados associados do aplicativo de inventário de compras da T Labs.",
+    "title": "Como Excluir Seu Usuário",
+    "subtitle": "Respeitamos seu direito à privacidade. Veja como você pode solicitar a exclusão da sua conta e de todos os dados associados do nosso aplicativo de inventário de compras.",
+    "cancelPlanTitle": "Cancele Seu Plano de Pagamento Primeiro",
+    "cancelPlanDescription": "Antes de excluir sua conta, você deve cancelar seu plano de pagamento ativo. Acesse Configurações no aplicativo móvel e cancele sua assinatura na seção de pagamentos. A exclusão da conta não será possível enquanto houver um plano ativo.",
+    "deletionSteps": "Passos para Exclusão",
+    "step1Title": "Acesse Configurações",
+    "step1Description": "Abra o aplicativo móvel e navegue até Configurações. Você pode encontrá-lo no menu inferior ou no painel de navegação lateral.",
+    "step2Title": "Pressione o botão de exclusão",
+    "step2Description": "Dentro de Configurações, localize e pressione o botão \"Excluir Conta\". Será solicitada a confirmação da sua decisão antes de prosseguir.",
+    "step3Title": "Verificamos e processamos sua solicitação",
+    "step3Description": "Para sua segurança, o aplicativo confirmará sua identidade antes de processar a exclusão. Pode ser solicitado que você insira novamente suas credenciais para prosseguir.",
+    "step4Title": "Seus dados são excluídos",
+    "step4Description": "Após a verificação, excluiremos permanentemente sua conta e todos os dados associados, incluindo histórico de compras, registros de inventário e informações pessoais. Esta ação não pode ser desfeita.",
+    "whatGetsDeleted": "O Que Será Excluído",
+    "deletedItem1": "Suas credenciais de acesso",
+    "deletedItem2": "Informações pessoais do perfil",
+    "deletedItem3": "Histórico e registros de compras",
+    "deletedItem4": "Dados e preferências de inventário",
+    "deletedItem5": "Arquivos e anexos enviados",
+    "deletedItem6": "Todas as análises de uso do app",
+    "processingTimeline": "Prazo de Processamento",
+    "timelineTitle": "Sua solicitação será processada em até 7 dias úteis",
+    "timelineDescription": "Você receberá um e-mail de confirmação quando seus dados forem completamente excluídos. Durante este período, sua conta poderá ser desativada enquanto a exclusão estiver sendo processada.",
+    "privacyTitle": "Sua Privacidade Importa",
+    "privacyDescription": "Estamos comprometidos em proteger seus dados pessoais. Não vendemos nem compartilhamos suas informações com terceiros. Após a exclusão, seus dados são permanentemente removidos dos nossos sistemas e não podem ser recuperados.",
+    "contactCta": "Dúvidas? Entre em contato conosco em"
   }
 }
