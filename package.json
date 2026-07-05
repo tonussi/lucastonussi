@@ -57,7 +57,8 @@
     "typescript": "^5.8.3",
     "vite": "^6.3.3",
     "vite-plugin-devtools-json": "^0.2.0",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "prettier": "^3.9.4"
   },
   "eslintConfig": {
     "extends": [
