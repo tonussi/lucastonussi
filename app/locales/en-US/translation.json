@@ -83,5 +83,10 @@
     "privacyTitle": "Your Privacy Matters",
     "privacyDescription": "We are committed to protecting your personal data. We do not sell or share your information with third parties. Once deletion is complete, your data is permanently removed from our systems and cannot be recovered.",
     "contactCta": "Questions? Contact us at"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved. Let's get you back on track.",
+    "goHome": "Back to Home"
   }
 }

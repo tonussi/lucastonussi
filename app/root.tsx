@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { isRouteErrorResponse, Links, Meta, Scripts, ScrollRestoration } from 'react-router'
+import { isRouteErrorResponse, Link, Links, Meta, Scripts, ScrollRestoration } from 'react-router'
 
-import { Moon, Sun } from 'lucide-react'
+import { Home, Moon, Sun } from 'lucide-react'
 import { I18nextProvider } from 'react-i18next'
 import type { Route } from './+types/root'
 import './app.css'
@@ -110,6 +110,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { hydrateRoot } from 'react-dom/client'
+import { useTranslation } from 'react-i18next'
 import { Navbar } from './components/navbar'
 
 const App = () => {
@@ -135,32 +136,90 @@ const App = () => {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = 'Oops!'
-  let details = 'An unexpected error occurred.'
-  let stack: string | undefined
-
-  if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? '404' : 'Error'
-    details =
-      error.status === 404 ? 'The requested page could not be found.' : error.statusText || details
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message
-    stack = error.stack
-  }
+  const is404 = isRouteErrorResponse(error) && error.status === 404
+  const isGenericRouteError = isRouteErrorResponse(error) && !is404
 
   return (
     <>
       <Navbar />
-      <main className="flex items-center justify-center mt-30">
-        <h1>{message}</h1>
-        <p>{details}</p>
-        {stack && (
-          <pre className="flex items-center justify-center">
-            <code>{stack}</code>
-          </pre>
-        )}
-      </main>
+      {is404 ? (
+        <NotFoundPage />
+      ) : (
+        <main className="flex flex-col items-center justify-center min-h-screen px-4">
+          <h1 className="text-4xl font-bold text-foreground">
+            {isGenericRouteError ? `Error ${error.status}` : 'Oops!'}
+          </h1>
+          <p className="mt-4 text-lg text-muted-foreground">
+            {isGenericRouteError
+              ? error.statusText || 'An unexpected error occurred.'
+              : 'An unexpected error occurred.'}
+          </p>
+          {import.meta.env.DEV && error instanceof Error && error.stack && (
+            <pre className="mt-8 max-w-2xl overflow-x-auto rounded-lg bg-muted p-4 text-sm text-muted-foreground">
+              <code>{error.stack}</code>
+            </pre>
+          )}
+          <Link
+            to="/"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-105"
+          >
+            <Home size={16} />
+            Go Home
+          </Link>
+        </main>
+      )}
     </>
+  )
+}
+
+function NotFoundPage() {
+  const { t } = useTranslation()
+
+  return (
+    <main className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden px-4">
+      <div
+        className="absolute inset-0 opacity-20 dark:opacity-10"
+        style={{
+          background:
+            'radial-gradient(circle at 30% 40%, #7ED4FD 0%, transparent 50%), radial-gradient(circle at 70% 60%, #4D78EF 0%, transparent 50%)',
+        }}
+      />
+
+      <div className="relative z-10 flex flex-col items-center text-center">
+        <h1
+          className="animate-float text-[8rem] font-black leading-none tracking-tighter sm:text-[12rem]"
+          style={{
+            background:
+              'radial-gradient(138.06% 1036.51% at 95.25% -2.54%, #7ED4FD 14.06%, #709DF7 51.02%, #4D78EF 79.09%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          404
+        </h1>
+
+        <div className="mt-2 rounded-2xl border border-border/50 bg-card/60 p-8 shadow-xl backdrop-blur-md sm:mt-4 sm:p-10">
+          <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
+            {t('notFound.title')}
+          </h2>
+          <p className="mt-3 max-w-md text-base text-muted-foreground">
+            {t('notFound.description')}
+          </p>
+
+          <Link
+            to="/"
+            className="mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-white transition-all hover:scale-105 hover:shadow-lg"
+            style={{
+              background:
+                'linear-gradient(135deg, #7ED4FD 0%, #709DF7 50%, #4D78EF 100%)',
+            }}
+          >
+            <Home size={16} />
+            {t('notFound.goHome')}
+          </Link>
+        </div>
+      </div>
+    </main>
   )
 }
 

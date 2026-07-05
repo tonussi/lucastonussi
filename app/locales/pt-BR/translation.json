@@ -83,5 +83,10 @@
     "privacyTitle": "Sua Privacidade Importa",
     "privacyDescription": "Estamos comprometidos em proteger seus dados pessoais. Não vendemos nem compartilhamos suas informações com terceiros. Após a exclusão, seus dados são permanentemente removidos dos nossos sistemas e não podem ser recuperados.",
     "contactCta": "Dúvidas? Entre em contato conosco em"
+  },
+  "notFound": {
+    "title": "Página Não Encontrada",
+    "description": "A página que você procura não existe ou foi movida. Vamos te levar de volta ao caminho certo.",
+    "goHome": "Voltar ao Início"
   }
 }
