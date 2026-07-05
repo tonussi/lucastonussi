@@ -7,11 +7,20 @@ import { AuthProvider } from '../lib/auth-context'
 export function MainLayout() {
   const location = useLocation()
   const isLoginPage = location.pathname === '/login'
+  const isPublicPage = location.pathname === '/how-to-delete-your-user'
 
   return (
     <AuthProvider>
       {isLoginPage ? (
         <Outlet />
+      ) : isPublicPage ? (
+        <>
+          <Navbar />
+          <main>
+            <Outlet />
+          </main>
+          <Footer />
+        </>
       ) : (
         <ProtectedRoute>
           <Navbar />
