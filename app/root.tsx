@@ -112,6 +112,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 import { hydrateRoot } from 'react-dom/client'
 import { useTranslation } from 'react-i18next'
 import { Navbar } from './components/navbar'
+import { AuthProvider } from './lib/auth-context'
 
 const App = () => {
   const root = window.document.getElementById('root')
@@ -140,7 +141,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   const isGenericRouteError = isRouteErrorResponse(error) && !is404
 
   return (
-    <>
+    <AuthProvider>
       <Navbar />
       {is404 ? (
         <NotFoundPage />
@@ -168,7 +169,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
           </Link>
         </main>
       )}
-    </>
+    </AuthProvider>
   )
 }
 
