@@ -46,7 +46,7 @@ export const CharacterController = ({
       max: degToRad(5),
       step: degToRad(0.1),
     },
-    JUMP_FORCE: { value: 12, min: 1, max: 40, step: 0.5 },
+    JUMP_FORCE: { value: 24, min: 1, max: 60, step: 0.5 },
   })
   const { cameraTargetPositionZ, cameraPositionY, cameraPositionZ } = useControls(
     'Camera Control',
@@ -97,7 +97,7 @@ export const CharacterController = ({
       movement.z += -gamepad.leftStickY
       movement.x += -gamepad.leftStickX
 
-      const runFromTrigger = gamepad.rightTrigger > 0.4
+      const runFromTrigger = gamepad.b
       const run = !!(get().run || runFromTrigger)
       const speed = run ? RUN_SPEED : WALK_SPEED
 
@@ -180,7 +180,7 @@ export const CharacterController = ({
   })
 
   return (
-    <RigidBody name="player-rb" colliders={false} lockRotations ref={rb} mass={1}>
+    <RigidBody name="player-rb" colliders={false} lockRotations ref={rb} mass={1} gravityScale={2.5}>
       <group name="player-container" ref={container}>
         <group name="player-camera-target" ref={cameraTarget} position-z={cameraTargetPositionZ} />
         <group
