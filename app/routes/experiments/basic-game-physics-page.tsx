@@ -1,7 +1,7 @@
 import BasicGamePhysics from '@/components/basic-game-physics/world'
 import type { Route } from '../+types/experiments'
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: 'Basic Game Physics - Experiments' },
     {

@@ -1,13 +1,12 @@
-// copied from https://youtu.be/yjpGVIe_Gy8
-
 import { useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { BallCollider, CapsuleCollider, RigidBody } from '@react-three/rapier'
+import { BallCollider, CapsuleCollider, RigidBody, useRapier } from '@react-three/rapier'
 import { useControls } from 'leva'
 import { useRef, useState } from 'react'
 import * as THREE from 'three'
 import { Vector3 } from 'three'
 import { degToRad, MathUtils } from 'three/src/math/MathUtils.js'
+import type { GamepadState } from './gamepad'
 import Pirate from './pirate'
 
 const normalizeAngle = (angle: number) => {
@@ -31,8 +30,14 @@ const lerpAngle = (start: number, end: number, t: number) => {
   return normalizeAngle(start + (end - start) * t)
 }
 
-export const CharacterController = ({ refScene }: { refScene: React.RefObject<THREE.Scene> }) => {
-  const { WALK_SPEED, RUN_SPEED, ROTATION_SPEED } = useControls('Character Control', {
+export const CharacterController = ({
+  refScene,
+  gamepad,
+}: {
+  refScene: React.RefObject<THREE.Scene>
+  gamepad: GamepadState
+}) => {
+  const { WALK_SPEED, RUN_SPEED, ROTATION_SPEED, JUMP_FORCE } = useControls('Character Control', {
     WALK_SPEED: { value: 2, min: 0.1, max: 4, step: 0.1 },
     RUN_SPEED: { value: 5, min: 0.2, max: 12, step: 0.1 },
     ROTATION_SPEED: {
@@ -41,6 +46,7 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
       max: degToRad(5),
       step: degToRad(0.1),
     },
+    JUMP_FORCE: { value: 12, min: 1, max: 40, step: 0.5 },
   })
   const { cameraTargetPositionZ, cameraPositionY, cameraPositionZ } = useControls(
     'Camera Control',
@@ -65,6 +71,13 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
   const cameraLookAt = useRef(new Vector3())
   const [, get] = useKeyboardControls()
 
+  // Jump state
+  const grounded = useRef(true)
+  const jumpCooldown = useRef(0)
+  const prevYPressed = useRef(false)
+  const rapierRay = useRef<any>(null)
+  const { world, rapier } = useRapier()
+
   useFrame(({ camera }) => {
     if (rb.current) {
       const vel = rb.current.linvel()
@@ -74,35 +87,29 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
         z: 0,
       }
 
-      if (get().forward) {
-        movement.z = 1
-      }
-      if (get().backward) {
-        movement.z = -1
-      }
+      // Keyboard
+      if (get().forward) movement.z += 1
+      if (get().backward) movement.z -= 1
+      if (get().left) movement.x += 1
+      if (get().right) movement.x -= 1
 
-      let speed = get().run ? RUN_SPEED : WALK_SPEED
+      // Gamepad (left stick) — X inverted, Y as before (up = forward)
+      movement.z += -gamepad.leftStickY
+      movement.x += -gamepad.leftStickX
 
-      if (get().left) {
-        movement.x = 1
-      }
-      if (get().right) {
-        movement.x = -1
-      }
+      const runFromTrigger = gamepad.rightTrigger > 0.4
+      const run = !!(get().run || runFromTrigger)
+      const speed = run ? RUN_SPEED : WALK_SPEED
 
       if (movement.x !== 0) {
-        rotationTarget.current += ROTATION_SPEED * movement.x
+        rotationTarget.current += ROTATION_SPEED * Math.sign(movement.x)
       }
 
       if (movement.x !== 0 || movement.z !== 0) {
         characterRotationTarget.current = Math.atan2(movement.x, movement.z)
         vel.x = Math.sin(rotationTarget.current + characterRotationTarget.current) * speed
         vel.z = Math.cos(rotationTarget.current + characterRotationTarget.current) * speed
-        if (speed === RUN_SPEED) {
-          setAnimationIndex(1)
-        } else {
-          setAnimationIndex(1)
-        }
+        setAnimationIndex(1)
       } else {
         setAnimationIndex(0)
       }
@@ -113,21 +120,60 @@ export const CharacterController = ({ refScene }: { refScene: React.RefObject<TH
       )
 
       rb.current.setLinvel(vel, true)
+
+      // GROUNDED CHECK — native rapier raycast (broadphase-optimized, no mesh traversal)
+      const t = rb.current.translation()
+      if (!rapierRay.current) {
+        rapierRay.current = new rapier.Ray(
+          { x: t.x, y: t.y, z: t.z },
+          { x: 0, y: -1, z: 0 }
+        )
+      } else {
+        rapierRay.current.origin.x = t.x
+        rapierRay.current.origin.y = t.y
+        rapierRay.current.origin.z = t.z
+      }
+
+      const hit = world.castRay(
+        rapierRay.current,
+        2.0,
+        true,
+        undefined,
+        undefined,
+        undefined,
+        rb.current
+      )
+      grounded.current = !!hit && hit.timeOfImpact <= 1.0
+
+      // JUMP — Y axis only, preserves horizontal velocity
+      const jumpPressed = !!(get().jump || (gamepad.y && !prevYPressed.current))
+      prevYPressed.current = gamepad.y
+      jumpCooldown.current = Math.max(0, jumpCooldown.current - 1 / 60)
+
+      if (jumpPressed && grounded.current && jumpCooldown.current === 0) {
+        const lv = rb.current.linvel()
+        rb.current.setLinvel({ x: lv.x, y: JUMP_FORCE, z: lv.z }, true)
+        grounded.current = false
+        jumpCooldown.current = 0.15
+      }
     }
 
-    // CAMERA
+    // CAMERA — Dark Souls style: orbit around player driven by right stick (inverted)
+    const yawSpeed = 2.4 // rad/sec at full stick
+    rotationTarget.current += -gamepad.rightStickX * yawSpeed * (1 / 60)
+
     container.current.rotation.y = MathUtils.lerp(
       container.current.rotation.y,
       rotationTarget.current,
-      0.1
+      0.15
     )
 
     cameraPosition.current.getWorldPosition(cameraWorldPosition.current)
-    camera.position.lerp(cameraWorldPosition.current, 0.1)
+    camera.position.lerp(cameraWorldPosition.current, 0.15)
 
     if (cameraTarget.current) {
       cameraTarget.current.getWorldPosition(cameraLookAtWorldPosition.current)
-      cameraLookAt.current.lerp(cameraLookAtWorldPosition.current, 0.1)
+      cameraLookAt.current.lerp(cameraLookAtWorldPosition.current, 0.15)
 
       camera.lookAt(cameraLookAt.current)
     }

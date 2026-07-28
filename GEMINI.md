@@ -23,13 +23,6 @@
 - Never silently ignore errors.
 - Always handle real error scenarios, edge cases, and critical user flows.
 
-## 3. Testing
-
-- Write the test before the implementation (test first).
-- Only implement after fully understanding the requirement.
-- All critical business logic must have automated tests.
-- Code must be born testable.
-
 ## 4. Database
 
 The AI **may** perform read-only queries to consult data, but must **never** perform any mutating operations. This includes:
@@ -73,11 +66,6 @@ When opening a PR, use this pattern:
 **PR description:** Include a clear description of the changes made.
 
 - Only push to the branch created for the task.
-
-## 9. Commits
-
-Generate commit messages based only the staged files diff.
-Generate commit per file
 
 ## 10. Important
 

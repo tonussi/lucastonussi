@@ -11,6 +11,7 @@ import CameraFollower from './camera'
 import { CharacterController } from './character-controller'
 import { GRAVITY } from './constants'
 import FullscreenWrapper from './fullscreen'
+import useGamepad from './gamepad'
 import PercentageProgress from './progress'
 import Projectiles from './projectiles'
 import Rotator from './rotator'
@@ -23,6 +24,7 @@ const keyboardMap = [
   { name: 'left', keys: ['ArrowLeft', 'KeyA'] },
   { name: 'right', keys: ['ArrowRight', 'KeyD'] },
   { name: 'run', keys: ['Shift'] },
+  { name: 'jump', keys: ['Space'] },
 ]
 
 export default function BasicGamePhysics() {
@@ -32,6 +34,7 @@ export default function BasicGamePhysics() {
   const [torusPositions, setTorusPositions] = useState<{ x: number; z: number }[]>([])
   const playerRef = useRef<THREE.Object3D>(null!)
   const camera = refScene.current?.getObjectByName('camera') as THREE.PerspectiveCamera
+  const gamepad = useGamepad()
 
   // Initialize torus positions on mount
   useEffect(() => {
@@ -124,7 +127,7 @@ export default function BasicGamePhysics() {
 
                 {!isMobile && <Perf position="bottom-left" />}
 
-                <CharacterController refScene={refScene} />
+                <CharacterController refScene={refScene} gamepad={gamepad} />
 
                 <Rotator>
                   <Box position={[15, -10, 5]}>
