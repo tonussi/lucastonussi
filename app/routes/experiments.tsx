@@ -1,7 +1,7 @@
 import { Link, Outlet } from 'react-router'
 import type { Route } from './+types/experiments'
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [{ title: 'Experiments' }, { name: 'description', content: 'Experiments' }]
 }
 
