@@ -1,4 +1,38 @@
 {
+  "meta": {
+    "siteName": "T Labs",
+    "author": "T Labs",
+    "home": {
+      "title": "T Labs - Meaning in software",
+      "description": "T Labs delivers meaningful solutions to your needs.",
+      "keywords": "T Labs, technology solutions, software development, hardware innovation, digital transformation, tech company"
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Contact"
+    },
+    "docs": {
+      "title": "Docs",
+      "description": "Docs"
+    },
+    "experiments": {
+      "title": "Experiments",
+      "description": "Experiments"
+    },
+    "atoms": {
+      "title": "Atoms",
+      "description": "Atoms"
+    },
+    "deleteUser": {
+      "title": "How to Delete Your User - T Labs",
+      "description": "Learn how to delete your account and all associated data from the T Labs purchasing inventory app."
+    },
+    "purchasingInventory": {
+      "title": "Purchasing Inventory - T Labs",
+      "description": "Scan your grocery receipt and let Purchasing Inventory build your home inventory, track spending by AI-generated categories and plan the week of meals.",
+      "keywords": "purchasing inventory, grocery app, receipt scanner, NFC-e, shopping list, meal planner, home inventory, T Labs"
+    }
+  },
   "slogan": {
     "makeYourSellingIdeas": "Make your selling ideas",
     "comeToLifeWithMeaningfulChatConversations": "Come to life with humanized chat conversations"
@@ -30,7 +64,7 @@
     "google": "Google",
     "github": "GitHub",
     "facebook": "Facebook",
-    "signin": "Sign In",
+    "createUser": "Create user",
     "otpLabel": "One-Time Password",
     "otpDescription": "Please enter the one-time password sent to your phone.",
     "otpSubmit": "Submit",

@@ -1,7 +1,11 @@
 import type { Route } from './+types/home'
+import i18n from '@/i18n'
 
 export function meta({ }: Route.MetaArgs) {
-  return [{ title: 'Docs' }, { name: 'description', content: 'Docs' }]
+  return [
+    { title: i18n.t('meta.docs.title') },
+    { name: 'description', content: i18n.t('meta.docs.description') },
+  ]
 }
 
 export default function Docs() {

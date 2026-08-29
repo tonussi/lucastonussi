@@ -1,8 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import type { Route } from './+types/home'
+import i18n from '@/i18n'
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Contact' }, { name: 'description', content: 'Contact' }]
+  return [
+    { title: i18n.t('meta.contact.title') },
+    { name: 'description', content: i18n.t('meta.contact.description') },
+  ]
 }
 
 export default function Contact() {

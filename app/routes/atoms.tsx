@@ -9,10 +9,14 @@ import { OrbitControls, Torus, TorusKnot } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { useControls } from 'leva'
 import * as THREE from 'three'
+import i18n from '@/i18n'
 extend(THREE as any)
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Atoms' }, { name: 'description', content: 'Atoms' }]
+  return [
+    { title: i18n.t('meta.atoms.title') },
+    { name: 'description', content: i18n.t('meta.atoms.description') },
+  ]
 }
 
 export default function Atoms() {

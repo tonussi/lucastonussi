@@ -1,15 +1,12 @@
 import { UserX, Mail, ShieldCheck, Clock, AlertTriangle, CheckCircle, CreditCard } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Route } from './+types/home'
+import i18n from '@/i18n'
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'How to Delete Your User - T Labs' },
-    {
-      name: 'description',
-      content:
-        'Learn how to delete your account and all associated data from the T Labs purchasing inventory app.',
-    },
+    { title: i18n.t('meta.deleteUser.title') },
+    { name: 'description', content: i18n.t('meta.deleteUser.description') },
     { name: 'robots', content: 'index, follow' },
   ]
 }

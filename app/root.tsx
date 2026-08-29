@@ -6,7 +6,7 @@ import { I18nextProvider } from 'react-i18next'
 import type { Route } from './+types/root'
 import './app.css'
 import './i18n'
-import i18n from './i18n'
+import i18n, { DEFAULT_LANGUAGE } from './i18n'
 import { MainLayout } from './layouts/main-layout'
 
 export const links: Route.LinksFunction = () => [
@@ -41,10 +41,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const [language, setLanguage] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('language') ?? 'en-US'
+      return localStorage.getItem('language') ?? DEFAULT_LANGUAGE
     }
-    return 'en-US'
+    return DEFAULT_LANGUAGE
   })
+
+  useEffect(() => {
+    if (i18n.language !== language) {
+      i18n.changeLanguage(language)
+    }
+    document.documentElement.lang = language
+  }, [language])
 
   useEffect(() => {
     const root = document.documentElement
@@ -58,7 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <html>
+    <html lang={language} suppressHydrationWarning={true}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -80,16 +87,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
               }}
             >
               <option
-                value="en-US"
-                className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              >
-                English
-              </option>
-              <option
                 value="pt-BR"
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
                 Português
+              </option>
+              <option
+                value="en-US"
+                className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              >
+                English
               </option>
             </select>
           </div>

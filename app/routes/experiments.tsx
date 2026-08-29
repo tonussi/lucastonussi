@@ -1,8 +1,12 @@
 import { Link, Outlet } from 'react-router'
 import type { Route } from './+types/experiments'
+import i18n from '@/i18n'
 
-export function meta({ }: Route.MetaArgs) {
-  return [{ title: 'Experiments' }, { name: 'description', content: 'Experiments' }]
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: i18n.t('meta.experiments.title') },
+    { name: 'description', content: i18n.t('meta.experiments.description') },
+  ]
 }
 
 const experiments = [

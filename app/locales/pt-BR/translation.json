@@ -1,4 +1,38 @@
 {
+  "meta": {
+    "siteName": "T Labs",
+    "author": "T Labs",
+    "home": {
+      "title": "T Labs - Significado em software",
+      "description": "A T Labs entrega soluções significativas para as suas necessidades.",
+      "keywords": "T Labs, soluções em tecnologia, desenvolvimento de software, inovação em hardware, transformação digital, empresa de tecnologia"
+    },
+    "contact": {
+      "title": "Contato",
+      "description": "Contato"
+    },
+    "docs": {
+      "title": "Documentação",
+      "description": "Documentação"
+    },
+    "experiments": {
+      "title": "Experimentos",
+      "description": "Experimentos"
+    },
+    "atoms": {
+      "title": "Átomos",
+      "description": "Átomos"
+    },
+    "deleteUser": {
+      "title": "Como excluir sua conta - T Labs",
+      "description": "Saiba como excluir sua conta e todos os dados associados no aplicativo Purchasing Inventory da T Labs."
+    },
+    "purchasingInventory": {
+      "title": "Purchasing Inventory - T Labs",
+      "description": "Escaneie o cupom fiscal do mercado e deixe o Purchasing Inventory montar o inventário da sua casa, acompanhar os gastos por categorias geradas por IA e planejar a semana de refeições.",
+      "keywords": "purchasing inventory, aplicativo de compras, leitor de cupom fiscal, NFC-e, lista de compras, planejador de refeições, inventário doméstico, T Labs"
+    }
+  },
   "slogan": {
     "makeYourSellingIdeas": "Faça com que suas ideias de vendas",
     "comeToLifeWithMeaningfulChatConversations": "Virem realidade com conversas de chat humanizadas"
@@ -30,7 +64,7 @@
     "google": "Google",
     "github": "GitHub",
     "facebook": "Facebook",
-    "signin": "Criar perfil",
+    "createUser": "Criar perfil",
     "otpLabel": "Código de verificação",
     "otpDescription": "Por favor, insira o código de verificação enviado para seu telefone.",
     "otpSubmit": "Enviar",

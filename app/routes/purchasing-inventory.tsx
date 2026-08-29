@@ -27,27 +27,24 @@ import {
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import type { Route } from './+types/purchasing-inventory'
+import i18n from '@/i18n'
 
 const SCREEN = (n: number) => `/purchasing-inventory/screen-${n}.jpg`
 
 export function meta({}: Route.MetaArgs) {
-  const title = 'Purchasing Inventory - T Labs'
-  const description =
-    'Scan your grocery receipt and let Purchasing Inventory build your home inventory, track spending by AI-generated categories and plan the week of meals.'
+  const title = i18n.t('meta.purchasingInventory.title')
+  const description = i18n.t('meta.purchasingInventory.description')
 
   return [
     { title },
     { name: 'description', content: description },
-    {
-      name: 'keywords',
-      content:
-        'purchasing inventory, grocery app, receipt scanner, NFC-e, shopping list, meal planner, home inventory, T Labs',
-    },
+    { name: 'keywords', content: i18n.t('meta.purchasingInventory.keywords') },
     { name: 'robots', content: 'index, follow' },
     { property: 'og:title', content: title },
     { property: 'og:description', content: description },
     { property: 'og:type', content: 'website' },
-    { property: 'og:site_name', content: 'T Labs' },
+    { property: 'og:locale', content: i18n.language.replace('-', '_') },
+    { property: 'og:site_name', content: i18n.t('meta.siteName') },
     { property: 'og:image', content: '/pi.jpg' },
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: title },

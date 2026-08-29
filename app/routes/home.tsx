@@ -3,35 +3,27 @@ import { Slogan } from '@/components/slogan'
 import { t } from 'i18next'
 import { FloatingWhatsApp } from 'react-floating-whatsapp'
 import type { Route } from './+types/home'
+import i18n from '@/i18n'
 
 export function meta({}: Route.MetaArgs) {
+  const title = i18n.t('meta.home.title')
+  const description = i18n.t('meta.home.description')
+
   return [
-    { title: 'T Labs - Meaning in software' },
-    {
-      name: 'description',
-      content: 'T Labs delivers meaningful solutions to your needs.',
-    },
-    {
-      name: 'keywords',
-      content:
-        'T Labs, technology solutions, software development, hardware innovation, digital transformation, tech company',
-    },
-    { name: 'author', content: 'T Labs' },
+    { title },
+    { name: 'description', content: description },
+    { name: 'keywords', content: i18n.t('meta.home.keywords') },
+    { name: 'author', content: i18n.t('meta.author') },
     { name: 'robots', content: 'index, follow' },
     { name: 'viewport', content: 'width=device-width, initial-scale=1.0' },
-    { property: 'og:title', content: 'T Labs - Meaning in software' },
-    {
-      property: 'og:description',
-      content: 'T Labs delivers meaningful solutions to your needs.',
-    },
+    { property: 'og:locale', content: i18n.language.replace('-', '_') },
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: description },
     { property: 'og:type', content: 'website' },
-    { property: 'og:site_name', content: 'T Labs' },
+    { property: 'og:site_name', content: i18n.t('meta.siteName') },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'T Labs - Meaning in software' },
-    {
-      name: 'twitter:description',
-      content: 'T Labs delivers meaningful solutions to your needs.',
-    },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
   ]
 }
 
