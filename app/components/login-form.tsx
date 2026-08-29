@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import {
@@ -9,6 +9,14 @@ import {
 } from '../components/ui/input-otp'
 import { login as authLogin } from '../lib/auth'
 import { useAuth } from '../lib/auth-context'
+import {
+  AUTO_LOGIN_DELAY_MS,
+  AUTO_LOGIN_TYPING_MS,
+  generateRandomEmail,
+  generateRandomPassword,
+  hasAutoLoggedIn,
+  markAutoLoggedIn,
+} from '../lib/demo-auto-login'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -212,6 +220,17 @@ export function LoginForm() {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<'password' | 'otp'>('password')
   const [isOpen, setIsOpen] = useState(false)
+  const [autoLoginCountdown, setAutoLoginCountdown] = useState<number | null>(null)
+  const [isAutoLoggingIn, setIsAutoLoggingIn] = useState(false)
+  const autoLoginCancelled = useRef(false)
+
+  const cancelAutoLogin = useCallback(() => {
+    if (autoLoginCancelled.current) return
+    autoLoginCancelled.current = true
+    setAutoLoginCountdown(null)
+    setIsAutoLoggingIn(false)
+    markAutoLoggedIn()
+  }, [])
 
   const formFieldsRegisterNewUser: ModalFormField[] = [
     {
@@ -235,13 +254,12 @@ export function LoginForm() {
     },
   ]
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const submitLogin = async (emailValue: string, passwordValue: string) => {
     setIsLoading(true)
     setError('')
 
     try {
-      const user = await authLogin(email, password, '')
+      const user = await authLogin(emailValue, passwordValue, '')
       login(user)
       navigate('/')
     } catch (err) {
@@ -250,6 +268,82 @@ export function LoginForm() {
       setIsLoading(false)
     }
   }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    cancelAutoLogin()
+    await submitLogin(email, password)
+  }
+
+  // First-time anonymous visitors: after a few idle seconds, type a random demo
+  // e-mail/password and sign in, so nobody gets stuck wondering what to fill in.
+  // Any interaction from the visitor cancels the sequence.
+  useEffect(() => {
+    if (hasAutoLoggedIn()) return
+
+    let disposed = false
+    const timers = new Set<number>()
+    const stopped = () => disposed || autoLoginCancelled.current
+
+    const wait = (ms: number) =>
+      new Promise<void>((resolve) => {
+        const id = window.setTimeout(() => {
+          timers.delete(id)
+          resolve()
+        }, ms)
+        timers.add(id)
+      })
+
+    const type = async (value: string, setValue: (v: string) => void) => {
+      for (let i = 1; i <= value.length; i++) {
+        setValue(value.slice(0, i))
+        await wait(AUTO_LOGIN_TYPING_MS)
+        if (stopped()) return false
+      }
+      return true
+    }
+
+    const run = async () => {
+      let secondsLeft = Math.round(AUTO_LOGIN_DELAY_MS / 1000)
+      setAutoLoginCountdown(secondsLeft)
+
+      while (secondsLeft > 0) {
+        await wait(1000)
+        if (stopped()) return
+        secondsLeft -= 1
+        setAutoLoginCountdown(secondsLeft)
+      }
+
+      setAutoLoginCountdown(null)
+      setIsAutoLoggingIn(true)
+
+      const demoEmail = generateRandomEmail()
+      const demoPassword = generateRandomPassword()
+
+      if (!(await type(demoEmail, setEmail))) return
+      await wait(250)
+      if (stopped()) return
+      if (!(await type(demoPassword, setPassword))) return
+      await wait(400)
+      if (stopped()) return
+
+      markAutoLoggedIn()
+      await submitLogin(demoEmail, demoPassword)
+    }
+
+    window.addEventListener('keydown', cancelAutoLogin)
+    window.addEventListener('pointerdown', cancelAutoLogin)
+
+    run()
+
+    return () => {
+      disposed = true
+      timers.forEach((id) => window.clearTimeout(id))
+      timers.clear()
+      window.removeEventListener('keydown', cancelAutoLogin)
+      window.removeEventListener('pointerdown', cancelAutoLogin)
+    }
+  }, [cancelAutoLogin])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 px-4">
@@ -264,6 +358,23 @@ export function LoginForm() {
             </h1>
             <p className="text-gray-600 dark:text-gray-400">{t('login.subtitle')}</p>
           </div>
+
+          {(autoLoginCountdown !== null || isAutoLoggingIn) && (
+            <div className="mb-8 flex items-center justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200">
+              <span>
+                {isAutoLoggingIn
+                  ? t('login.autoLoginFilling')
+                  : t('login.autoLoginCountdown', { seconds: autoLoginCountdown })}
+              </span>
+              <button
+                type="button"
+                onClick={cancelAutoLogin}
+                className="shrink-0 font-medium underline underline-offset-2"
+              >
+                {t('login.autoLoginCancel')}
+              </button>
+            </div>
+          )}
 
           {/* Desktop/Tablet layout */}
           <div className="hidden md:grid grid-cols-2 gap-30">

@@ -38,6 +38,9 @@
     "otpSubmitDescription": "Você enviou os seguintes valores",
     "emailPasswordTab": "E-mail & Senha",
     "otpTab": "Código de verificação",
+    "autoLoginCountdown": "Não sabe o que usar? Vamos entrar com uma conta de demonstração em {{seconds}}s.",
+    "autoLoginFilling": "Preenchendo uma conta de demonstração e entrando...",
+    "autoLoginCancel": "Cancelar",
     "form": {
       "name": "Nome",
       "namePlaceholder": "Digite seu nome",
@@ -88,5 +91,104 @@
     "title": "Página Não Encontrada",
     "description": "A página que você procura não existe ou foi movida. Vamos te levar de volta ao caminho certo.",
     "goHome": "Voltar ao Início"
+  },
+  "purchasingInventory": {
+    "hero": {
+      "badge": "Purchasing Inventory · Beta",
+      "title": "Sua despensa",
+      "titleAccent": "no automático.",
+      "subtitle": "Escaneie a nota fiscal do mercado e o app monta o seu inventário, calcula para onde foi o dinheiro e lembra o que está acabando. Deixe com a gente: a gente te lembra o que comprar.",
+      "ctaPrimary": "Ver como funciona",
+      "ctaSecondary": "Falar com a T Labs",
+      "pill1": "Leitura da nota fiscal",
+      "pill2": "Categorias com IA",
+      "pill3": "Dados sensíveis não são armazenados"
+    },
+    "scrollCue": "Role para continuar",
+    "problem": {
+      "eyebrow": "O problema",
+      "title": "Compra grande, memória curta.",
+      "subtitle": "Todo mês a mesma cena: o carrinho enche, a nota some no fundo da sacola e ninguém sabe o que já tem em casa.",
+      "item1Title": "Você compra o que já tinha",
+      "item1Desc": "Três potes de orégano na despensa e nenhum arroz. Sem um inventário de verdade, a lista de compras vira chute.",
+      "item2Title": "O dinheiro some no meio do mês",
+      "item2Desc": "Sem separar por categoria, é impossível saber quanto foi para carne, limpeza ou bebida — e onde dava para cortar.",
+      "item3Title": "Decidir a refeição cansa",
+      "item3Desc": "Pensar no que cozinhar toda noite custa mais tempo e energia do que cozinhar de fato."
+    },
+    "scan": {
+      "eyebrow": "Passo 1 · Captura",
+      "title": "Aponte para a nota. O resto é com o app.",
+      "description": "Escaneie o QR Code da NFC-e ou fotografe o cupom fiscal. O assistente de compras lê o documento eletrônico e devolve cada item com quantidade, unidade e valor — sem você digitar nada.",
+      "b1": "Leitura direta da nota fiscal eletrônica do consumidor (NFC-e).",
+      "b2": "Produto, unidade, quantidade e preço extraídos automaticamente.",
+      "b3": "Dados sensíveis da nota não são armazenados."
+    },
+    "inventory": {
+      "eyebrow": "Passo 2 · Inventário",
+      "title": "Tudo o que você tem, contado.",
+      "description": "Cada compra alimenta o seu estoque doméstico. Ordene por produto ou por quantidade, veja o que está acabando e nunca mais leve para casa o quinto pacote de café.",
+      "b1": "Lista de produtos com quantidade em unidade, grama ou quilo.",
+      "b2": "Busca e ordenação por nome ou por quantidade restante.",
+      "b3": "Dashboard com o histórico de gasto por compra e por categoria."
+    },
+    "checklist": {
+      "eyebrow": "Passo 3 · Lista",
+      "title": "Uma lista que se monta sozinha.",
+      "description": "Selecione os produtos que faltam ou peça uma sugestão à IA: descreva o contexto — churrasco no fim de semana, foco em vegetais, produtos de limpeza — e a lista aparece pronta e organizada.",
+      "b1": "Sugestão com IA a partir do seu histórico e das suas instruções.",
+      "b2": "Toque duplo no produto para ajustar quantidade e peso.",
+      "b3": "Itens agrupados por categoria: hortifrúti, secos, carnes, bebidas."
+    },
+    "planner": {
+      "eyebrow": "Cardápio",
+      "title": "Sete dias de refeições em um toque.",
+      "description": "O Meal Planner monta o cardápio da semana a partir do que já existe na sua despensa e acompanha a evolução do seu Nutrition Score ao longo do tempo.",
+      "b1": "Geração de 7 dias de refeições com um botão.",
+      "b2": "Instruções livres para a IA, como \"mais vegetais, nada frito\".",
+      "b3": "Histórico do Nutrition Score para acompanhar a evolução."
+    },
+    "spending": {
+      "eyebrow": "Gastos",
+      "title": "Para onde foi o dinheiro do mercado.",
+      "description": "Cada extrato traz o total gasto no período e as categorias geradas por IA. Escolha a data, abra a categoria e veja item por item o que puxou a conta para cima.",
+      "b1": "Total gasto por compra, por dia e por período.",
+      "b2": "Categorias criadas por IA a partir dos itens da nota.",
+      "b3": "Detalhamento item a item dentro de cada categoria."
+    },
+    "modules": {
+      "eyebrow": "Tudo em um app",
+      "title": "Do carrinho ao pagamento.",
+      "subtitle": "Purchasing Inventory reúne inventário, lista, cardápio e controle de gastos no mesmo lugar — sem planilha, sem papel.",
+      "f1Title": "Dashboard",
+      "f1Desc": "Visão geral do gasto por período, com filtro por categoria.",
+      "f2Title": "Meus produtos",
+      "f2Desc": "O inventário da sua casa, sempre atualizado pelas notas.",
+      "f3Title": "Meal Planner",
+      "f3Desc": "Cardápio da semana montado a partir do que você tem.",
+      "f4Title": "Checklists",
+      "f4Desc": "Listas de compra nomeadas, reaproveitáveis e compartilháveis.",
+      "f5Title": "Pagamentos",
+      "f5Desc": "Seu plano e suas cobranças reunidos em uma tela.",
+      "f6Title": "Sugestões",
+      "f6Desc": "Diga o que você quer ver no app e acompanhe o desenvolvimento em um quadro kanban."
+    },
+    "cta": {
+      "title": "Quer testar antes de todo mundo?",
+      "subtitle": "O Purchasing Inventory está em desenvolvimento na T Labs. Fale com a gente e entre na lista de quem vai testar primeiro.",
+      "primary": "Entrar em contato",
+      "secondary": "Ver documentação",
+      "footnote": "Como excluir sua conta e seus dados"
+    },
+    "alt": {
+      "dashboard": "Tela de dashboard do Purchasing Inventory com o gasto por compra",
+      "menu": "Menu lateral do aplicativo Purchasing Inventory",
+      "camera": "Câmera do aplicativo capturando um cupom fiscal",
+      "receipt": "Itens extraídos da nota fiscal eletrônica",
+      "products": "Lista de produtos do inventário com quantidades",
+      "planner": "Meal Planner com calendário e histórico do Nutrition Score",
+      "checklist": "Tela de montagem de lista de compras com sugestão por IA",
+      "extracts": "Extrato de gastos com categorias geradas por IA"
+    }
   }
 }

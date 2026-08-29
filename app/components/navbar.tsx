@@ -18,6 +18,12 @@ export function Navbar() {
           Basic Game Physics
         </NavLink>
         <NavLink
+          to="/purchasing-inventory"
+          className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+        >
+          Purchasing Inventory
+        </NavLink>
+        <NavLink
           to="/docs"
           className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
         >

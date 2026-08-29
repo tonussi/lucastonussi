@@ -4,10 +4,13 @@ import { Outlet, useLocation } from 'react-router'
 import { ProtectedRoute } from '../components/protected-route'
 import { AuthProvider } from '../lib/auth-context'
 
+// Pages reachable without signing in (legal/marketing content).
+const PUBLIC_PATHS = ['/how-to-delete-your-user', '/purchasing-inventory']
+
 export function MainLayout() {
   const location = useLocation()
   const isLoginPage = location.pathname === '/login'
-  const isPublicPage = location.pathname === '/how-to-delete-your-user'
+  const isPublicPage = PUBLIC_PATHS.includes(location.pathname)
 
   return (
     <AuthProvider>

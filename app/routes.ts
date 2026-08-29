@@ -8,4 +8,5 @@ export default [
   route('contact', 'routes/contact.tsx'),
   route('atoms', 'routes/atoms.tsx'),
   route('how-to-delete-your-user', 'routes/how-to-delete-your-user.tsx'),
+  route('purchasing-inventory', 'routes/purchasing-inventory.tsx'),
 ] satisfies RouteConfig

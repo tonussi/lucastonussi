@@ -38,6 +38,9 @@
     "otpSubmitDescription": "You submitted the following values",
     "emailPasswordTab": "Email & Password",
     "otpTab": "One-Time Code",
+    "autoLoginCountdown": "Not sure what to use? We will sign you in with a demo account in {{seconds}}s.",
+    "autoLoginFilling": "Filling in a demo account and signing you in...",
+    "autoLoginCancel": "Cancel",
     "form": {
       "name": "Name",
       "namePlaceholder": "Enter your name",
@@ -88,5 +91,104 @@
     "title": "Page Not Found",
     "description": "The page you're looking for doesn't exist or has been moved. Let's get you back on track.",
     "goHome": "Back to Home"
+  },
+  "purchasingInventory": {
+    "hero": {
+      "badge": "Purchasing Inventory · Beta",
+      "title": "Your pantry,",
+      "titleAccent": "on autopilot.",
+      "subtitle": "Scan your grocery receipt and the app builds your inventory, shows where the money went and reminds you what is running out. Let us handle it — we'll remind you what to buy.",
+      "ctaPrimary": "See how it works",
+      "ctaSecondary": "Talk to T Labs",
+      "pill1": "Receipt scanning",
+      "pill2": "AI categories",
+      "pill3": "Sensitive data is not stored"
+    },
+    "scrollCue": "Scroll to continue",
+    "problem": {
+      "eyebrow": "The problem",
+      "title": "Big cart, short memory.",
+      "subtitle": "Same scene every month: the cart fills up, the receipt disappears into the bag and nobody knows what is already at home.",
+      "item1Title": "You buy what you already had",
+      "item1Desc": "Three jars of oregano in the pantry and no rice. Without a real inventory, the shopping list is guesswork.",
+      "item2Title": "The money vanishes mid-month",
+      "item2Desc": "With no categories, there is no way to tell how much went to meat, cleaning or drinks — or where you could have cut back.",
+      "item3Title": "Deciding dinner is exhausting",
+      "item3Desc": "Figuring out what to cook every night costs more time and energy than the cooking itself."
+    },
+    "scan": {
+      "eyebrow": "Step 1 · Capture",
+      "title": "Point it at the receipt. The app takes it from there.",
+      "description": "Scan the receipt QR code or photograph the printed slip. The shopping assistant reads the electronic document and returns every line item with quantity, unit and price — no typing.",
+      "b1": "Reads the electronic consumer invoice (NFC-e) directly.",
+      "b2": "Product, unit, quantity and price extracted automatically.",
+      "b3": "Sensitive receipt data is not stored."
+    },
+    "inventory": {
+      "eyebrow": "Step 2 · Inventory",
+      "title": "Everything you own, counted.",
+      "description": "Every purchase feeds your household stock. Sort by product or by quantity, see what is running low and never bring home a fifth bag of coffee again.",
+      "b1": "Product list with quantities in units, grams or kilos.",
+      "b2": "Search and sorting by name or remaining quantity.",
+      "b3": "Dashboard with spending history per purchase and category."
+    },
+    "checklist": {
+      "eyebrow": "Step 3 · List",
+      "title": "A list that builds itself.",
+      "description": "Pick what is missing or ask the AI for a suggestion: describe the context — barbecue this weekend, focus on vegetables, cleaning supplies — and the list comes back ready and organized.",
+      "b1": "AI suggestions based on your history and your instructions.",
+      "b2": "Double tap a product to adjust quantity and weight.",
+      "b3": "Items grouped by category: produce, dry goods, meat, drinks."
+    },
+    "planner": {
+      "eyebrow": "Meal plan",
+      "title": "Seven days of meals in one tap.",
+      "description": "The Meal Planner builds the week's menu from what is already in your pantry and tracks how your Nutrition Score evolves over time.",
+      "b1": "Generate 7 days of meals with a single button.",
+      "b2": "Free-form instructions for the AI, like \"more vegetables, no fried food\".",
+      "b3": "Nutrition Score history to follow your progress."
+    },
+    "spending": {
+      "eyebrow": "Spending",
+      "title": "Where the grocery money went.",
+      "description": "Each statement shows the total spent in the period plus AI-generated categories. Pick a date, open a category and see item by item what pushed the bill up.",
+      "b1": "Total spent per purchase, per day and per period.",
+      "b2": "Categories created by AI from the receipt line items.",
+      "b3": "Item-by-item breakdown inside every category."
+    },
+    "modules": {
+      "eyebrow": "All in one app",
+      "title": "From cart to checkout.",
+      "subtitle": "Purchasing Inventory brings inventory, lists, meal planning and spending control together in one place — no spreadsheet, no paper.",
+      "f1Title": "Dashboard",
+      "f1Desc": "Spending overview per period, filtered by category.",
+      "f2Title": "My products",
+      "f2Desc": "Your household inventory, kept up to date by your receipts.",
+      "f3Title": "Meal Planner",
+      "f3Desc": "A weekly menu built from what you already have.",
+      "f4Title": "Checklists",
+      "f4Desc": "Named shopping lists you can reuse and share.",
+      "f5Title": "Payments",
+      "f5Desc": "Your plan and charges gathered on a single screen.",
+      "f6Title": "Suggestions",
+      "f6Desc": "Tell us what you want in the app and follow its development in a kanban board."
+    },
+    "cta": {
+      "title": "Want to try it before everyone else?",
+      "subtitle": "Purchasing Inventory is in development at T Labs. Get in touch and join the list of first testers.",
+      "primary": "Get in touch",
+      "secondary": "Read the docs",
+      "footnote": "How to delete your account and data"
+    },
+    "alt": {
+      "dashboard": "Purchasing Inventory dashboard showing spending per purchase",
+      "menu": "Purchasing Inventory side menu",
+      "camera": "The app camera capturing a printed grocery receipt",
+      "receipt": "Line items extracted from the electronic receipt",
+      "products": "Inventory product list with quantities",
+      "planner": "Meal Planner with calendar and Nutrition Score history",
+      "checklist": "Shopping list builder with AI suggestions",
+      "extracts": "Spending statement with AI-generated categories"
+    }
   }
 }
