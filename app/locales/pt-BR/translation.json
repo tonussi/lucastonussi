@@ -129,8 +129,8 @@
   "purchasingInventory": {
     "hero": {
       "badge": "Purchasing Inventory · Beta",
-      "title": "Sua despensa",
-      "titleAccent": "no automático.",
+      "title": "Te ajudamos a fazer as",
+      "titleAccent": "compras do supermercado.",
       "subtitle": "Escaneie a nota fiscal do mercado e o app monta o seu inventário, calcula para onde foi o dinheiro e lembra o que está acabando. Deixe com a gente: a gente te lembra o que comprar.",
       "ctaPrimary": "Ver como funciona",
       "ctaSecondary": "Falar com a T Labs",

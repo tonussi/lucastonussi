@@ -5,7 +5,7 @@ import { ProtectedRoute } from '../components/protected-route'
 import { AuthProvider } from '../lib/auth-context'
 
 // Pages reachable without signing in (legal/marketing content).
-const PUBLIC_PATHS = ['/how-to-delete-your-user', '/purchasing-inventory']
+const PUBLIC_PATHS = ['/', '/how-to-delete-your-user', '/purchasing-inventory']
 
 export function MainLayout() {
   const location = useLocation()
