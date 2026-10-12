@@ -33,13 +33,17 @@ const lerpAngle = (start: number, end: number, t: number) => {
 export const CharacterController = ({
   refScene,
   gamepad,
+  enabled = true,
+  onAttack,
 }: {
   refScene: React.RefObject<THREE.Scene>
   gamepad: GamepadState
+  enabled?: boolean
+  onAttack?: (position: [number, number, number]) => void
 }) => {
   const { WALK_SPEED, RUN_SPEED, ROTATION_SPEED, JUMP_FORCE } = useControls('Character Control', {
     WALK_SPEED: { value: 2, min: 0.1, max: 4, step: 0.1 },
-    RUN_SPEED: { value: 5, min: 0.2, max: 12, step: 0.1 },
+    RUN_SPEED: { value: 12, min: 12, max: 50, step: 0.1 },
     ROTATION_SPEED: {
       value: degToRad(0),
       min: degToRad(0.1),
@@ -52,9 +56,9 @@ export const CharacterController = ({
     'Camera Control',
     {
       cameraTargetPositionZ: { value: 5.5, min: -20, max: 20, step: 1 },
-      cameraPositionY: { value: 6, min: -20, max: 20, step: 1 },
-      cameraPositionZ: { value: -10, min: -20, max: 20, step: 1 },
-    }
+      cameraPositionY: { value: 4.5, min: -20, max: 20, step: 0.5 },
+      cameraPositionZ: { value: -4.5, min: -20, max: 20, step: 0.5 },
+    },
   )
   const rb = useRef<any>(null!)
   const container = useRef<THREE.Group>(null!)
@@ -64,7 +68,9 @@ export const CharacterController = ({
 
   const characterRotationTarget = useRef(0)
   const rotationTarget = useRef(0)
+  const cameraPitchTarget = useRef(0)
   const cameraTarget = useRef<THREE.Group>(null!)
+  const cameraPitch = useRef<THREE.Group>(null!)
   const cameraPosition = useRef<THREE.Group>(null!)
   const cameraWorldPosition = useRef(new Vector3())
   const cameraLookAtWorldPosition = useRef(new Vector3())
@@ -75,10 +81,13 @@ export const CharacterController = ({
   const grounded = useRef(true)
   const jumpCooldown = useRef(0)
   const prevYPressed = useRef(false)
+  const prevAttackPressed = useRef(false)
   const rapierRay = useRef<any>(null)
   const { world, rapier } = useRapier()
 
-  useFrame(({ camera }) => {
+  useFrame(({ camera }, delta) => {
+    if (!enabled) return
+
     if (rb.current) {
       const vel = rb.current.linvel()
 
@@ -116,7 +125,7 @@ export const CharacterController = ({
       character.current.rotation.y = lerpAngle(
         character.current.rotation.y,
         characterRotationTarget.current,
-        0.1
+        0.1,
       )
 
       rb.current.setLinvel(vel, true)
@@ -124,10 +133,7 @@ export const CharacterController = ({
       // GROUNDED CHECK — native rapier raycast (broadphase-optimized, no mesh traversal)
       const t = rb.current.translation()
       if (!rapierRay.current) {
-        rapierRay.current = new rapier.Ray(
-          { x: t.x, y: t.y, z: t.z },
-          { x: 0, y: -1, z: 0 }
-        )
+        rapierRay.current = new rapier.Ray({ x: t.x, y: t.y, z: t.z }, { x: 0, y: -1, z: 0 })
       } else {
         rapierRay.current.origin.x = t.x
         rapierRay.current.origin.y = t.y
@@ -141,7 +147,7 @@ export const CharacterController = ({
         undefined,
         undefined,
         undefined,
-        rb.current
+        rb.current,
       )
       grounded.current = !!hit && hit.timeOfImpact <= 1.0
 
@@ -156,16 +162,39 @@ export const CharacterController = ({
         grounded.current = false
         jumpCooldown.current = 0.15
       }
+
+      const attackPressed = Boolean(get().attack || gamepad.rb)
+      if (attackPressed && !prevAttackPressed.current) {
+        const position = rb.current.translation()
+        onAttack?.([
+          position.x + Math.sin(rotationTarget.current) * 1.45,
+          position.y + 0.9,
+          position.z + Math.cos(rotationTarget.current) * 1.45,
+        ])
+      }
+      prevAttackPressed.current = attackPressed
     }
 
     // CAMERA — Dark Souls style: orbit around player driven by right stick (inverted)
     const yawSpeed = 2.4 // rad/sec at full stick
-    rotationTarget.current += -gamepad.rightStickX * yawSpeed * (1 / 60)
+    const pitchSpeed = 1.8
+    const maxPitch = Math.PI / 4
+    rotationTarget.current += -gamepad.rightStickX * yawSpeed * delta
+    cameraPitchTarget.current = MathUtils.clamp(
+      cameraPitchTarget.current + gamepad.rightStickY * pitchSpeed * delta,
+      -maxPitch,
+      maxPitch,
+    )
 
     container.current.rotation.y = MathUtils.lerp(
       container.current.rotation.y,
       rotationTarget.current,
-      0.15
+      0.15,
+    )
+    cameraPitch.current.rotation.x = MathUtils.lerp(
+      cameraPitch.current.rotation.x,
+      cameraPitchTarget.current,
+      0.15,
     )
 
     cameraPosition.current.getWorldPosition(cameraWorldPosition.current)
@@ -180,15 +209,24 @@ export const CharacterController = ({
   })
 
   return (
-    <RigidBody name="player-rb" colliders={false} lockRotations ref={rb} mass={1} gravityScale={2.5}>
+    <RigidBody
+      name="player-rb"
+      colliders={false}
+      lockRotations
+      ref={rb}
+      mass={1}
+      gravityScale={2.5}
+    >
       <group name="player-container" ref={container}>
         <group name="player-camera-target" ref={cameraTarget} position-z={cameraTargetPositionZ} />
-        <group
-          name="player-camera-position"
-          ref={cameraPosition}
-          position-y={cameraPositionY}
-          position-z={cameraPositionZ}
-        />
+        <group name="player-camera-pitch" ref={cameraPitch}>
+          <group
+            name="player-camera-position"
+            ref={cameraPosition}
+            position-y={cameraPositionY}
+            position-z={cameraPositionZ}
+          />
+        </group>
         <group name="player-inner-group" ref={character}>
           <Pirate
             scale={0.1}

@@ -7,7 +7,8 @@
     "build:prod": "yarn install && react-router build --mode production && cp robots.txt build/client/robots.txt && cp build/client/index.html build/client/404.html",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "test:engine": "node --experimental-strip-types --test app/components/game-engine/project-model.test.ts app/components/game-engine/tree-generator.test.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
@@ -23,6 +24,7 @@
     "@react-three/rapier": "^2.1.0",
     "@tailwindcss/postcss": "^4.1.10",
     "@vitejs/plugin-react": "^4.5.2",
+    "@xyflow/react": "^12.12.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "i18next": "^25.2.1",
@@ -51,14 +53,14 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@types/three": "^0.170.0",
+    "prettier": "^3.9.4",
     "r3f-perf": "^7.2.3",
     "tailwindcss": "^4.1.10",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5.8.3",
     "vite": "^6.3.3",
     "vite-plugin-devtools-json": "^0.2.0",
-    "vite-tsconfig-paths": "^5.1.4",
-    "prettier": "^3.9.4"
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "eslintConfig": {
     "extends": [

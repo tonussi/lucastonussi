@@ -116,24 +116,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
   )
 }
 
-import { hydrateRoot } from 'react-dom/client'
 import { useTranslation } from 'react-i18next'
 import { Navbar } from './components/navbar'
 import { AuthProvider } from './lib/auth-context'
 
 const App = () => {
-  const root = window.document.getElementById('root')
-  if (root) {
-    hydrateRoot(
-      root,
-      <React.StrictMode>
-        <I18nextProvider i18n={i18n}>
-          <MainLayout />
-        </I18nextProvider>
-      </React.StrictMode>
-    )
-  }
-
   return (
     <React.StrictMode>
       <I18nextProvider i18n={i18n}>
@@ -218,8 +205,7 @@ function NotFoundPage() {
             to="/"
             className="mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-white transition-all hover:scale-105 hover:shadow-lg"
             style={{
-              background:
-                'linear-gradient(135deg, #7ED4FD 0%, #709DF7 50%, #4D78EF 100%)',
+              background: 'linear-gradient(135deg, #7ED4FD 0%, #709DF7 50%, #4D78EF 100%)',
             }}
           >
             <Home size={16} />

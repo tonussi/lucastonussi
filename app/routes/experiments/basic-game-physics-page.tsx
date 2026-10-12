@@ -1,39 +1,49 @@
-import BasicGamePhysics from '@/components/basic-game-physics/world'
+import GameEngineWorkbench from '@/components/game-engine/workbench'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import type { Route } from '../+types/experiments'
 
-export function meta({ }: Route.MetaArgs) {
+interface NavigatorWithMobileHint extends Navigator {
+  userAgentData?: {
+    mobile?: boolean
+  }
+}
+
+function isMobileDevice() {
+  const navigatorWithHint = navigator as NavigatorWithMobileHint
+  const mobileUserAgent = /Android|iPhone|iPod|IEMobile|Opera Mini|webOS|BlackBerry/i.test(
+    navigator.userAgent,
+  )
+  const smallViewport = window.matchMedia('(max-width: 767px)').matches
+
+  return Boolean(navigatorWithHint.userAgentData?.mobile || mobileUserAgent || smallViewport)
+}
+
+export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'Basic Game Physics - Experiments' },
+    { title: 'World Engine - Experiments' },
     {
       name: 'description',
-      content: 'Interactive physics simulations and game mechanics demonstrations',
+      content:
+        'Experimental browser game engine with a live Three.js viewport and visual flow editor',
     },
   ]
 }
 
 export default function BasicGamePhysicsPage() {
-  return (
-    <div className="relative">
-      {/* Car Build Share Component */}
-      <BasicGamePhysics />
+  const navigate = useNavigate()
+  const [isCheckingDevice, setIsCheckingDevice] = useState(true)
 
-      {/* Back to Experiments */}
-      <div className="mt-12 text-center">
-        <a
-          href="/experiments"
-          className="inline-flex items-center text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
-        >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          Back to Experiments
-        </a>
-      </div>
-    </div>
-  )
+  useEffect(() => {
+    if (isMobileDevice()) {
+      navigate('/', { replace: true })
+      return
+    }
+
+    setIsCheckingDevice(false)
+  }, [navigate])
+
+  if (isCheckingDevice) return null
+
+  return <GameEngineWorkbench />
 }

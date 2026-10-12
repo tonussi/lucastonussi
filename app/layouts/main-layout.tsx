@@ -11,10 +11,15 @@ export function MainLayout() {
   const location = useLocation()
   const isLoginPage = location.pathname === '/login'
   const isPublicPage = PUBLIC_PATHS.includes(location.pathname)
+  const isGameEngine = location.pathname === '/basic-game-physics'
 
   return (
     <AuthProvider>
-      {isLoginPage ? (
+      {isGameEngine ? (
+        <ProtectedRoute>
+          <Outlet />
+        </ProtectedRoute>
+      ) : isLoginPage ? (
         <Outlet />
       ) : isPublicPage ? (
         <>
