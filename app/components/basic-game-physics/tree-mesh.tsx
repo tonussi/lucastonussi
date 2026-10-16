@@ -38,10 +38,10 @@ interface TreeMeshProps {
 }
 
 export default function TreeMesh({ settings, leafColor, selected, onClick }: TreeMeshProps) {
-  const { height, branchCount, leafCount, seed } = settings
+  const { height, branchCount, leafCount, leafSize, seed } = settings
   const tree = useMemo(
-    () => generateTree({ height, branchCount, leafCount, seed }),
-    [height, branchCount, leafCount, seed],
+    () => generateTree({ height, branchCount, leafCount, leafSize, seed }),
+    [height, branchCount, leafCount, leafSize, seed],
   )
   const woodRef = useRef<THREE.InstancedMesh>(null)
   const leavesRef = useRef<THREE.InstancedMesh>(null)

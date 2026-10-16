@@ -21,6 +21,7 @@ import {
   Eye,
   GitFork,
   Layers3,
+  LandPlot,
   Move3d,
   Play,
   Plus,
@@ -30,7 +31,18 @@ import {
   Scaling,
   Square,
   Sparkles,
+  Sprout,
   Trash2,
+  Waves,
+  House,
+  Lightbulb,
+  Droplets,
+  Gem,
+  Mountain,
+  MountainSnow,
+  Package,
+  PersonStanding,
+  Route,
   TreePine,
   Upload,
 } from 'lucide-react'
@@ -42,13 +54,59 @@ import {
   type EngineSceneObject,
   type GenerationRecord,
   type SceneObjectKind,
+  type CaveSettings,
+  type GrassPlaneSettings,
+  type GrassSettings,
+  type HouseSettings,
+  type LightSettings,
+  type CharacterSettings,
+  type MountainSettings,
+  type OceanSettings,
+  type PathSettings,
+  type RockSettings,
+  type WaterSettings,
   type TreeSettings,
   type JsonObject,
 } from './types'
+import { NON_DELETABLE_KINDS } from './builtin-objects'
+import { CAVE_LIMITS, DEFAULT_CAVE_SETTINGS } from './cave-generator'
+import ColorField from './color-field'
+import { DEFAULT_GRASS_SETTINGS, GRASS_LIMITS } from './grass-generator'
+import { DEFAULT_GRASS_PLANE_SETTINGS, GRASS_PLANE_LIMITS } from './grass-plane-generator'
+import { DEFAULT_HOUSE_SETTINGS, HOUSE_LIMITS } from './house-layout'
+import { DEFAULT_MOUNTAIN_SETTINGS, MOUNTAIN_LIMITS } from './mountain-generator'
+import { DEFAULT_OCEAN_SETTINGS, OCEAN_LIMITS } from './ocean-generator'
+import { DEFAULT_PATH_SETTINGS, PATH_LIMITS } from './path-generator'
+import { DEFAULT_WATER_SETTINGS, WATER_LIMITS, WATER_SHAPES } from './water-generator'
+import { DEFAULT_ROCK_SETTINGS, ROCK_LIMITS } from './rock-generator'
+import { replaceWithScenario, SCENARIO_LIMITS, scenarioFog } from './scenario-generator'
+import { CHARACTER_MODEL_IDS, MODEL_CATALOG } from './model-catalog'
+import { ATTRIBUTE_LIMITS, ATTRIBUTES, UNSPENT_POINTS_LIMITS } from './character-stats'
+import { QUICK_SLOT_CATEGORIES } from './quick-slots'
+import {
+  AUTO_CLIP,
+  CAMERA_ROTATION_SPEED_LIMITS,
+  CHARACTER_STATES,
+  type CharacterClipField,
+  clampCharacterSettings,
+  INVENTORY_LIMITS,
+  resizeInventoryTabs,
+  TAB_NAME_MAX_LENGTH,
+} from './character-settings'
+import {
+  DEFAULT_LIGHT_SETTINGS,
+  LIGHT_LIMITS,
+  LIGHT_SPAWN_HEIGHT,
+  LIGHT_TYPES,
+  MAX_SCENE_LIGHTS,
+  ORBIT_LIGHT_TYPES,
+  RANGED_LIGHT_TYPES,
+} from './light-settings'
 import { DEFAULT_TREE_SETTINGS, TREE_LIMITS } from './tree-generator'
 import {
   ENGINE_PROJECT_STORAGE_KEY,
   normalizeProject,
+  type EngineProjectInput,
   parseJsonValue,
   serializeProject,
   updateSceneObject as patchSceneObject,
@@ -60,26 +118,436 @@ function readProject(): EngineProject {
   try {
     const saved = window.localStorage.getItem(ENGINE_PROJECT_STORAGE_KEY)
     if (!saved) return defaultEngineProject
-    return normalizeProject(JSON.parse(saved) as Partial<EngineProject>)
+    return normalizeProject(JSON.parse(saved) as EngineProjectInput)
   } catch {
     return defaultEngineProject
   }
 }
 
-const OBJECT_KINDS: SceneObjectKind[] = ['cube', 'sphere', 'tree']
+const OBJECT_KINDS: SceneObjectKind[] = ['cube', 'sphere', 'tree', 'grass', 'grass-plane', 'cave', 'house', 'mountain', 'rock', 'path', 'water', 'ocean', 'light']
+
+interface PaletteItem {
+  kind: SceneObjectKind
+  label: string
+  modelId?: string
+}
+
+const PALETTE_ITEMS: PaletteItem[] = [
+  ...OBJECT_KINDS.map((kind) => ({ kind, label: kind })),
+  ...Object.entries(MODEL_CATALOG)
+    .filter(([, { role }]) => role === 'prop')
+    .map(([modelId, { label }]) => ({
+      kind: 'model' as const,
+      label,
+      modelId,
+    })),
+]
+
+const COLORLESS_KINDS: SceneObjectKind[] = ['model', 'character']
+
+const SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3]
 
 const OBJECT_DEFAULTS: Record<SceneObjectKind, { label: string; color: string }> = {
   cube: { label: 'Cube', color: '#d8a64d' },
   sphere: { label: 'Sphere', color: '#5d9dd6' },
   tree: { label: 'Tree', color: '#4f9a45' },
+  light: { label: 'Light', color: '#ffe9a8' },
+  model: { label: 'Model', color: '#ffffff' },
+  ocean: { label: 'Ocean', color: '#064b70' },
+  character: { label: 'Character', color: '#ffffff' },
+  grass: { label: 'Grass', color: '#5fae3e' },
+  'grass-plane': { label: 'Grass Plane', color: '#5fae3e' },
+  cave: { label: 'Cave', color: '#6f6a64' },
+  house: { label: 'House', color: '#d9c7a3' },
+  mountain: { label: 'Mountain', color: '#7b736a' },
+  rock: { label: 'Rock', color: '#8b8780' },
+  path: { label: 'Path', color: '#8a7152' },
+  water: { label: 'Water', color: '#2f7fb8' },
+}
+
+const COLOR_LABELS: Partial<Record<SceneObjectKind, string>> = {
+  tree: 'Leaf color',
+  light: 'Light color',
+  grass: 'Leaf color',
+  'grass-plane': 'Grass color',
+  cave: 'Rock color',
+  house: 'Wall color',
+  mountain: 'Rock color',
+  rock: 'Rock color',
+  path: 'Path color',
+  water: 'Water color',
 }
 
 const SEED_RANGE = 100000
 
+const randomSeed = () => Math.floor(Math.random() * SEED_RANGE)
+
 function ObjectKindIcon({ kind, size }: { kind: SceneObjectKind; size: number }) {
   if (kind === 'sphere') return <Circle size={size} />
   if (kind === 'tree') return <TreePine size={size} />
+  if (kind === 'light') return <Lightbulb size={size} />
+  if (kind === 'grass') return <Sprout size={size} />
+  if (kind === 'grass-plane') return <LandPlot size={size} />
+  if (kind === 'cave') return <Mountain size={size} />
+  if (kind === 'house') return <House size={size} />
+  if (kind === 'mountain') return <MountainSnow size={size} />
+  if (kind === 'model') return <Package size={size} />
+  if (kind === 'ocean') return <Waves size={size} />
+  if (kind === 'rock') return <Gem size={size} />
+  if (kind === 'water') return <Droplets size={size} />
+  if (kind === 'path') return <Route size={size} />
+  if (kind === 'character') return <PersonStanding size={size} />
   return <Box size={size} />
+}
+
+interface NumericField<Settings> {
+  key: keyof Settings & string
+  label: string
+  limits?: { min: number; max: number }
+  step: number
+}
+
+const GRASS_FIELDS: NumericField<GrassSettings>[] = [
+  { key: 'bladeCount', label: 'Leaves', limits: GRASS_LIMITS.bladeCount, step: 1 },
+  { key: 'height', label: 'Plant height', limits: GRASS_LIMITS.height, step: 0.05 },
+  { key: 'width', label: 'Area width', limits: GRASS_LIMITS.width, step: 0.5 },
+  { key: 'depth', label: 'Area depth', limits: GRASS_LIMITS.depth, step: 0.5 },
+  { key: 'seed', label: 'Seed', step: 1 },
+]
+
+const GRASS_PLANE_FIELDS: NumericField<GrassPlaneSettings>[] = [
+  { key: 'width', label: 'Plane width', limits: GRASS_PLANE_LIMITS.width, step: 0.5 },
+  { key: 'depth', label: 'Plane depth', limits: GRASS_PLANE_LIMITS.depth, step: 0.5 },
+  { key: 'thickness', label: 'Thickness', limits: GRASS_PLANE_LIMITS.thickness, step: 0.5 },
+  { key: 'bladeCount', label: 'Grass quantity', limits: GRASS_PLANE_LIMITS.bladeCount, step: 100 },
+  { key: 'bladeHeight', label: 'Grass height', limits: GRASS_PLANE_LIMITS.bladeHeight, step: 0.05 },
+  { key: 'shapeRandomness', label: 'Shape randomness', limits: GRASS_PLANE_LIMITS.shapeRandomness, step: 0.05 },
+  { key: 'seed', label: 'Seed', step: 1 },
+]
+
+const CAVE_FIELDS: NumericField<CaveSettings>[] = [
+  { key: 'radius', label: 'Cave radius', limits: CAVE_LIMITS.radius, step: 0.5 },
+  { key: 'depth', label: 'Cave depth', limits: CAVE_LIMITS.depth, step: 1 },
+  { key: 'seed', label: 'Seed', step: 1 },
+]
+
+const MOUNTAIN_FIELDS: NumericField<MountainSettings>[] = [
+  { key: 'height', label: 'Mountain height', limits: MOUNTAIN_LIMITS.height, step: 1 },
+  { key: 'radius', label: 'Base radius', limits: MOUNTAIN_LIMITS.radius, step: 1 },
+  { key: 'peakCount', label: 'Peaks', limits: MOUNTAIN_LIMITS.peakCount, step: 1 },
+  { key: 'roughness', label: 'Roughness', limits: MOUNTAIN_LIMITS.roughness, step: 0.05 },
+  { key: 'snowLine', label: 'Snow line', limits: MOUNTAIN_LIMITS.snowLine, step: 0.05 },
+  { key: 'seed', label: 'Seed', step: 1 },
+]
+
+const ROCK_FIELDS: NumericField<RockSettings>[] = [
+  { key: 'size', label: 'Rock size', limits: ROCK_LIMITS.size, step: 0.1 },
+  { key: 'roughness', label: 'Roughness', limits: ROCK_LIMITS.roughness, step: 0.05 },
+  { key: 'flatness', label: 'Height ratio', limits: ROCK_LIMITS.flatness, step: 0.05 },
+  { key: 'elongation', label: 'Elongation', limits: ROCK_LIMITS.elongation, step: 0.1 },
+  { key: 'seed', label: 'Seed', step: 1 },
+]
+
+const PATH_FIELDS: NumericField<PathSettings>[] = [
+  { key: 'length', label: 'Path length', limits: PATH_LIMITS.length, step: 2 },
+  { key: 'width', label: 'Path width', limits: PATH_LIMITS.width, step: 0.5 },
+  { key: 'wiggle', label: 'Wiggle', limits: PATH_LIMITS.wiggle, step: 0.05 },
+  { key: 'seed', label: 'Seed', step: 1 },
+]
+
+const OCEAN_FIELDS: NumericField<OceanSettings>[] = [
+  { key: 'size', label: 'Ocean size', limits: OCEAN_LIMITS.size, step: 10 },
+  { key: 'segments', label: 'Detail', limits: OCEAN_LIMITS.segments, step: 8 },
+  { key: 'waveCount', label: 'Waves', limits: OCEAN_LIMITS.waveCount, step: 1 },
+  { key: 'amplitude', label: 'Wave height', limits: OCEAN_LIMITS.amplitude, step: 0.1 },
+  { key: 'windDirection', label: 'Wave direction', limits: OCEAN_LIMITS.windDirection, step: 15 },
+  { key: 'seed', label: 'Seed', step: 1 },
+]
+
+const HOUSE_FIELDS: NumericField<HouseSettings>[] = [
+  { key: 'width', label: 'House width', limits: HOUSE_LIMITS.width, step: 0.5 },
+  { key: 'depth', label: 'House depth', limits: HOUSE_LIMITS.depth, step: 0.5 },
+  { key: 'wallHeight', label: 'Wall height', limits: HOUSE_LIMITS.wallHeight, step: 0.5 },
+  { key: 'roofHeight', label: 'Roof height', limits: HOUSE_LIMITS.roofHeight, step: 0.5 },
+]
+
+function NumericSettingsFields<Settings extends object>({
+  fields,
+  settings,
+  onChange,
+}: {
+  fields: NumericField<Settings>[]
+  settings: Settings
+  onChange: (settings: Settings) => void
+}) {
+  return (
+    <>
+      {fields.map(({ key, label, limits, step }) => (
+        <NumberField
+          key={key}
+          label={label}
+          value={settings[key] as number}
+          min={limits?.min}
+          max={limits?.max}
+          step={step}
+          onChange={(value) => onChange({ ...settings, [key]: value })}
+        />
+      ))}
+      {'seed' in settings && (
+        <button type="button" onClick={() => onChange({ ...settings, seed: randomSeed() })}>
+          <Sparkles size={13} /> Regenerate
+        </button>
+      )}
+    </>
+  )
+}
+
+function LightFields({
+  settings,
+  onChange,
+}: {
+  settings: LightSettings
+  onChange: (settings: LightSettings) => void
+}) {
+  const update = <Key extends keyof LightSettings>(key: Key, value: LightSettings[Key]) =>
+    onChange({ ...settings, [key]: value })
+  return (
+    <>
+      <label className="engine-field">
+        <span>Light type</span>
+        <select
+          value={settings.lightType}
+          onChange={(event) => update('lightType', event.target.value as LightSettings['lightType'])}
+        >
+          {LIGHT_TYPES.map((type) => (
+            <option key={type} value={type}>{type}</option>
+          ))}
+        </select>
+      </label>
+      <NumberField
+        label="Intensity"
+        value={settings.intensity}
+        min={LIGHT_LIMITS.intensity.min}
+        max={LIGHT_LIMITS.intensity.max}
+        step={5}
+        onChange={(value) => update('intensity', value)}
+      />
+      {RANGED_LIGHT_TYPES.includes(settings.lightType) && (
+        <NumberField
+          label="Range"
+          value={settings.distance}
+          min={LIGHT_LIMITS.distance.min}
+          max={LIGHT_LIMITS.distance.max}
+          step={1}
+          onChange={(value) => update('distance', value)}
+        />
+      )}
+      {ORBIT_LIGHT_TYPES.includes(settings.lightType) && (
+        <>
+          <NumberField
+            label="Orbit radius"
+            value={settings.orbitRadius}
+            min={LIGHT_LIMITS.orbitRadius.min}
+            max={LIGHT_LIMITS.orbitRadius.max}
+            step={0.5}
+            onChange={(value) => update('orbitRadius', value)}
+          />
+          <NumberField
+            label="Orbit speed (°/s)"
+            value={settings.orbitSpeed}
+            min={LIGHT_LIMITS.orbitSpeed.min}
+            max={LIGHT_LIMITS.orbitSpeed.max}
+            step={5}
+            onChange={(value) => update('orbitSpeed', value)}
+          />
+        </>
+      )}
+      {settings.lightType === 'spot' && (
+        <NumberField
+          label="Cone angle"
+          value={settings.angle}
+          min={LIGHT_LIMITS.angle.min}
+          max={LIGHT_LIMITS.angle.max}
+          step={5}
+          onChange={(value) => update('angle', value)}
+        />
+      )}
+    </>
+  )
+}
+
+function CharacterFields({
+  settings,
+  onChange,
+}: {
+  settings: CharacterSettings
+  onChange: (settings: CharacterSettings) => void
+}) {
+  const clips = MODEL_CATALOG[settings.modelId].clips
+  const clipSelect = (label: string, key: CharacterClipField) => (
+    <label key={key} className="engine-field">
+      <span>{label}</span>
+      <select
+        value={settings[key]}
+        onChange={(event) => onChange({ ...settings, [key]: event.target.value })}
+      >
+        <option value={AUTO_CLIP}>Auto</option>
+        {clips.map((clip) => (
+          <option key={clip} value={clip}>{clip}</option>
+        ))}
+      </select>
+    </label>
+  )
+  return (
+    <>
+      <label className="engine-field">
+        <span>Character model</span>
+        <select
+          value={settings.modelId}
+          onChange={(event) => onChange(clampCharacterSettings({ modelId: event.target.value }))}
+        >
+          {CHARACTER_MODEL_IDS.map((modelId) => (
+            <option key={modelId} value={modelId}>{MODEL_CATALOG[modelId].label}</option>
+          ))}
+        </select>
+      </label>
+      {CHARACTER_STATES.map(({ label, field }) => clipSelect(label, field))}
+      <NumberField
+        label="Inventory slots"
+        value={settings.inventory.slots}
+        min={INVENTORY_LIMITS.slots.min}
+        max={INVENTORY_LIMITS.slots.max}
+        step={1}
+        onChange={(slots) => onChange({ ...settings, inventory: { ...settings.inventory, slots } })}
+      />
+      <NumberField
+        label="Inventory tabs"
+        value={settings.inventory.tabNames.length}
+        min={INVENTORY_LIMITS.tabs.min}
+        max={INVENTORY_LIMITS.tabs.max}
+        step={1}
+        onChange={(count) =>
+          onChange({
+            ...settings,
+            inventory: { ...settings.inventory, tabNames: resizeInventoryTabs(settings.inventory.tabNames, count) },
+          })
+        }
+      />
+      <label className="engine-field">
+        <span>Camera speed {settings.cameraRotationSpeed.toFixed(1)}</span>
+        <input
+          type="range"
+          min={CAMERA_ROTATION_SPEED_LIMITS.min}
+          max={CAMERA_ROTATION_SPEED_LIMITS.max}
+          step={0.1}
+          value={settings.cameraRotationSpeed}
+          onChange={(event) => onChange({ ...settings, cameraRotationSpeed: Number(event.target.value) })}
+        />
+      </label>
+      <NumberField
+        label="Unspent points"
+        value={settings.unspentPoints}
+        min={UNSPENT_POINTS_LIMITS.min}
+        max={UNSPENT_POINTS_LIMITS.max}
+        step={1}
+        onChange={(unspentPoints) => onChange({ ...settings, unspentPoints })}
+      />
+      {ATTRIBUTES.map(({ id, label }) => (
+        <NumberField
+          key={id}
+          label={label}
+          value={settings.attributes[id]}
+          min={ATTRIBUTE_LIMITS.min}
+          max={ATTRIBUTE_LIMITS.max}
+          step={1}
+          onChange={(value) => onChange({ ...settings, attributes: { ...settings.attributes, [id]: value } })}
+        />
+      ))}
+      {QUICK_SLOT_CATEGORIES.map(({ id, label, dpad }) => (
+        <label key={id} className="engine-field">
+          <span>{label} (D-pad {dpad})</span>
+          <textarea
+            rows={3}
+            placeholder="One item per line"
+            defaultValue={settings.loadout[id].join('\n')}
+            onBlur={(event) =>
+              onChange({ ...settings, loadout: { ...settings.loadout, [id]: event.target.value.split('\n') } })
+            }
+          />
+        </label>
+      ))}
+      {settings.inventory.tabNames.map((name, index) => (
+        <label key={index} className="engine-field">
+          <span>Tab {index + 1} name</span>
+          <input
+            value={name}
+            maxLength={TAB_NAME_MAX_LENGTH}
+            onChange={(event) => {
+              const tabNames = settings.inventory.tabNames.map((current, tab) => (tab === index ? event.target.value : current))
+              onChange({ ...settings, inventory: { ...settings.inventory, tabNames } })
+            }}
+          />
+        </label>
+      ))}
+    </>
+  )
+}
+
+function WaterFields({
+  settings,
+  onChange,
+}: {
+  settings: WaterSettings
+  onChange: (settings: WaterSettings) => void
+}) {
+  const isLake = settings.shape === 'lake'
+  return (
+    <>
+      <label className="engine-field">
+        <span>Shape</span>
+        <select
+          value={settings.shape}
+          onChange={(event) => onChange({ ...settings, shape: event.target.value as WaterSettings['shape'] })}
+        >
+          {WATER_SHAPES.map((shape) => (
+            <option key={shape} value={shape}>{shape}</option>
+          ))}
+        </select>
+      </label>
+      <NumberField
+        label={isLake ? 'Lake radius' : 'River length'}
+        value={settings.size}
+        min={WATER_LIMITS.size.min}
+        max={WATER_LIMITS.size.max}
+        step={1}
+        onChange={(size) => onChange({ ...settings, size })}
+      />
+      {!isLake && (
+        <>
+          <NumberField
+            label="River width"
+            value={settings.width}
+            min={WATER_LIMITS.width.min}
+            max={WATER_LIMITS.width.max}
+            step={0.5}
+            onChange={(width) => onChange({ ...settings, width })}
+          />
+          <NumberField
+            label="Wiggle"
+            value={settings.wiggle}
+            min={WATER_LIMITS.wiggle.min}
+            max={WATER_LIMITS.wiggle.max}
+            step={0.05}
+            onChange={(wiggle) => onChange({ ...settings, wiggle })}
+          />
+        </>
+      )}
+      <NumberField label="Seed" value={settings.seed} step={1} onChange={(seed) => onChange({ ...settings, seed })} />
+      <button type="button" onClick={() => onChange({ ...settings, seed: randomSeed() })}>
+        <Sparkles size={13} /> Regenerate
+      </button>
+    </>
+  )
 }
 
 function TreeFields({
@@ -116,8 +584,16 @@ function TreeFields({
         step={10}
         onChange={(value) => update('leafCount', value)}
       />
+      <NumberField
+        label="Leaf size"
+        value={settings.leafSize}
+        min={TREE_LIMITS.leafSize.min}
+        max={TREE_LIMITS.leafSize.max}
+        step={0.05}
+        onChange={(value) => update('leafSize', value)}
+      />
       <NumberField label="Tree seed" value={settings.seed} step={1} onChange={(value) => update('seed', value)} />
-      <button type="button" onClick={() => update('seed', Math.floor(Math.random() * SEED_RANGE))}>
+      <button type="button" onClick={() => update('seed', randomSeed())}>
         <Sparkles size={13} /> Regenerate
       </button>
     </>
@@ -301,6 +777,7 @@ export default function GameEngineWorkbench() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [transformMode, setTransformMode] = useState<'translate' | 'rotate' | 'scale'>('translate')
   const [snapEnabled, setSnapEnabled] = useState(true)
+  const [selectionLocked, setSelectionLocked] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const updateProject = useCallback((recipe: (current: EngineProject) => EngineProject) => {
@@ -337,8 +814,11 @@ export default function GameEngineWorkbench() {
       const reader = new FileReader()
       reader.onload = () => {
         try {
-          const parsed = normalizeProject(JSON.parse(String(reader.result)) as EngineProject)
-          if (parsed.schemaVersion !== 1 || !parsed.world || !parsed.flow) throw new Error()
+          const raw = JSON.parse(String(reader.result)) as EngineProjectInput
+          if (!SUPPORTED_SCHEMA_VERSIONS.includes(raw.schemaVersion ?? 0) || !raw.world || !raw.flow) {
+            throw new Error('Unsupported world file')
+          }
+          const parsed = normalizeProject(raw)
           setProject(parsed)
           setNodes(parsed.flow.nodes)
           setEdges(parsed.flow.edges)
@@ -353,43 +833,78 @@ export default function GameEngineWorkbench() {
   )
 
   const generate = useCallback(() => {
+    const { seed, count, radius } = project.procedural
     const record: GenerationRecord = {
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
-      seed: project.procedural.seed,
-      count: project.procedural.count,
-      radius: project.procedural.radius,
+      seed,
+      count,
+      radius,
     }
-    updateProject((current) => ({
-      ...current,
-      procedural: { ...current.procedural, seed: current.procedural.seed + 1 },
-      generations: [record, ...current.generations].slice(0, 20),
-    }))
+    updateProject((current) => {
+      return {
+        ...current,
+        procedural: { ...current.procedural, seed: current.procedural.seed + 1 },
+        world: { ...current.world, ...scenarioFog(current.procedural) },
+        sceneObjects: replaceWithScenario(current.sceneObjects, current.procedural),
+        generations: [record, ...current.generations].slice(0, 20),
+      }
+    })
   }, [project.procedural, updateProject])
 
-  const updateWorld = (key: keyof EngineProject['world'], value: number) =>
+  const updateWorld = <Key extends keyof EngineProject['world']>(key: Key, value: EngineProject['world'][Key]) =>
     updateProject((current) => ({ ...current, world: { ...current.world, [key]: value } }))
 
-  const updateProcedural = (key: keyof EngineProject['procedural'], value: number | boolean) =>
+  const updateProcedural = (key: keyof EngineProject['procedural'], value: number) =>
     updateProject((current) => ({
       ...current,
       procedural: { ...current.procedural, [key]: value },
     }))
 
-  const createSceneObject = (kind: SceneObjectKind, position: [number, number, number]) => {
-    const sameKindCount = project.sceneObjects.filter((object) => object.kind === kind).length
+  const createSceneObject = (
+    kind: SceneObjectKind,
+    position: [number, number, number],
+    modelId?: string,
+  ) => {
+    const catalogModel = modelId ? MODEL_CATALOG[modelId] : undefined
+    if (kind === 'model' && !catalogModel) {
+      setSavedLabel('Unknown model')
+      return
+    }
+    const lightCount = project.sceneObjects.filter((object) => object.kind === 'light').length
+    if (kind === 'light' && lightCount >= MAX_SCENE_LIGHTS) {
+      setSavedLabel(`Light limit reached (${MAX_SCENE_LIGHTS})`)
+      return
+    }
+    const sameKindCount = project.sceneObjects.filter(
+      (object) => object.kind === kind && object.model?.modelId === modelId,
+    ).length
+    const label = catalogModel?.label ?? OBJECT_DEFAULTS[kind].label
     const object: EngineSceneObject = {
       id: crypto.randomUUID(),
-      name: `${OBJECT_DEFAULTS[kind].label} ${sameKindCount + 1}`,
+      name: `${label} ${sameKindCount + 1}`,
       kind,
-      position,
+      position: kind === 'light' ? [position[0], position[1] + LIGHT_SPAWN_HEIGHT, position[2]] : position,
       rotation: [0, 0, 0],
       scale: [1, 1, 1],
       color: OBJECT_DEFAULTS[kind].color,
       visible: true,
-      ...(kind === 'tree' && {
-        tree: { ...DEFAULT_TREE_SETTINGS, seed: Math.floor(Math.random() * SEED_RANGE) },
+      ...(kind === 'light' && { light: DEFAULT_LIGHT_SETTINGS }),
+      ...(catalogModel && modelId && {
+        model: { modelId, collider: catalogModel.defaultCollider },
       }),
+      ...(kind === 'tree' && {
+        tree: { ...DEFAULT_TREE_SETTINGS, seed: randomSeed() },
+      }),
+      ...(kind === 'grass' && { grass: { ...DEFAULT_GRASS_SETTINGS, seed: randomSeed() } }),
+      ...(kind === 'grass-plane' && { grassPlane: { ...DEFAULT_GRASS_PLANE_SETTINGS, seed: randomSeed() } }),
+      ...(kind === 'cave' && { cave: { ...DEFAULT_CAVE_SETTINGS, seed: randomSeed() } }),
+      ...(kind === 'house' && { house: DEFAULT_HOUSE_SETTINGS }),
+      ...(kind === 'rock' && { rock: { ...DEFAULT_ROCK_SETTINGS, seed: randomSeed() } }),
+      ...(kind === 'water' && { water: { ...DEFAULT_WATER_SETTINGS, seed: randomSeed() } }),
+      ...(kind === 'path' && { path: { ...DEFAULT_PATH_SETTINGS, seed: randomSeed() } }),
+      ...(kind === 'ocean' && { ocean: { ...DEFAULT_OCEAN_SETTINGS, seed: randomSeed() } }),
+      ...(kind === 'mountain' && { mountain: { ...DEFAULT_MOUNTAIN_SETTINGS, seed: randomSeed() } }),
       properties: {},
     }
     updateProject((current) => ({
@@ -490,19 +1005,20 @@ export default function GameEngineWorkbench() {
         </div>
         <div className="engine-section-label">ADD OBJECT</div>
         <div className="engine-object-palette">
-          {OBJECT_KINDS.map((kind) => (
+          {PALETTE_ITEMS.map(({ kind, label, modelId }) => (
             <button
-              key={kind}
+              key={modelId ?? kind}
               draggable
               onDragStart={(event) => {
                 event.dataTransfer.setData('application/x-world-object', kind)
+                event.dataTransfer.setData('application/x-world-model', modelId ?? '')
                 event.dataTransfer.effectAllowed = 'copy'
               }}
-              onDoubleClick={() => createSceneObject(kind, [0, -9.35, 0])}
-              title={`Drag ${kind} into the viewport`}
+              onDoubleClick={() => createSceneObject(kind, [0, -9.35, 0], modelId)}
+              title={`Drag ${label} into the viewport`}
             >
               <ObjectKindIcon kind={kind} size={16} />
-              <span>{kind}</span>
+              <span>{label}</span>
               <small>drag to map</small>
             </button>
           ))}
@@ -529,7 +1045,7 @@ export default function GameEngineWorkbench() {
             <Eye size={13} opacity={object.visible ? 1 : 0.3} />
           </button>
         ))}
-        {['Character', 'Physics Playground', 'Ocean', 'Pirate Ship'].map((name) => (
+        {['Physics Playground'].map((name) => (
           <button
             key={name}
             className={`engine-tree-row engine-tree-child ${selectedObject === name ? 'is-active' : ''}`}
@@ -597,18 +1113,30 @@ export default function GameEngineWorkbench() {
               aria-pressed={snapEnabled}
               onClick={() => setSnapEnabled((enabled) => !enabled)}
             >SNAP</button>
+            <button
+              type="button"
+              className={selectionLocked ? 'is-active' : ''}
+              aria-pressed={selectionLocked}
+              title="Block selecting objects in the viewport"
+              onClick={() => setSelectionLocked((locked) => !locked)}
+            >LOCK</button>
+            <button
+              type="button"
+              title="Deselect the current object and hide its gizmo"
+              disabled={!selectedSceneObject}
+              onClick={() => setSelectedObject('world')}
+            >DESELECT</button>
           </div>
         )}
         <div className="engine-world-frame">
           <BasicGamePhysics
             worldSettings={project.world}
-            proceduralSettings={project.procedural}
             editorMode
             isPlaying={isPlaying}
             debugColliders={project.debug.collisionShapes}
             sceneObjects={project.sceneObjects}
             selectedSceneObjectId={selectedSceneObject?.id}
-            onSelectSceneObject={isPlaying ? undefined : setSelectedObject}
+            onSelectSceneObject={isPlaying || selectionLocked ? undefined : setSelectedObject}
             onCreateSceneObject={isPlaying ? undefined : createSceneObject}
             onUpdateSceneObject={isPlaying ? undefined : updateSceneObject}
             transformMode={transformMode}
@@ -682,22 +1210,93 @@ export default function GameEngineWorkbench() {
                 updateSceneObject(selectedSceneObject.id, { scale: [value, value, value] })
               }
             />
+            {selectedSceneObject.light && (
+              <LightFields
+                settings={selectedSceneObject.light}
+                onChange={(light) => updateSceneObject(selectedSceneObject.id, { light })}
+              />
+            )}
+            {selectedSceneObject.grass && (
+              <NumericSettingsFields
+                fields={GRASS_FIELDS}
+                settings={selectedSceneObject.grass}
+                onChange={(grass) => updateSceneObject(selectedSceneObject.id, { grass })}
+              />
+            )}
+            {selectedSceneObject.grassPlane && (
+              <NumericSettingsFields
+                fields={GRASS_PLANE_FIELDS}
+                settings={selectedSceneObject.grassPlane}
+                onChange={(grassPlane) => updateSceneObject(selectedSceneObject.id, { grassPlane })}
+              />
+            )}
+            {selectedSceneObject.cave && (
+              <NumericSettingsFields
+                fields={CAVE_FIELDS}
+                settings={selectedSceneObject.cave}
+                onChange={(cave) => updateSceneObject(selectedSceneObject.id, { cave })}
+              />
+            )}
+            {selectedSceneObject.mountain && (
+              <NumericSettingsFields
+                fields={MOUNTAIN_FIELDS}
+                settings={selectedSceneObject.mountain}
+                onChange={(mountain) => updateSceneObject(selectedSceneObject.id, { mountain })}
+              />
+            )}
+            {selectedSceneObject.character && (
+              <CharacterFields
+                settings={selectedSceneObject.character}
+                onChange={(character) => updateSceneObject(selectedSceneObject.id, { character })}
+              />
+            )}
+            {selectedSceneObject.rock && (
+              <NumericSettingsFields
+                fields={ROCK_FIELDS}
+                settings={selectedSceneObject.rock}
+                onChange={(rock) => updateSceneObject(selectedSceneObject.id, { rock })}
+              />
+            )}
+            {selectedSceneObject.water && (
+              <WaterFields
+                settings={selectedSceneObject.water}
+                onChange={(water) => updateSceneObject(selectedSceneObject.id, { water })}
+              />
+            )}
+            {selectedSceneObject.path && (
+              <NumericSettingsFields
+                fields={PATH_FIELDS}
+                settings={selectedSceneObject.path}
+                onChange={(path) => updateSceneObject(selectedSceneObject.id, { path })}
+              />
+            )}
+            {selectedSceneObject.ocean && (
+              <NumericSettingsFields
+                fields={OCEAN_FIELDS}
+                settings={selectedSceneObject.ocean}
+                onChange={(ocean) => updateSceneObject(selectedSceneObject.id, { ocean })}
+              />
+            )}
+            {selectedSceneObject.house && (
+              <NumericSettingsFields
+                fields={HOUSE_FIELDS}
+                settings={selectedSceneObject.house}
+                onChange={(house) => updateSceneObject(selectedSceneObject.id, { house })}
+              />
+            )}
             {selectedSceneObject.tree && (
               <TreeFields
                 settings={selectedSceneObject.tree}
                 onChange={(tree) => updateSceneObject(selectedSceneObject.id, { tree })}
               />
             )}
-            <label className="engine-field">
-              <span>{selectedSceneObject.kind === 'tree' ? 'Leaf color' : 'Color'}</span>
-              <input
-                type="color"
+            {!COLORLESS_KINDS.includes(selectedSceneObject.kind) && (
+              <ColorField
+                label={COLOR_LABELS[selectedSceneObject.kind] ?? 'Color'}
                 value={selectedSceneObject.color}
-                onChange={(event) =>
-                  updateSceneObject(selectedSceneObject.id, { color: event.target.value })
-                }
+                onChange={(color) => updateSceneObject(selectedSceneObject.id, { color })}
               />
-            </label>
+            )}
             <label className="engine-switch">
               <span>Visible</span>
               <input
@@ -708,21 +1307,23 @@ export default function GameEngineWorkbench() {
                 }
               />
             </label>
-            <button
-              type="button"
-              className="engine-delete-object"
-              onClick={() => {
-                updateProject((current) => ({
-                  ...current,
-                  sceneObjects: current.sceneObjects.filter(
-                    ({ id }) => id !== selectedSceneObject.id,
-                  ),
-                }))
-                setSelectedObject('world')
-              }}
-            >
-              <Trash2 size={14} /> Delete object
-            </button>
+            {!NON_DELETABLE_KINDS.includes(selectedSceneObject.kind) && (
+              <button
+                type="button"
+                className="engine-delete-object"
+                onClick={() => {
+                  updateProject((current) => ({
+                    ...current,
+                    sceneObjects: current.sceneObjects.filter(
+                      ({ id }) => id !== selectedSceneObject.id,
+                    ),
+                  }))
+                  setSelectedObject('world')
+                }}
+              >
+                <Trash2 size={14} /> Delete object
+              </button>
+            )}
           </div>
         )}
         <div className="engine-inspector-group">
@@ -747,24 +1348,10 @@ export default function GameEngineWorkbench() {
         </div>
         <div className="engine-inspector-group">
           <h3>World settings</h3>
-          <NumberField
-            label="Ocean Y"
-            value={project.world.oceanLevel}
-            step={0.1}
-            onChange={(value) => updateWorld('oceanLevel', value)}
-          />
-          <NumberField
-            label="Ship Y"
-            value={project.world.shipHeight}
-            step={0.1}
-            onChange={(value) => updateWorld('shipHeight', value)}
-          />
-          <NumberField
-            label="Ship scale"
-            value={project.world.shipScale}
-            min={0.1}
-            step={0.1}
-            onChange={(value) => updateWorld('shipScale', value)}
+          <ColorField
+            label="Background color"
+            value={project.world.backgroundColor}
+            onChange={(color) => updateWorld('backgroundColor', color)}
           />
           <NumberField
             label="Fog near"
@@ -781,14 +1368,6 @@ export default function GameEngineWorkbench() {
         </div>
         <div className="engine-inspector-group">
           <h3>Procedural prototype</h3>
-          <label className="engine-switch">
-            <span>Render markers</span>
-            <input
-              type="checkbox"
-              checked={project.procedural.enabled}
-              onChange={(event) => updateProcedural('enabled', event.target.checked)}
-            />
-          </label>
           <NumberField
             label="Seed"
             value={project.procedural.seed}
@@ -796,25 +1375,53 @@ export default function GameEngineWorkbench() {
             onChange={(value) => updateProcedural('seed', value)}
           />
           <NumberField
-            label="Count"
+            label="Props"
             value={project.procedural.count}
-            min={0}
-            max={80}
+            min={SCENARIO_LIMITS.count.min}
+            max={SCENARIO_LIMITS.count.max}
             onChange={(value) => updateProcedural('count', value)}
           />
           <NumberField
-            label="Radius"
+            label="Size"
             value={project.procedural.radius}
-            min={2}
-            max={40}
+            min={SCENARIO_LIMITS.radius.min}
+            max={SCENARIO_LIMITS.radius.max}
             onChange={(value) => updateProcedural('radius', value)}
           />
+          <NumberField
+            label="Paths"
+            value={project.procedural.pathCount}
+            min={SCENARIO_LIMITS.pathCount.min}
+            max={SCENARIO_LIMITS.pathCount.max}
+            onChange={(value) => updateProcedural('pathCount', value)}
+          />
+          <NumberField
+            label="Relief"
+            value={project.procedural.relief}
+            min={SCENARIO_LIMITS.relief.min}
+            max={SCENARIO_LIMITS.relief.max}
+            onChange={(value) => updateProcedural('relief', value)}
+          />
+          <NumberField
+            label="Lakes"
+            value={project.procedural.lakeCount}
+            min={SCENARIO_LIMITS.lakeCount.min}
+            max={SCENARIO_LIMITS.lakeCount.max}
+            onChange={(value) => updateProcedural('lakeCount', value)}
+          />
+          <NumberField
+            label="Rivers"
+            value={project.procedural.riverCount}
+            min={SCENARIO_LIMITS.riverCount.min}
+            max={SCENARIO_LIMITS.riverCount.max}
+            onChange={(value) => updateProcedural('riverCount', value)}
+          />
           <button type="button" className="engine-generate" onClick={generate}>
-            <Sparkles size={15} /> Generate snapshot
+            <Sparkles size={15} /> Generate scenario
           </button>
           <p className="engine-hint">
-            A neutral seeded scatter for now. The recipe can later become terrain, rooms, islands or
-            encounters without changing the JSON contract.
+            Builds terraced ground cells with cliffs down to the sea, paths from the spawn, separated lakes and rivers, horizon mountains, a large ocean below with distant ships, and rocks, trees, grass, caves, houses and
+            mountains kept clear of the paths. Generating replaces every object except the character and lights, and builds the ground under the character.
           </p>
         </div>
       </aside>

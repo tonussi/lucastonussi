@@ -17,6 +17,14 @@ test('tree generation is deterministic per seed and differs across seeds', () =>
   assert.notDeepEqual(generateTree({ ...settings, seed: 3 }), generateTree({ ...settings, seed: 4 }))
 })
 
+test('leaf size scales the generated leaves and is clamped', () => {
+  const small = generateTree({ leafCount: 20, leafSize: 0.1, seed: 5 })
+  const large = generateTree({ leafCount: 20, leafSize: 0.8, seed: 5 })
+  assert.ok(small.leaves.every(({ size }) => size <= 0.1 * 1.5 + 1e-9))
+  assert.ok(large.leaves.every(({ size }) => size >= 0.8 * 0.5 - 1e-9))
+  assert.equal(clampTreeSettings({ leafSize: 99 }).leafSize, TREE_LIMITS.leafSize.max)
+})
+
 test('tree settings are clamped to safe limits', () => {
   const clamped = clampTreeSettings({ height: 999, branchCount: -3, leafCount: 1e6, seed: 1.4 })
   assert.equal(clamped.height, TREE_LIMITS.height.max)
@@ -35,7 +43,7 @@ test('tree objects round-trip through the serialized project and legacy trees ge
     scale: [1, 1, 1],
     color: '#4f9a45',
     visible: true,
-    tree: { height: 5, branchCount: 9, leafCount: 80, seed: 11 },
+    tree: { height: 5, branchCount: 9, leafCount: 80, leafSize: 0.4, seed: 11 },
     properties: {},
   }
   const restored = normalizeProject(JSON.parse(serializeProject({ ...defaultEngineProject, sceneObjects: [tree] })))

@@ -1,0 +1,139 @@
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import {
+  AUTO_CLIP,
+  clampCharacterSettings,
+  DEFAULT_CHARACTER_SETTINGS,
+  resolveClipName,
+} from './character-settings.ts'
+import { MODEL_CATALOG } from './model-catalog.ts'
+import { normalizeSceneObject } from './project-model.ts'
+import { createBuiltinObjects } from './builtin-objects.ts'
+
+const PIRATE_CLIPS = MODEL_CATALOG['skeleton-pirate'].clips
+
+test('unknown models and clips fall back to the default model and automatic clips', () => {
+  const clamped = clampCharacterSettings({ modelId: 'rabbit', idleClip: 'nope', movingClip: 'nope' })
+  assert.deepEqual(clamped, DEFAULT_CHARACTER_SETTINGS)
+})
+
+test('clips are resolved by choice, then by name, then by position', () => {
+  assert.equal(resolveClipName(PIRATE_CLIPS, 'idle'), PIRATE_CLIPS[0])
+  assert.equal(resolveClipName(PIRATE_CLIPS, 'moving'), PIRATE_CLIPS[1])
+  assert.equal(resolveClipName(PIRATE_CLIPS, 'idle', PIRATE_CLIPS[1]), PIRATE_CLIPS[1])
+  assert.equal(resolveClipName(['Walk', 'Idle'], 'idle'), 'Idle')
+  assert.equal(resolveClipName(['A', 'B'], 'moving'), 'B')
+  assert.equal(resolveClipName(['Only'], 'moving', AUTO_CLIP), 'Only')
+  assert.equal(resolveClipName([], 'idle'), undefined)
+})
+
+test('the built-in character carries settings and legacy characters receive defaults', () => {
+  const character = createBuiltinObjects().find(({ kind }) => kind === 'character')!
+  assert.deepEqual(character.character, DEFAULT_CHARACTER_SETTINGS)
+  assert.deepEqual(normalizeSceneObject({ ...character, character: undefined }).character, DEFAULT_CHARACTER_SETTINGS)
+})
+
+import { clampInventorySettings, DEFAULT_INVENTORY_SETTINGS, INVENTORY_LIMITS, resizeInventoryTabs, TAB_NAME_MAX_LENGTH } from './character-settings.ts'
+
+test('inventory slots and tabs are clamped and tabs always have names', () => {
+  const clamped = clampInventorySettings({ slots: 1e6, tabNames: Array.from({ length: 50 }, () => 'x') })
+  assert.equal(clamped.slots, INVENTORY_LIMITS.slots.max)
+  assert.equal(clamped.tabNames.length, INVENTORY_LIMITS.tabs.max)
+  assert.equal(clampInventorySettings({ slots: 0 }).slots, INVENTORY_LIMITS.slots.min)
+  assert.deepEqual(clampInventorySettings({ tabNames: [] }).tabNames, ['Tab 1'])
+  assert.deepEqual(clampInventorySettings(undefined), DEFAULT_INVENTORY_SETTINGS)
+})
+
+test('resizing tabs keeps existing names, names new tabs and limits name length', () => {
+  assert.deepEqual(resizeInventoryTabs(['Bag', ' '], 3), ['Bag', 'Tab 2', 'Tab 3'])
+  assert.deepEqual(resizeInventoryTabs(['Bag', 'Gear'], 1), ['Bag'])
+  assert.equal(resizeInventoryTabs(['x'.repeat(100)], 1)[0].length, TAB_NAME_MAX_LENGTH)
+})
+
+import { createRuntimeState, spendAttributePoint, advanceResources, canSprint, cycleQuickSlot, resourceMaxima } from './character-runtime.ts'
+import { ATTRIBUTE_LIMITS, ATTRIBUTES, STAMINA_ID } from './character-stats.ts'
+import { QUICK_SLOT_CATEGORIES, QUICK_SLOT_LIMITS } from './quick-slots.ts'
+
+test('attributes and loadout are clamped to the registries', () => {
+  const clamped = clampCharacterSettings({
+    attributes: { strength: 1e6, bogus: 5 } as never,
+    unspentPoints: -3,
+    loadout: { spells: ['Fire', '  ', 'x'.repeat(100)], bogus: ['a'] } as never,
+  })
+  assert.equal(clamped.attributes.strength, ATTRIBUTE_LIMITS.max)
+  assert.deepEqual(Object.keys(clamped.attributes), ATTRIBUTES.map(({ id }) => id))
+  assert.equal(clamped.unspentPoints, 0)
+  assert.equal(clamped.loadout.spells.length, 2)
+  assert.equal(clamped.loadout.spells[1].length, QUICK_SLOT_LIMITS.nameLength)
+  assert.deepEqual(Object.keys(clamped.loadout), QUICK_SLOT_CATEGORIES.map(({ id }) => id))
+})
+
+test('spending points raises attributes and the maximum of resources they scale', () => {
+  const state = createRuntimeState({ ...DEFAULT_CHARACTER_SETTINGS, unspentPoints: 1 })
+  const spent = spendAttributePoint(state, 'vitality')
+  assert.equal(spent.attributes.vitality, state.attributes.vitality + 1)
+  assert.equal(spent.unspentPoints, 0)
+  assert.ok(resourceMaxima(spent.attributes).hitPoints > resourceMaxima(state.attributes).hitPoints)
+  assert.equal(spendAttributePoint(spent, 'vitality'), spent)
+  assert.equal(spendAttributePoint(state, 'unknown'), state)
+})
+
+test('sprinting drains stamina to zero and blocks sprinting until it regenerates', () => {
+  const full = createRuntimeState(DEFAULT_CHARACTER_SETTINGS)
+  const drained = advanceResources(full, 1000, true)
+  assert.equal(drained.resources[STAMINA_ID], 0)
+  assert.equal(canSprint(drained), false)
+  const recovered = advanceResources(drained, 1, false)
+  assert.ok(canSprint(recovered))
+  assert.equal(advanceResources(full, 1000, false).resources[STAMINA_ID], full.resources[STAMINA_ID])
+})
+
+test('quick slots cycle through the loadout and wrap around', () => {
+  let state = createRuntimeState(DEFAULT_CHARACTER_SETTINGS)
+  state = cycleQuickSlot(state, 'spells', 2)
+  assert.equal(state.selectedItems.spells, 1)
+  state = cycleQuickSlot(state, 'spells', 2)
+  assert.equal(state.selectedItems.spells, 0)
+  assert.equal(cycleQuickSlot(state, 'spells', 0).selectedItems.spells, 0)
+})
+
+test('catalog default clips beat name matching, which could pick a pose clip', () => {
+  const clips = ['A_TPose', 'Idle_Loop', 'Jog_Fwd_Loop']
+  assert.equal(resolveClipName(clips, 'idle', AUTO_CLIP, 'Idle_Loop'), 'Idle_Loop')
+  assert.equal(resolveClipName(clips, 'idle', 'Jog_Fwd_Loop', 'Idle_Loop'), 'Jog_Fwd_Loop')
+  assert.equal(resolveClipName(clips, 'moving', AUTO_CLIP, 'Missing'), 'Jog_Fwd_Loop')
+})
+
+test('every catalog default clip exists in the model clip list', () => {
+  Object.values(MODEL_CATALOG).forEach(({ clips, defaultClips }) => {
+    Object.values(defaultClips ?? {}).forEach((clip) => assert.ok(clips.includes(clip)))
+  })
+})
+
+import { CAMERA_ROTATION_SPEED_LIMITS, DEFAULT_CAMERA_ROTATION_SPEED } from './character-settings.ts'
+
+test('camera rotation speed is clamped and defaults for older characters', () => {
+  assert.equal(clampCharacterSettings({ cameraRotationSpeed: 1e6 }).cameraRotationSpeed, CAMERA_ROTATION_SPEED_LIMITS.max)
+  assert.equal(clampCharacterSettings({ cameraRotationSpeed: -1 }).cameraRotationSpeed, CAMERA_ROTATION_SPEED_LIMITS.min)
+  assert.equal(clampCharacterSettings({}).cameraRotationSpeed, DEFAULT_CAMERA_ROTATION_SPEED)
+})
+
+import { characterStateFor } from './character-settings.ts'
+
+test('character state follows rolling, then air movement, then ground movement', () => {
+  const ground = { rolling: false, grounded: true, verticalSpeed: 0, moving: false }
+  assert.equal(characterStateFor(ground), 'idle')
+  assert.equal(characterStateFor({ ...ground, moving: true }), 'moving')
+  assert.equal(characterStateFor({ ...ground, rolling: true, moving: true }), 'rolling')
+  assert.equal(characterStateFor({ ...ground, grounded: false, verticalSpeed: 5 }), 'jumping')
+  assert.equal(characterStateFor({ ...ground, grounded: false, verticalSpeed: -1 }), 'falling')
+})
+
+test('roll, jump and fall clips resolve by name and fall back to ground clips', () => {
+  const clips = ['Idle_Loop', 'Jog_Fwd_Loop', 'Roll', 'Jump_Start', 'Jump_Loop']
+  assert.equal(resolveClipName(clips, 'rolling'), 'Roll')
+  assert.equal(resolveClipName(clips, 'jumping'), 'Jump_Start')
+  assert.equal(resolveClipName(clips, 'falling'), 'Jump_Loop')
+  assert.equal(resolveClipName(PIRATE_CLIPS, 'rolling'), PIRATE_CLIPS[1])
+  assert.equal(resolveClipName(PIRATE_CLIPS, 'jumping'), PIRATE_CLIPS[0])
+})

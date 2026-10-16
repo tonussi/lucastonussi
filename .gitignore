@@ -7,3 +7,6 @@
 
 # Chrome DevTools
 com.chrome.devtools.json
+
+# Assets not used yet
+/public/assets/backlog/

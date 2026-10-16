@@ -8,7 +8,7 @@
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
-    "test:engine": "node --experimental-strip-types --test app/components/game-engine/project-model.test.ts app/components/game-engine/tree-generator.test.ts"
+    "test:engine": "node --experimental-strip-types --test app/components/game-engine/project-model.test.ts app/components/game-engine/tree-generator.test.ts app/components/game-engine/light-settings.test.ts app/components/game-engine/character-settings.test.ts app/components/game-engine/world-save.test.ts app/components/game-engine/structures.test.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
@@ -35,6 +35,7 @@
     "postcss": "^8.5.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-colorful": "^5.7.0",
     "react-floating-whatsapp": "^5.0.8",
     "react-hook-form": "^7.62.0",
     "react-i18next": "^15.5.3",

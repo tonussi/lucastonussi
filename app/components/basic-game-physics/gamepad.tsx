@@ -18,6 +18,12 @@ export type GamepadState = {
   y: boolean
   lb: boolean
   rb: boolean
+  start: boolean
+  select: boolean
+  dpadUp: boolean
+  dpadDown: boolean
+  dpadLeft: boolean
+  dpadRight: boolean
 }
 
 const emptyState: GamepadState = {
@@ -34,6 +40,12 @@ const emptyState: GamepadState = {
   y: false,
   lb: false,
   rb: false,
+  start: false,
+  select: false,
+  dpadUp: false,
+  dpadDown: false,
+  dpadLeft: false,
+  dpadRight: false,
 }
 
 const applyDeadzone = (v: number, dz = DEADZONE) => {
@@ -74,6 +86,12 @@ const useGamepad = () => {
         y: !!(pad.buttons[3]?.pressed),
         lb: !!(pad.buttons[4]?.pressed),
         rb: !!(pad.buttons[5]?.pressed),
+        start: !!(pad.buttons[9]?.pressed),
+        select: !!(pad.buttons[8]?.pressed),
+        dpadUp: !!(pad.buttons[12]?.pressed),
+        dpadDown: !!(pad.buttons[13]?.pressed),
+        dpadLeft: !!(pad.buttons[14]?.pressed),
+        dpadRight: !!(pad.buttons[15]?.pressed),
       }
       setState(next)
       rafRef.current = requestAnimationFrame(tick)

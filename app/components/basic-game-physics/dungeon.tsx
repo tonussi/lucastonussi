@@ -7,7 +7,7 @@ const DungeonScene = ({ active }: { active: boolean }) => {
   useEffect(() => {
     const checkFbxExists = async () => {
       try {
-        const response = await fetch('/models/dungeons/dungeon.glb')
+        const response = await fetch('/assets/consolidated/dungeons/dungeon.glb')
         setGlbExists(response.ok)
       } catch (error) {
         console.error('Error checking FBX file:', error)
@@ -18,7 +18,7 @@ const DungeonScene = ({ active }: { active: boolean }) => {
   }, [])
 
   if (!glbExists) {
-    const gltf = useGLTF('/models/dungeons/dungeon.glb')
+    const gltf = useGLTF('/assets/consolidated/dungeons/dungeon.glb')
     // const nodes = gltf.nodes
     return active && <primitive object={gltf.scene} scale={0.01} position={[0, 5, 50]} />
   }

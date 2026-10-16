@@ -16,9 +16,9 @@ function Loader() {
 const SteeringWheel = () => {
   const mesh = useRef<THREE.InstancedMesh>(null!)
 
-  const wheel = useLoader(OBJLoader, '/models/steering/shape.obj')
+  const wheel = useLoader(OBJLoader, '/assets/consolidated/vehicles/steering/shape.obj')
 
-  // const material = useLoader(MTLLoader, '/models/steering/material.mtl')
+  // const material = useLoader(MTLLoader, '/assets/consolidated/vehicles/steering/material.mtl')
 
   wheel.traverse((child: THREE.Object3D) => {
     if (child instanceof THREE.Mesh && child.material) {

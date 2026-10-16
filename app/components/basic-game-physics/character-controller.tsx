@@ -2,12 +2,19 @@ import { useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, CapsuleCollider, RigidBody, useRapier } from '@react-three/rapier'
 import { useControls } from 'leva'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { Vector3 } from 'three'
 import { degToRad, MathUtils } from 'three/src/math/MathUtils.js'
 import type { GamepadState } from './gamepad'
-import Pirate from './pirate'
+import { characterStateFor, clampCharacterSettings, type CharacterState } from '../game-engine/character-settings'
+import type { CharacterSettings } from '../game-engine/types'
+import PlayerCharacter from './player-character'
+import type { CharacterRuntime } from './use-character-runtime'
+
+const CAMERA_PITCH_SPEED_RATIO = 0.75
+const ROLL_DURATION_SECONDS = 0.8
+const ROLL_SPEED = 10
 
 const normalizeAngle = (angle: number) => {
   while (angle > Math.PI) angle -= 2 * Math.PI
@@ -33,14 +40,19 @@ const lerpAngle = (start: number, end: number, t: number) => {
 export const CharacterController = ({
   refScene,
   gamepad,
-  enabled = true,
+  spawnPosition,
+  characterSettings,
+  runtime,
   onAttack,
 }: {
   refScene: React.RefObject<THREE.Scene>
   gamepad: GamepadState
-  enabled?: boolean
+  spawnPosition: [number, number, number]
+  characterSettings?: CharacterSettings
+  runtime: CharacterRuntime
   onAttack?: (position: [number, number, number]) => void
 }) => {
+  const clampedSettings = useMemo(() => clampCharacterSettings(characterSettings), [characterSettings])
   const { WALK_SPEED, RUN_SPEED, ROTATION_SPEED, JUMP_FORCE } = useControls('Character Control', {
     WALK_SPEED: { value: 2, min: 0.1, max: 4, step: 0.1 },
     RUN_SPEED: { value: 12, min: 12, max: 50, step: 0.1 },
@@ -64,7 +76,7 @@ export const CharacterController = ({
   const container = useRef<THREE.Group>(null!)
   const character = useRef<THREE.Group>(null!)
 
-  const [animationIndex, setAnimationIndex] = useState(0)
+  const [characterState, setCharacterState] = useState<CharacterState>('idle')
 
   const characterRotationTarget = useRef(0)
   const rotationTarget = useRef(0)
@@ -81,12 +93,13 @@ export const CharacterController = ({
   const grounded = useRef(true)
   const jumpCooldown = useRef(0)
   const prevYPressed = useRef(false)
+  const prevRollPressed = useRef(false)
+  const rollTimer = useRef(0)
   const prevAttackPressed = useRef(false)
   const rapierRay = useRef<any>(null)
   const { world, rapier } = useRapier()
 
   useFrame(({ camera }, delta) => {
-    if (!enabled) return
 
     if (rb.current) {
       const vel = rb.current.linvel()
@@ -106,21 +119,32 @@ export const CharacterController = ({
       movement.z += -gamepad.leftStickY
       movement.x += -gamepad.leftStickX
 
-      const runFromTrigger = gamepad.b
-      const run = !!(get().run || runFromTrigger)
+      const run = !!(get().run || gamepad.lb) && runtime.canSprint()
       const speed = run ? RUN_SPEED : WALK_SPEED
 
       if (movement.x !== 0) {
         rotationTarget.current += ROTATION_SPEED * Math.sign(movement.x)
       }
 
-      if (movement.x !== 0 || movement.z !== 0) {
+      const moving = movement.x !== 0 || movement.z !== 0
+      runtime.tick(delta, run && moving)
+
+      const rollPressed = Boolean(get().roll || gamepad.b)
+      if (rollPressed && !prevRollPressed.current && grounded.current && rollTimer.current === 0) {
+        rollTimer.current = ROLL_DURATION_SECONDS
+        if (moving) characterRotationTarget.current = Math.atan2(movement.x, movement.z)
+      }
+      prevRollPressed.current = rollPressed
+      const rolling = rollTimer.current > 0
+      rollTimer.current = Math.max(0, rollTimer.current - delta)
+
+      if (rolling) {
+        vel.x = Math.sin(rotationTarget.current + characterRotationTarget.current) * ROLL_SPEED
+        vel.z = Math.cos(rotationTarget.current + characterRotationTarget.current) * ROLL_SPEED
+      } else if (moving) {
         characterRotationTarget.current = Math.atan2(movement.x, movement.z)
         vel.x = Math.sin(rotationTarget.current + characterRotationTarget.current) * speed
         vel.z = Math.cos(rotationTarget.current + characterRotationTarget.current) * speed
-        setAnimationIndex(1)
-      } else {
-        setAnimationIndex(0)
       }
       character.current.rotation.y = lerpAngle(
         character.current.rotation.y,
@@ -163,6 +187,15 @@ export const CharacterController = ({
         jumpCooldown.current = 0.15
       }
 
+      setCharacterState(
+        characterStateFor({
+          rolling,
+          grounded: grounded.current,
+          verticalSpeed: rb.current.linvel().y,
+          moving,
+        }),
+      )
+
       const attackPressed = Boolean(get().attack || gamepad.rb)
       if (attackPressed && !prevAttackPressed.current) {
         const position = rb.current.translation()
@@ -176,8 +209,8 @@ export const CharacterController = ({
     }
 
     // CAMERA — Dark Souls style: orbit around player driven by right stick (inverted)
-    const yawSpeed = 2.4 // rad/sec at full stick
-    const pitchSpeed = 1.8
+    const yawSpeed = clampedSettings.cameraRotationSpeed
+    const pitchSpeed = yawSpeed * CAMERA_PITCH_SPEED_RATIO
     const maxPitch = Math.PI / 4
     rotationTarget.current += -gamepad.rightStickX * yawSpeed * delta
     cameraPitchTarget.current = MathUtils.clamp(
@@ -214,6 +247,7 @@ export const CharacterController = ({
       colliders={false}
       lockRotations
       ref={rb}
+      position={spawnPosition}
       mass={1}
       gravityScale={2.5}
     >
@@ -228,12 +262,7 @@ export const CharacterController = ({
           />
         </group>
         <group name="player-inner-group" ref={character}>
-          <Pirate
-            scale={0.1}
-            position-y={-0.25}
-            animation={animationIndex}
-            position={new Vector3(0, 0, 0)}
-          />
+          <PlayerCharacter settings={clampedSettings} state={characterState} />
         </group>
       </group>
       <BallCollider args={[0.8]} position={[0, 1.5, 0]} />

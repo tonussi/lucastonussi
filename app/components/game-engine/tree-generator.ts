@@ -1,15 +1,18 @@
+import { between, createRandom } from './seeded-random.ts'
 import type { TreeSettings } from './types.ts'
 
 export const TREE_LIMITS = {
   height: { min: 1, max: 20 },
   branchCount: { min: 0, max: 40 },
   leafCount: { min: 0, max: 600 },
+  leafSize: { min: 0.05, max: 2 },
 } as const
 
 export const DEFAULT_TREE_SETTINGS: TreeSettings = {
   height: 4,
   branchCount: 8,
   leafCount: 120,
+  leafSize: 0.25,
   seed: 1,
 }
 
@@ -23,10 +26,8 @@ const BRANCH_PITCH_MIN = 0.35
 const BRANCH_PITCH_MAX = 1.1
 const CROWN_RADIUS_RATIO = 0.4
 const CROWN_CENTER_RATIO = 0.8
-const LEAF_SIZE_RATIO = 0.06
 const LEAF_SIZE_VARIATION = 0.5
 const MIN_BRANCH_RADIUS = 0.01
-const UINT32_RANGE = 4294967296
 
 export type Vec3 = [number, number, number]
 
@@ -53,31 +54,18 @@ function clampInteger(value: number, min: number, max: number) {
 
 export function clampTreeSettings(settings: Partial<TreeSettings> = {}): TreeSettings {
   const merged = { ...DEFAULT_TREE_SETTINGS, ...settings }
-  const { height, branchCount, leafCount } = TREE_LIMITS
+  const { height, branchCount, leafCount, leafSize } = TREE_LIMITS
   return {
     height: Math.min(height.max, Math.max(height.min, merged.height)),
     branchCount: clampInteger(merged.branchCount, branchCount.min, branchCount.max),
     leafCount: clampInteger(merged.leafCount, leafCount.min, leafCount.max),
+    leafSize: Math.min(leafSize.max, Math.max(leafSize.min, merged.leafSize)),
     seed: Math.round(merged.seed),
   }
 }
 
-function createRandom(seed: number) {
-  let state = seed >>> 0
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0
-    let mixed = Math.imul(state ^ (state >>> 15), state | 1)
-    mixed ^= mixed + Math.imul(mixed ^ (mixed >>> 7), mixed | 61)
-    return ((mixed ^ (mixed >>> 14)) >>> 0) / UINT32_RANGE
-  }
-}
-
-function between(random: () => number, min: number, max: number) {
-  return min + random() * (max - min)
-}
-
 export function generateTree(input: Partial<TreeSettings>): GeneratedTree {
-  const { height, branchCount, leafCount, seed } = clampTreeSettings(input)
+  const { height, branchCount, leafCount, leafSize, seed } = clampTreeSettings(input)
   const random = createRandom(seed)
   const trunkRadius = height * TRUNK_RADIUS_RATIO
 
@@ -107,7 +95,7 @@ export function generateTree(input: Partial<TreeSettings>): GeneratedTree {
         anchorY + between(random, -spread, spread) + (anchors.length > 1 ? 0 : height * (CROWN_CENTER_RATIO - 1)),
         anchorZ + between(random, -spread, spread),
       ],
-      size: height * LEAF_SIZE_RATIO * between(random, 1 - LEAF_SIZE_VARIATION, 1 + LEAF_SIZE_VARIATION),
+      size: leafSize * between(random, 1 - LEAF_SIZE_VARIATION, 1 + LEAF_SIZE_VARIATION),
     }
   })
 

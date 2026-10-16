@@ -2,7 +2,7 @@ import { useGLTF } from '@react-three/drei'
 import { useEffect, useState } from 'react'
 import * as THREE from 'three'
 
-const MODEL_PATH = '/models/skeleton/pirate.gltf'
+const MODEL_PATH = '/assets/consolidated/characters/skeleton-pirate/pirate.gltf'
 
 // Custom hook for loading player model
 const usePlayerModel = () => {
