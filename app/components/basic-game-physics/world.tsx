@@ -8,7 +8,8 @@ import { Leva } from 'leva'
 import { Suspense, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import CameraFollower from './camera'
-import { CharacterController } from './character-controller'
+import { CharacterController, type PickupTarget } from './character-controller'
+import { clampPickupSettings } from '../game-engine/pickup-settings'
 import { GRAVITY } from './constants'
 import EditorCamera from './editor-camera'
 import EngineSceneObjects from './engine-scene-objects'
@@ -46,6 +47,11 @@ const keyboardMap = [
   { name: 'jump', keys: ['Space'] },
   { name: 'attack', keys: ['KeyF'] },
   { name: 'roll', keys: ['KeyE'] },
+  { name: 'guard', keys: ['KeyQ'] },
+  { name: 'skill', keys: ['KeyR'] },
+  { name: 'strongAttack', keys: ['KeyG'] },
+  { name: 'interact', keys: ['KeyT'] },
+  { name: 'useItem', keys: ['KeyX'] },
 ]
 
 interface BasicGamePhysicsProps {
@@ -95,6 +101,13 @@ export default function BasicGamePhysics({
     [characterObject?.character],
   )
   const runtime = useCharacterRuntime(characterSettings, gamepad, isPlaying)
+  const pickups = useMemo<PickupTarget[]>(
+    () =>
+      sceneObjects
+        .filter(({ kind, visible }) => kind === 'pickup' && visible)
+        .map((object) => ({ id: object.id, position: object.position, ...clampPickupSettings(object.pickup) })),
+    [sceneObjects],
+  )
   const characterSpawn = characterObject?.position ?? DEFAULT_CHARACTER_SPAWN
 
   const handleAttack = (position: [number, number, number]) => {
@@ -134,11 +147,11 @@ export default function BasicGamePhysics({
       {isPlaying && (
         <>
           <ResourceBars state={runtime.state} />
-          <QuickSlots state={runtime.state} loadout={characterSettings.loadout} />
+          <QuickSlots state={runtime.state} />
         </>
       )}
       {dialogs.active === 'inventory' && (
-        <InventoryDialog settings={characterSettings.inventory} onClose={dialogs.close} />
+        <InventoryDialog settings={characterSettings.inventory} owned={runtime.state.inventory} onClose={dialogs.close} />
       )}
       {dialogs.active === 'stats' && <StatsDialog runtime={runtime} onClose={dialogs.close} />}
       <KeyboardControls map={keyboardMap}>
@@ -171,6 +184,7 @@ export default function BasicGamePhysics({
                   editorEnabled={editorMode && !isPlaying}
                   transformMode={transformMode}
                   snapEnabled={snapEnabled}
+                  hiddenIds={isPlaying ? runtime.state.collected : undefined}
                 />
 
                 {isPlaying ? (
@@ -188,6 +202,7 @@ export default function BasicGamePhysics({
                     spawnPosition={characterSpawn}
                     characterSettings={characterSettings}
                     runtime={runtime}
+                    pickups={pickups}
                     onAttack={handleAttack}
                   />
                 )}

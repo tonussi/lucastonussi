@@ -1,17 +1,24 @@
 import { useState } from 'react'
 import DialogFrame from './dialog-frame'
+import { ITEMS } from '../../game-engine/items'
+import { QUICK_SLOT_CATEGORIES } from '../../game-engine/quick-slots'
 import type { InventorySettings } from '../../game-engine/types'
 
 interface InventoryDialogProps {
   settings: InventorySettings
+  /** Quantity owned per item id. */
+  owned: Record<string, number>
   onClose: () => void
 }
 
 const SLOT_COLUMNS = 5
 
-export default function InventoryDialog({ settings, onClose }: InventoryDialogProps) {
+export default function InventoryDialog({ settings, owned, onClose }: InventoryDialogProps) {
   const [activeTab, setActiveTab] = useState(0)
   const selectedTab = Math.min(activeTab, settings.tabNames.length - 1)
+  const tabItems = ITEMS.filter(
+    ({ id, category }) => (owned[id] ?? 0) > 0 && QUICK_SLOT_CATEGORIES.findIndex((entry) => entry.id === category) % settings.tabNames.length === selectedTab,
+  )
 
   return (
     <DialogFrame label="Inventory" onClose={onClose}>
@@ -37,7 +44,19 @@ export default function InventoryDialog({ settings, onClose }: InventoryDialogPr
           style={{ gridTemplateColumns: `repeat(${SLOT_COLUMNS}, minmax(0, 1fr))` }}
         >
           {Array.from({ length: settings.slots }, (_, slot) => (
-            <div key={slot} className="aspect-square rounded border border-white/15 bg-black/40" />
+            <div
+              key={slot}
+              title={tabItems[slot]?.label}
+              className="flex aspect-square flex-col items-center justify-center rounded border border-white/15 bg-black/40 text-[10px]"
+              style={tabItems[slot] ? { borderColor: tabItems[slot].color } : undefined}
+            >
+              {tabItems[slot] && (
+                <>
+                  <span className="truncate px-1">{tabItems[slot].label}</span>
+                  <span className="text-white/70">×{owned[tabItems[slot].id]}</span>
+                </>
+              )}
+            </div>
           ))}
         </div>
     </DialogFrame>

@@ -20,6 +20,8 @@ export interface ProceduralSettings {
   riverCount: number
   /** Maximum number of terrace steps between ground cells; 0 is flat. */
   relief: number
+  /** Items lying on the ground around the spawn point. */
+  pickupCount: number
 }
 
 export interface EngineDebugSettings {
@@ -34,7 +36,7 @@ export interface GenerationRecord {
   radius: number
 }
 
-export type SceneObjectKind = 'cube' | 'sphere' | 'tree' | 'light' | 'model' | 'ocean' | 'character' | 'grass' | 'cave' | 'house' | 'mountain' | 'grass-plane' | 'rock' | 'path' | 'water'
+export type SceneObjectKind = 'cube' | 'sphere' | 'tree' | 'light' | 'model' | 'ocean' | 'character' | 'grass' | 'cave' | 'house' | 'mountain' | 'grass-plane' | 'rock' | 'path' | 'water' | 'pickup'
 
 export type JsonPrimitive = string | number | boolean | null
 export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue }
@@ -116,6 +118,11 @@ export interface WaterSettings {
   seed: number
 }
 
+export interface PickupSettings {
+  itemId: string
+  quantity: number
+}
+
 export interface CharacterSettings {
   inventory: InventorySettings
   /** Starting attribute values keyed by attribute id from the stats registry. */
@@ -124,6 +131,22 @@ export interface CharacterSettings {
   unspentPoints: number
   /** Camera orbit speed in radians per second at full stick deflection. */
   cameraRotationSpeed: number
+  /** Walking speed in units per second. */
+  walkSpeed: number
+  /** Running speed in units per second, used while holding the run button. */
+  runSpeed: number
+  /** Peak height of a jump in world units. */
+  jumpHeight: number
+  /** How long a roll lasts in seconds; the roll clip is sped up to fit. */
+  rollDuration: number
+  /** Distance covered by a roll in world units. */
+  rollDistance: number
+  /** Seconds the dodge button must be held before it turns into a run. */
+  dashHoldSeconds: number
+  /** Duration and resource cost per combat action id from the actions registry. */
+  actions: Record<string, { duration: number; cost: number }>
+  /** Which equipment is shown on the character. */
+  equipment: { sword: boolean; shield: boolean }
   /** Item names per quick-slot category id, cycled with the directional pad. */
   loadout: Record<string, string[]>
   modelId: string
@@ -205,6 +228,8 @@ export interface EngineSceneObject {
   ocean?: OceanSettings
   /** Present only when kind is 'rock'. */
   rock?: RockSettings
+  /** Present only when kind is 'pickup'. */
+  pickup?: PickupSettings
   /** Present only when kind is 'water'. */
   water?: WaterSettings
   /** Present only when kind is 'path'. */
@@ -246,6 +271,7 @@ export const defaultEngineProject: EngineProject = {
     lakeCount: 2,
     riverCount: 2,
     relief: 3,
+    pickupCount: 6,
   },
   debug: {
     collisionShapes: false,

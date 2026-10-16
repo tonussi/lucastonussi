@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 // Xbox controller mapping (standard)
 const DEADZONE = 0.15
 const TRIGGER_DEADZONE = 0.1
+const TRIGGER_PRESS_THRESHOLD = 0.5
 
 export type GamepadState = {
   connected: boolean
@@ -18,6 +19,8 @@ export type GamepadState = {
   y: boolean
   lb: boolean
   rb: boolean
+  lt: boolean
+  rt: boolean
   start: boolean
   select: boolean
   dpadUp: boolean
@@ -40,6 +43,8 @@ const emptyState: GamepadState = {
   y: false,
   lb: false,
   rb: false,
+  lt: false,
+  rt: false,
   start: false,
   select: false,
   dpadUp: false,
@@ -86,6 +91,8 @@ const useGamepad = () => {
         y: !!(pad.buttons[3]?.pressed),
         lb: !!(pad.buttons[4]?.pressed),
         rb: !!(pad.buttons[5]?.pressed),
+        lt: (pad.buttons[6]?.value ?? 0) > TRIGGER_PRESS_THRESHOLD,
+        rt: (pad.buttons[7]?.value ?? 0) > TRIGGER_PRESS_THRESHOLD,
         start: !!(pad.buttons[9]?.pressed),
         select: !!(pad.buttons[8]?.pressed),
         dpadUp: !!(pad.buttons[12]?.pressed),

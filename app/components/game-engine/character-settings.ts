@@ -1,3 +1,4 @@
+import { clampActionTunings, defaultActionTunings } from './character-actions.ts'
 import { CHARACTER_MODEL_IDS, DEFAULT_CHARACTER_MODEL_ID, MODEL_CATALOG } from './model-catalog.ts'
 import {
   ATTRIBUTE_LIMITS,
@@ -54,6 +55,19 @@ export const TAB_NAME_MAX_LENGTH = 24
 
 export const CAMERA_ROTATION_SPEED_LIMITS = { min: 0.5, max: 10 } as const
 export const DEFAULT_CAMERA_ROTATION_SPEED = 4.5
+export const WALK_SPEED_LIMITS = { min: 1, max: 20 } as const
+export const RUN_SPEED_LIMITS = { min: 2, max: 50 } as const
+export const JUMP_HEIGHT_LIMITS = { min: 0.5, max: 40 } as const
+export const DEFAULT_JUMP_HEIGHT = 12
+export const ROLL_DURATION_LIMITS = { min: 0.15, max: 2 } as const
+export const ROLL_DISTANCE_LIMITS = { min: 0.5, max: 30 } as const
+export const DEFAULT_ROLL_DURATION = 0.45
+export const DEFAULT_ROLL_DISTANCE = 5
+export const DASH_HOLD_LIMITS = { min: 0.05, max: 1 } as const
+export const DEFAULT_DASH_HOLD_SECONDS = 0.2
+export const DEFAULT_EQUIPMENT = { sword: true, shield: true }
+export const DEFAULT_WALK_SPEED = 6
+export const DEFAULT_RUN_SPEED = 14
 
 export const DEFAULT_INVENTORY_SETTINGS: InventorySettings = {
   slots: 20,
@@ -113,6 +127,14 @@ export const DEFAULT_CHARACTER_SETTINGS: CharacterSettings = {
   attributes: clampAttributes(),
   unspentPoints: DEFAULT_UNSPENT_POINTS,
   cameraRotationSpeed: DEFAULT_CAMERA_ROTATION_SPEED,
+  walkSpeed: DEFAULT_WALK_SPEED,
+  runSpeed: DEFAULT_RUN_SPEED,
+  jumpHeight: DEFAULT_JUMP_HEIGHT,
+  rollDuration: DEFAULT_ROLL_DURATION,
+  rollDistance: DEFAULT_ROLL_DISTANCE,
+  dashHoldSeconds: DEFAULT_DASH_HOLD_SECONDS,
+  actions: defaultActionTunings(),
+  equipment: { ...DEFAULT_EQUIPMENT },
   loadout: clampLoadout(),
   modelId: DEFAULT_CHARACTER_MODEL_ID,
   ...clampClips(),
@@ -135,6 +157,17 @@ export function clampCharacterSettings(settings: Partial<CharacterSettings> = {}
       settings.cameraRotationSpeed ?? DEFAULT_CAMERA_ROTATION_SPEED,
       CAMERA_ROTATION_SPEED_LIMITS,
     ),
+    walkSpeed: clampRange(settings.walkSpeed ?? DEFAULT_WALK_SPEED, WALK_SPEED_LIMITS),
+    runSpeed: clampRange(settings.runSpeed ?? DEFAULT_RUN_SPEED, RUN_SPEED_LIMITS),
+    jumpHeight: clampRange(settings.jumpHeight ?? DEFAULT_JUMP_HEIGHT, JUMP_HEIGHT_LIMITS),
+    rollDuration: clampRange(settings.rollDuration ?? DEFAULT_ROLL_DURATION, ROLL_DURATION_LIMITS),
+    rollDistance: clampRange(settings.rollDistance ?? DEFAULT_ROLL_DISTANCE, ROLL_DISTANCE_LIMITS),
+    dashHoldSeconds: clampRange(settings.dashHoldSeconds ?? DEFAULT_DASH_HOLD_SECONDS, DASH_HOLD_LIMITS),
+    actions: clampActionTunings(settings.actions),
+    equipment: {
+      sword: settings.equipment?.sword ?? DEFAULT_EQUIPMENT.sword,
+      shield: settings.equipment?.shield ?? DEFAULT_EQUIPMENT.shield,
+    },
     loadout: clampLoadout(settings.loadout),
   }
 }

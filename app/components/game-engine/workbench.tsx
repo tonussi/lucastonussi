@@ -62,6 +62,7 @@ import {
   type CharacterSettings,
   type MountainSettings,
   type OceanSettings,
+  type PickupSettings,
   type PathSettings,
   type RockSettings,
   type WaterSettings,
@@ -81,11 +82,19 @@ import { DEFAULT_WATER_SETTINGS, WATER_LIMITS, WATER_SHAPES } from './water-gene
 import { DEFAULT_ROCK_SETTINGS, ROCK_LIMITS } from './rock-generator'
 import { replaceWithScenario, SCENARIO_LIMITS, scenarioFog } from './scenario-generator'
 import { CHARACTER_MODEL_IDS, MODEL_CATALOG } from './model-catalog'
+import { ACTION_COST_LIMITS, ACTION_DURATION_LIMITS, ACTIONS } from './character-actions'
+import { ITEMS, PICKUP_QUANTITY_LIMITS } from './items'
 import { ATTRIBUTE_LIMITS, ATTRIBUTES, UNSPENT_POINTS_LIMITS } from './character-stats'
 import { QUICK_SLOT_CATEGORIES } from './quick-slots'
 import {
   AUTO_CLIP,
   CAMERA_ROTATION_SPEED_LIMITS,
+  DASH_HOLD_LIMITS,
+  JUMP_HEIGHT_LIMITS,
+  ROLL_DURATION_LIMITS,
+  ROLL_DISTANCE_LIMITS,
+  RUN_SPEED_LIMITS,
+  WALK_SPEED_LIMITS,
   CHARACTER_STATES,
   type CharacterClipField,
   clampCharacterSettings,
@@ -163,6 +172,7 @@ const OBJECT_DEFAULTS: Record<SceneObjectKind, { label: string; color: string }>
   rock: { label: 'Rock', color: '#8b8780' },
   path: { label: 'Path', color: '#8a7152' },
   water: { label: 'Water', color: '#2f7fb8' },
+  pickup: { label: 'Pickup', color: '#ffd166' },
 }
 
 const COLOR_LABELS: Partial<Record<SceneObjectKind, string>> = {
@@ -176,6 +186,7 @@ const COLOR_LABELS: Partial<Record<SceneObjectKind, string>> = {
   rock: 'Rock color',
   path: 'Path color',
   water: 'Water color',
+  pickup: 'Fallback color',
 }
 
 const SEED_RANGE = 100000
@@ -194,6 +205,7 @@ function ObjectKindIcon({ kind, size }: { kind: SceneObjectKind; size: number })
   if (kind === 'model') return <Package size={size} />
   if (kind === 'ocean') return <Waves size={size} />
   if (kind === 'rock') return <Gem size={size} />
+  if (kind === 'pickup') return <Package size={size} />
   if (kind === 'water') return <Droplets size={size} />
   if (kind === 'path') return <Route size={size} />
   if (kind === 'character') return <PersonStanding size={size} />
@@ -445,6 +457,86 @@ function CharacterFields({
         />
       </label>
       <NumberField
+        label="Walk speed"
+        value={settings.walkSpeed}
+        min={WALK_SPEED_LIMITS.min}
+        max={WALK_SPEED_LIMITS.max}
+        step={0.5}
+        onChange={(walkSpeed) => onChange({ ...settings, walkSpeed })}
+      />
+      <NumberField
+        label="Run speed"
+        value={settings.runSpeed}
+        min={RUN_SPEED_LIMITS.min}
+        max={RUN_SPEED_LIMITS.max}
+        step={0.5}
+        onChange={(runSpeed) => onChange({ ...settings, runSpeed })}
+      />
+      <NumberField
+        label="Jump height"
+        value={settings.jumpHeight}
+        min={JUMP_HEIGHT_LIMITS.min}
+        max={JUMP_HEIGHT_LIMITS.max}
+        step={0.5}
+        onChange={(jumpHeight) => onChange({ ...settings, jumpHeight })}
+      />
+      <NumberField
+        label="Roll duration"
+        value={settings.rollDuration}
+        min={ROLL_DURATION_LIMITS.min}
+        max={ROLL_DURATION_LIMITS.max}
+        step={0.05}
+        onChange={(rollDuration) => onChange({ ...settings, rollDuration })}
+      />
+      <NumberField
+        label="Roll distance"
+        value={settings.rollDistance}
+        min={ROLL_DISTANCE_LIMITS.min}
+        max={ROLL_DISTANCE_LIMITS.max}
+        step={0.5}
+        onChange={(rollDistance) => onChange({ ...settings, rollDistance })}
+      />
+      <NumberField
+        label="Hold B to run (s)"
+        value={settings.dashHoldSeconds}
+        min={DASH_HOLD_LIMITS.min}
+        max={DASH_HOLD_LIMITS.max}
+        step={0.05}
+        onChange={(dashHoldSeconds) => onChange({ ...settings, dashHoldSeconds })}
+      />
+      {ACTIONS.map(({ id, label, resourceId }) => (
+        <div key={id}>
+          <NumberField
+            label={`${label} duration`}
+            value={settings.actions[id].duration}
+            min={ACTION_DURATION_LIMITS.min}
+            max={ACTION_DURATION_LIMITS.max}
+            step={0.05}
+            onChange={(duration) => onChange({ ...settings, actions: { ...settings.actions, [id]: { ...settings.actions[id], duration } } })}
+          />
+          {resourceId && (
+            <NumberField
+              label={`${label} cost`}
+              value={settings.actions[id].cost}
+              min={ACTION_COST_LIMITS.min}
+              max={ACTION_COST_LIMITS.max}
+              step={1}
+              onChange={(cost) => onChange({ ...settings, actions: { ...settings.actions, [id]: { ...settings.actions[id], cost } } })}
+            />
+          )}
+        </div>
+      ))}
+      {(['sword', 'shield'] as const).map((piece) => (
+        <label key={piece} className="engine-switch">
+          <span>Show {piece}</span>
+          <input
+            type="checkbox"
+            checked={settings.equipment[piece]}
+            onChange={(event) => onChange({ ...settings, equipment: { ...settings.equipment, [piece]: event.target.checked } })}
+          />
+        </label>
+      ))}
+      <NumberField
         label="Unspent points"
         value={settings.unspentPoints}
         min={UNSPENT_POINTS_LIMITS.min}
@@ -546,6 +638,35 @@ function WaterFields({
       <button type="button" onClick={() => onChange({ ...settings, seed: randomSeed() })}>
         <Sparkles size={13} /> Regenerate
       </button>
+    </>
+  )
+}
+
+function PickupFields({
+  settings,
+  onChange,
+}: {
+  settings: PickupSettings
+  onChange: (settings: PickupSettings) => void
+}) {
+  return (
+    <>
+      <label className="engine-field">
+        <span>Item</span>
+        <select value={settings.itemId} onChange={(event) => onChange({ ...settings, itemId: event.target.value })}>
+          {ITEMS.map(({ id, label }) => (
+            <option key={id} value={id}>{label}</option>
+          ))}
+        </select>
+      </label>
+      <NumberField
+        label="Quantity"
+        value={settings.quantity}
+        min={PICKUP_QUANTITY_LIMITS.min}
+        max={PICKUP_QUANTITY_LIMITS.max}
+        step={1}
+        onChange={(quantity) => onChange({ ...settings, quantity })}
+      />
     </>
   )
 }
@@ -1257,6 +1378,12 @@ export default function GameEngineWorkbench() {
                 onChange={(rock) => updateSceneObject(selectedSceneObject.id, { rock })}
               />
             )}
+            {selectedSceneObject.pickup && (
+              <PickupFields
+                settings={selectedSceneObject.pickup}
+                onChange={(pickup) => updateSceneObject(selectedSceneObject.id, { pickup })}
+              />
+            )}
             {selectedSceneObject.water && (
               <WaterFields
                 settings={selectedSceneObject.water}
@@ -1401,6 +1528,13 @@ export default function GameEngineWorkbench() {
             min={SCENARIO_LIMITS.relief.min}
             max={SCENARIO_LIMITS.relief.max}
             onChange={(value) => updateProcedural('relief', value)}
+          />
+          <NumberField
+            label="Items on ground"
+            value={project.procedural.pickupCount}
+            min={SCENARIO_LIMITS.pickupCount.min}
+            max={SCENARIO_LIMITS.pickupCount.max}
+            onChange={(value) => updateProcedural('pickupCount', value)}
           />
           <NumberField
             label="Lakes"

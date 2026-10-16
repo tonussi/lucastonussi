@@ -1,9 +1,8 @@
-import type { CharacterRuntimeState } from '../../game-engine/character-runtime'
+import { quickSlotLabel, type CharacterRuntimeState } from '../../game-engine/character-runtime'
 import { QUICK_SLOT_CATEGORIES, type DpadDirection } from '../../game-engine/quick-slots'
 
 interface QuickSlotsProps {
   state: CharacterRuntimeState
-  loadout: Record<string, string[]>
 }
 
 const CROSS_POSITION: Record<DpadDirection, string> = {
@@ -14,11 +13,10 @@ const CROSS_POSITION: Record<DpadDirection, string> = {
 }
 const EMPTY_SLOT_LABEL = '—'
 
-export default function QuickSlots({ state, loadout }: QuickSlotsProps) {
+export default function QuickSlots({ state }: QuickSlotsProps) {
   return (
     <div className="pointer-events-none absolute bottom-3 left-3 z-40 grid grid-cols-3 grid-rows-3 gap-1">
       {QUICK_SLOT_CATEGORIES.map(({ id, label, dpad }) => {
-        const items = loadout[id] ?? []
         return (
           <div
             key={id}
@@ -26,7 +24,7 @@ export default function QuickSlots({ state, loadout }: QuickSlotsProps) {
             className={`${CROSS_POSITION[dpad]} flex h-14 w-20 flex-col items-center justify-center rounded border border-white/25 bg-black/60 px-1 text-center text-white`}
           >
             <span className="text-[8px] text-white/50">{label}</span>
-            <span className="truncate text-[10px]">{items[state.selectedItems[id]] ?? EMPTY_SLOT_LABEL}</span>
+            <span className="truncate text-[10px]">{quickSlotLabel(state, id) ?? EMPTY_SLOT_LABEL}</span>
           </div>
         )
       })}

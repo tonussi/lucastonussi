@@ -10,6 +10,7 @@ import { clampGrassSettings } from '../game-engine/grass-generator'
 import { buildHouse, clampHouseSettings } from '../game-engine/house-layout'
 import { clampGrassPlaneSettings, generateGrassPlane } from '../game-engine/grass-plane-generator'
 import { clampCharacterSettings } from '../game-engine/character-settings'
+import { clampPickupSettings } from '../game-engine/pickup-settings'
 import { clampPathSettings } from '../game-engine/path-generator'
 import { clampWaterSettings } from '../game-engine/water-generator'
 import { clampRockSettings } from '../game-engine/rock-generator'
@@ -18,6 +19,7 @@ import { clampMountainSettings, generateMountain } from '../game-engine/mountain
 import CaveMesh from './cave-mesh'
 import MountainMesh from './mountain-mesh'
 import PathMesh from './path-mesh'
+import PickupMesh from './pickup-mesh'
 import RockMesh from './rock-mesh'
 import WaterMesh from './water-mesh'
 import GrassMesh from './grass-mesh'
@@ -31,7 +33,7 @@ import TreeMesh from './tree-mesh'
 
 const HALF_HEIGHT_RATIO = 0.5
 const GIZMO_RELEASE_SELECTION_GUARD_MS = 300
-const NON_PHYSICAL_KINDS: EngineSceneObject['kind'][] = ['light', 'ocean', 'character', 'grass', 'path', 'water']
+const NON_PHYSICAL_KINDS: EngineSceneObject['kind'][] = ['light', 'ocean', 'character', 'grass', 'path', 'water', 'pickup']
 
 interface EngineSceneObjectsProps {
   objects: EngineSceneObject[]
@@ -39,6 +41,8 @@ interface EngineSceneObjectsProps {
   editorEnabled: boolean
   transformMode: 'translate' | 'rotate' | 'scale'
   snapEnabled: boolean
+  /** Objects hidden at runtime, such as pickups already collected. */
+  hiddenIds?: string[]
   onSelect?: (id: string) => void
   onUpdate?: (id: string, patch: Partial<EngineSceneObject>) => void
 }
@@ -76,6 +80,10 @@ function ObjectMesh({ object, selected, onSelect, editorEnabled }: {
 
   if (object.kind === 'rock') {
     return <RockMesh settings={clampRockSettings(object.rock)} color={object.color} selected={selected} onClick={handleClick} />
+  }
+
+  if (object.kind === 'pickup') {
+    return <PickupMesh settings={clampPickupSettings(object.pickup)} color={object.color} selected={selected} onClick={handleClick} />
   }
 
   if (object.kind === 'water') {
@@ -249,6 +257,7 @@ export default function EngineSceneObjects({
   editorEnabled,
   transformMode,
   snapEnabled,
+  hiddenIds = [],
   onSelect,
   onUpdate,
 }: EngineSceneObjectsProps) {
@@ -263,7 +272,7 @@ export default function EngineSceneObjects({
 
   return <group name="engine-scene-objects">
     {objects.map((object) => {
-      if (!object.visible) return null
+      if (!object.visible || hiddenIds.includes(object.id)) return null
       if (editorEnabled && selectedId === object.id) {
         return <EditableObject
           key={object.id}

@@ -137,3 +137,49 @@ test('roll, jump and fall clips resolve by name and fall back to ground clips', 
   assert.equal(resolveClipName(PIRATE_CLIPS, 'rolling'), PIRATE_CLIPS[1])
   assert.equal(resolveClipName(PIRATE_CLIPS, 'jumping'), PIRATE_CLIPS[0])
 })
+
+import { DEFAULT_RUN_SPEED, DEFAULT_WALK_SPEED, RUN_SPEED_LIMITS, WALK_SPEED_LIMITS } from './character-settings.ts'
+
+test('walk and run speeds are clamped, default faster than before and kept by saved characters', () => {
+  assert.ok(DEFAULT_WALK_SPEED > 2)
+  assert.equal(clampCharacterSettings({ walkSpeed: 1e6 }).walkSpeed, WALK_SPEED_LIMITS.max)
+  assert.equal(clampCharacterSettings({ runSpeed: -5 }).runSpeed, RUN_SPEED_LIMITS.min)
+  assert.deepEqual(
+    [clampCharacterSettings({}).walkSpeed, clampCharacterSettings({}).runSpeed],
+    [DEFAULT_WALK_SPEED, DEFAULT_RUN_SPEED],
+  )
+  assert.equal(clampCharacterSettings({ walkSpeed: 9 }).walkSpeed, 9)
+})
+
+import { DEFAULT_JUMP_HEIGHT, JUMP_HEIGHT_LIMITS } from './character-settings.ts'
+import { jumpVelocity } from './jump.ts'
+
+test('jump height is clamped and converts to the launch speed that reaches it', () => {
+  assert.equal(clampCharacterSettings({ jumpHeight: 1e6 }).jumpHeight, JUMP_HEIGHT_LIMITS.max)
+  assert.equal(clampCharacterSettings({ jumpHeight: -1 }).jumpHeight, JUMP_HEIGHT_LIMITS.min)
+  assert.equal(clampCharacterSettings({}).jumpHeight, DEFAULT_JUMP_HEIGHT)
+  const gravity = -9.8
+  const scale = 2.5
+  const velocity = jumpVelocity(6, gravity, scale)
+  assert.ok(Math.abs((velocity * velocity) / (2 * Math.abs(gravity) * scale) - 6) < 1e-9)
+  assert.ok(jumpVelocity(8, gravity, scale) > jumpVelocity(2, gravity, scale))
+})
+
+import { DEFAULT_ROLL_DURATION, ROLL_DURATION_LIMITS, ROLL_DISTANCE_LIMITS } from './character-settings.ts'
+
+test('roll duration and speed are clamped, and the default roll is short', () => {
+  assert.ok(DEFAULT_ROLL_DURATION < 0.8)
+  assert.equal(clampCharacterSettings({ rollDuration: 1e6 }).rollDuration, ROLL_DURATION_LIMITS.max)
+  assert.equal(clampCharacterSettings({ rollDuration: 0 }).rollDuration, ROLL_DURATION_LIMITS.min)
+  assert.equal(clampCharacterSettings({ rollDistance: 1e6 }).rollDistance, ROLL_DISTANCE_LIMITS.max)
+  assert.equal(clampCharacterSettings({}).rollDuration, DEFAULT_ROLL_DURATION)
+})
+
+import { rollFadeSeconds, rollSpeedFor } from './roll.ts'
+
+test('roll speed covers the configured distance in the configured time and the fade stays short', () => {
+  assert.equal(rollSpeedFor(6, 0.5) * 0.5, 6)
+  assert.ok(rollSpeedFor(10, 0.3) > rollSpeedFor(10, 0.6))
+  assert.ok(Math.abs(rollFadeSeconds(0.5, 0.45) - 0.045) < 1e-9)
+  assert.equal(rollFadeSeconds(0.05, 2), 0.05)
+})

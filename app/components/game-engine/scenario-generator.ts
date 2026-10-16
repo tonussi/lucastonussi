@@ -2,6 +2,7 @@ import { DEFAULT_CAVE_SETTINGS, CAVE_LIMITS } from './cave-generator.ts'
 import { DEFAULT_GRASS_PLANE_SETTINGS } from './grass-plane-generator.ts'
 import { DEFAULT_GRASS_SETTINGS } from './grass-generator.ts'
 import { DEFAULT_HOUSE_SETTINGS, HOUSE_LIMITS } from './house-layout.ts'
+import { ITEMS } from './items.ts'
 import { DEFAULT_MOUNTAIN_SETTINGS } from './mountain-generator.ts'
 import { clampOceanSettings, DEFAULT_OCEAN_SETTINGS, OCEAN_LIMITS } from './ocean-generator.ts'
 import { clampPathSettings, generatePath, PATH_LIMITS } from './path-generator.ts'
@@ -23,6 +24,7 @@ export const SCENARIO_LIMITS = {
   lakeCount: { min: 0, max: 8 },
   riverCount: { min: 0, max: 4 },
   relief: { min: 0, max: 6 },
+  pickupCount: { min: 0, max: 24 },
 } as const
 
 export const PRESERVED_KINDS: EngineSceneObject['kind'][] = ['character', 'light']
@@ -88,6 +90,9 @@ const SHIP_SEA_OFFSET_CELLS = 3
 const SHIP_SIDE_RATIO = 0.8
 const SHIP_FAR_RATIO = 0.85
 const SHIP_ATTEMPTS = 20
+const PICKUP_RING_RADIUS = { min: 4, max: 9 }
+const PICKUP_QUANTITY_MAX = 3
+const PICKUP_COLOR = '#ffd166'
 const FOG_NEAR_RATIO = 1
 const FOG_FAR_RATIO = 5
 
@@ -131,6 +136,7 @@ export function clampProceduralSettings(settings: Partial<ProceduralSettings> = 
     lakeCount: clampIntegerRange(settings.lakeCount ?? 2, SCENARIO_LIMITS.lakeCount),
     riverCount: clampIntegerRange(settings.riverCount ?? 2, SCENARIO_LIMITS.riverCount),
     relief: clampIntegerRange(settings.relief ?? 3, SCENARIO_LIMITS.relief),
+    pickupCount: clampIntegerRange(settings.pickupCount ?? 6, SCENARIO_LIMITS.pickupCount),
   }
 }
 
@@ -376,6 +382,30 @@ function buildTreeStrip(
   return trees
 }
 
+function buildSpawnPickups(
+  prefix: string,
+  terrain: Terrain,
+  count: number,
+  isClear: (x: number, z: number) => boolean,
+  random: () => number,
+): EngineSceneObject[] {
+  const pickups: EngineSceneObject[] = []
+  for (let index = 0; index < count; index += 1) {
+    const item = ITEMS[index % ITEMS.length]
+    const angle = (index / count) * Math.PI * 2 + between(random, -0.3, 0.3)
+    const distance = between(random, PICKUP_RING_RADIUS.min, PICKUP_RING_RADIUS.max)
+    const x = Math.cos(angle) * distance
+    const z = Math.sin(angle) * distance
+    const height = terrain.heightAt(x, z)
+    if (height === undefined || !isClear(x, z)) continue
+    pickups.push({
+      ...baseObject(`${prefix}-pickup-${index}`, item.label, 'pickup', PICKUP_COLOR, [x, height, z], 0),
+      pickup: { itemId: item.id, quantity: 1 + Math.floor(random() * PICKUP_QUANTITY_MAX) },
+    })
+  }
+  return pickups
+}
+
 export function scenarioFog(settings: Partial<ProceduralSettings>) {
   const { radius } = clampProceduralSettings(settings)
   return { fogNear: radius * FOG_NEAR_RATIO, fogFar: radius * FOG_FAR_RATIO }
@@ -454,6 +484,7 @@ export function generateScenario(
     ...buildTreeStrip(prefix, terrain, settings, isClear, random),
     ...buildSeamRocks(prefix, terrain, oceanY, random),
     ...buildStepStones(prefix, terrain, oceanY, random),
+    ...buildSpawnPickups(prefix, terrain, settings.pickupCount, isClear, random),
     ...paths,
     ...water,
     ...props,

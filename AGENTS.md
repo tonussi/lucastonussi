@@ -44,3 +44,11 @@ These repository instructions extend the shared frontend and backend guidance. P
 - Check affected editor and game states in a real browser, including console/network errors and production-preview asset paths where practical.
 - Before claiming a performance improvement, measure active gameplay FPS/frame time and memory, plus relevant renderer metrics and physics counts. Compare the same scene, viewport, DPR, and revision before and after.
 - State explicitly when browser behavior, a physical device, production hosting, or measured FPS/memory was not verified.
+
+## Everything is parameterizable
+
+- Treat every gameplay and world value as a parameter, never a hardcoded number: speeds, jump height, camera speed, stamina and resource rates, attribute scaling, limits, sizes, counts, distances, colors and generation ratios.
+- Character and object values live in the persisted settings (`CharacterSettings`, per-kind settings, `ProceduralSettings`), clamped to explicit limits and normalized in `project-model.ts` so older drafts still load.
+- Every parameter gets an Inspector control and a focused test for its clamping and default.
+- Tunables that are not per-object (physics constants, button bindings, registries) live in one named constant or registry file, never inline in a component or frame loop.
+- When adding a feature, expose its numbers first and pick sensible defaults second.

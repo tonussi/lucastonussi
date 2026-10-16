@@ -1,20 +1,39 @@
 import { useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { BallCollider, CapsuleCollider, RigidBody, useRapier } from '@react-three/rapier'
+import { BallCollider, CapsuleCollider, CoefficientCombineRule, RigidBody, useRapier } from '@react-three/rapier'
 import { useControls } from 'leva'
 import { useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { Vector3 } from 'three'
 import { degToRad, MathUtils } from 'three/src/math/MathUtils.js'
 import type { GamepadState } from './gamepad'
+import { jumpVelocity } from '../game-engine/jump'
+import { readDodgeInput } from '../game-engine/dodge-input'
+import { rollSpeedFor } from '../game-engine/roll'
+import { CHARACTER_FRICTION, CHARACTER_GRAVITY_SCALE, GRAVITY } from './constants'
+import { GAMEPAD_BINDINGS } from './gamepad-bindings'
 import { characterStateFor, clampCharacterSettings, type CharacterState } from '../game-engine/character-settings'
 import type { CharacterSettings } from '../game-engine/types'
+import {
+  ACTIONS,
+  actionProgress,
+  advanceAction,
+  GUARD_SPEED_RATIO,
+  GUARD_STAMINA_DRAIN_PER_SECOND,
+  IDLE_ACTION,
+  INTERACT_RANGE,
+  startAction,
+  type ActionId,
+  type ActionState,
+} from '../game-engine/character-actions'
+import { STAMINA_ID } from '../game-engine/character-stats'
+import { createCombatVisual } from './combat-visual'
+import EquipmentRig from './equipment-rig'
 import PlayerCharacter from './player-character'
+import SkillParticles from './skill-particles'
 import type { CharacterRuntime } from './use-character-runtime'
 
 const CAMERA_PITCH_SPEED_RATIO = 0.75
-const ROLL_DURATION_SECONDS = 0.8
-const ROLL_SPEED = 10
 
 const normalizeAngle = (angle: number) => {
   while (angle > Math.PI) angle -= 2 * Math.PI
@@ -37,12 +56,26 @@ const lerpAngle = (start: number, end: number, t: number) => {
   return normalizeAngle(start + (end - start) * t)
 }
 
+export interface PickupTarget {
+  id: string
+  itemId: string
+  quantity: number
+  position: [number, number, number]
+}
+
+const ACTION_BUTTONS: { id: ActionId; key: string; button: keyof typeof GAMEPAD_BINDINGS }[] = [
+  { id: 'attack', key: 'attack', button: 'attack' },
+  { id: 'strongAttack', key: 'strongAttack', button: 'strongAttack' },
+  { id: 'skill', key: 'skill', button: 'skill' },
+]
+
 export const CharacterController = ({
   refScene,
   gamepad,
   spawnPosition,
   characterSettings,
   runtime,
+  pickups = [],
   onAttack,
 }: {
   refScene: React.RefObject<THREE.Scene>
@@ -50,19 +83,17 @@ export const CharacterController = ({
   spawnPosition: [number, number, number]
   characterSettings?: CharacterSettings
   runtime: CharacterRuntime
+  pickups?: PickupTarget[]
   onAttack?: (position: [number, number, number]) => void
 }) => {
   const clampedSettings = useMemo(() => clampCharacterSettings(characterSettings), [characterSettings])
-  const { WALK_SPEED, RUN_SPEED, ROTATION_SPEED, JUMP_FORCE } = useControls('Character Control', {
-    WALK_SPEED: { value: 2, min: 0.1, max: 4, step: 0.1 },
-    RUN_SPEED: { value: 12, min: 12, max: 50, step: 0.1 },
+  const { ROTATION_SPEED } = useControls('Character Control', {
     ROTATION_SPEED: {
       value: degToRad(0),
       min: degToRad(0.1),
       max: degToRad(5),
       step: degToRad(0.1),
     },
-    JUMP_FORCE: { value: 24, min: 1, max: 60, step: 0.5 },
   })
   const { cameraTargetPositionZ, cameraPositionY, cameraPositionZ } = useControls(
     'Camera Control',
@@ -92,10 +123,18 @@ export const CharacterController = ({
   // Jump state
   const grounded = useRef(true)
   const jumpCooldown = useRef(0)
-  const prevYPressed = useRef(false)
-  const prevRollPressed = useRef(false)
   const rollTimer = useRef(0)
-  const prevAttackPressed = useRef(false)
+  const rollHeading = useRef(0)
+  const rollSpeedRef = useRef(0)
+  const dodgeHeld = useRef(0)
+  const action = useRef<ActionState>(IDLE_ACTION)
+  const combat = useRef(createCombatVisual())
+  const previousInputs = useRef<Record<string, boolean>>({})
+  const risingEdge = (name: string, pressed: boolean) => {
+    const edge = pressed && !previousInputs.current[name]
+    previousInputs.current[name] = pressed
+    return edge
+  }
   const rapierRay = useRef<any>(null)
   const { world, rapier } = useRapier()
 
@@ -119,8 +158,18 @@ export const CharacterController = ({
       movement.z += -gamepad.leftStickY
       movement.x += -gamepad.leftStickX
 
-      const run = !!(get().run || gamepad.lb) && runtime.canSprint()
-      const speed = run ? RUN_SPEED : WALK_SPEED
+      const keys = get() as Record<string, boolean>
+      const dodgeDown = Boolean(gamepad[GAMEPAD_BINDINGS.dodge])
+      const dodge = readDodgeInput(Boolean(previousInputs.current.dodge), dodgeDown, dodgeHeld.current, delta, clampedSettings.dashHoldSeconds)
+      dodgeHeld.current = dodge.held
+      previousInputs.current.dodge = dodgeDown
+
+      const actionIdle = action.current.id === null
+      const guarding = Boolean(keys.guard || gamepad[GAMEPAD_BINDINGS.guard]) && actionIdle && rollTimer.current === 0 && runtime.canSprint()
+      if (guarding) runtime.trySpend(STAMINA_ID, GUARD_STAMINA_DRAIN_PER_SECOND * delta)
+
+      const run = Boolean(keys.run || dodge.dashing) && !guarding && runtime.canSprint()
+      const speed = (run ? clampedSettings.runSpeed : clampedSettings.walkSpeed) * (guarding ? GUARD_SPEED_RATIO : 1)
 
       if (movement.x !== 0) {
         rotationTarget.current += ROTATION_SPEED * Math.sign(movement.x)
@@ -129,22 +178,26 @@ export const CharacterController = ({
       const moving = movement.x !== 0 || movement.z !== 0
       runtime.tick(delta, run && moving)
 
-      const rollPressed = Boolean(get().roll || gamepad.b)
-      if (rollPressed && !prevRollPressed.current && grounded.current && rollTimer.current === 0) {
-        rollTimer.current = ROLL_DURATION_SECONDS
-        if (moving) characterRotationTarget.current = Math.atan2(movement.x, movement.z)
+      const dodgeRequested = dodge.tapped || risingEdge('rollKey', Boolean(keys.roll))
+      if (dodgeRequested && moving && grounded.current && rollTimer.current === 0 && actionIdle) {
+        rollTimer.current = clampedSettings.rollDuration
+        characterRotationTarget.current = Math.atan2(movement.x, movement.z)
+        rollHeading.current = characterRotationTarget.current
+        rollSpeedRef.current = rollSpeedFor(clampedSettings.rollDistance, clampedSettings.rollDuration)
       }
-      prevRollPressed.current = rollPressed
       const rolling = rollTimer.current > 0
       rollTimer.current = Math.max(0, rollTimer.current - delta)
 
       if (rolling) {
-        vel.x = Math.sin(rotationTarget.current + characterRotationTarget.current) * ROLL_SPEED
-        vel.z = Math.cos(rotationTarget.current + characterRotationTarget.current) * ROLL_SPEED
+        vel.x = Math.sin(rotationTarget.current + rollHeading.current) * rollSpeedRef.current
+        vel.z = Math.cos(rotationTarget.current + rollHeading.current) * rollSpeedRef.current
       } else if (moving) {
         characterRotationTarget.current = Math.atan2(movement.x, movement.z)
         vel.x = Math.sin(rotationTarget.current + characterRotationTarget.current) * speed
         vel.z = Math.cos(rotationTarget.current + characterRotationTarget.current) * speed
+      } else {
+        vel.x = 0
+        vel.z = 0
       }
       character.current.rotation.y = lerpAngle(
         character.current.rotation.y,
@@ -176,13 +229,12 @@ export const CharacterController = ({
       grounded.current = !!hit && hit.timeOfImpact <= 1.0
 
       // JUMP — Y axis only, preserves horizontal velocity
-      const jumpPressed = !!(get().jump || (gamepad.y && !prevYPressed.current))
-      prevYPressed.current = gamepad.y
+      const jumpPressed = Boolean(keys.jump) || risingEdge('jump', Boolean(gamepad[GAMEPAD_BINDINGS.jump]))
       jumpCooldown.current = Math.max(0, jumpCooldown.current - 1 / 60)
 
       if (jumpPressed && grounded.current && jumpCooldown.current === 0) {
         const lv = rb.current.linvel()
-        rb.current.setLinvel({ x: lv.x, y: JUMP_FORCE, z: lv.z }, true)
+        rb.current.setLinvel({ x: lv.x, y: jumpVelocity(clampedSettings.jumpHeight, GRAVITY, CHARACTER_GRAVITY_SCALE), z: lv.z }, true)
         grounded.current = false
         jumpCooldown.current = 0.15
       }
@@ -196,16 +248,50 @@ export const CharacterController = ({
         }),
       )
 
-      const attackPressed = Boolean(get().attack || gamepad.rb)
-      if (attackPressed && !prevAttackPressed.current) {
-        const position = rb.current.translation()
-        onAttack?.([
-          position.x + Math.sin(rotationTarget.current) * 1.45,
-          position.y + 0.9,
-          position.z + Math.cos(rotationTarget.current) * 1.45,
-        ])
+      const tryStartAction = (id: ActionId) => {
+        const definition = ACTIONS.find((entry) => entry.id === id)!
+        const tuning = clampedSettings.actions[id]
+        if (action.current.id !== null || rolling || !grounded.current) return false
+        if (definition.resourceId && !runtime.trySpend(definition.resourceId, tuning.cost)) return false
+        action.current = startAction(action.current, id, tuning.duration)
+        return true
       }
-      prevAttackPressed.current = attackPressed
+
+      ACTION_BUTTONS.forEach(({ id, key, button }) => {
+        const pressed = risingEdge(id, Boolean(keys[key] || gamepad[GAMEPAD_BINDINGS[button]]))
+        if (!pressed || !tryStartAction(id)) return
+        if (id === 'skill') combat.current.skillSerial += 1
+        else {
+          const position = rb.current.translation()
+          onAttack?.([
+            position.x + Math.sin(rotationTarget.current) * 1.45,
+            position.y + 0.9,
+            position.z + Math.cos(rotationTarget.current) * 1.45,
+          ])
+        }
+      })
+
+      if (risingEdge('useItem', Boolean(keys.useItem || gamepad[GAMEPAD_BINDINGS.useItem])) && actionIdle && runtime.consumeItem()) {
+        tryStartAction('useItem')
+      }
+
+      if (risingEdge('interact', Boolean(keys.interact || gamepad[GAMEPAD_BINDINGS.interact])) && actionIdle) {
+        const position = rb.current.translation()
+        const target = pickups
+          .filter(({ id }) => !runtime.state.collected.includes(id))
+          .map((pickup) => ({ pickup, distance: Math.hypot(pickup.position[0] - position.x, pickup.position[2] - position.z) }))
+          .filter(({ distance }) => distance <= INTERACT_RANGE)
+          .sort((first, second) => first.distance - second.distance)[0]
+        if (target) {
+          runtime.pickUp(target.pickup.id, target.pickup.itemId, target.pickup.quantity)
+          tryStartAction('interact')
+        }
+      }
+
+      action.current = advanceAction(action.current, delta)
+      combat.current.action = action.current.id
+      combat.current.progress = actionProgress(action.current)
+      combat.current.guarding = guarding
     }
 
     // CAMERA — Dark Souls style: orbit around player driven by right stick (inverted)
@@ -249,7 +335,7 @@ export const CharacterController = ({
       ref={rb}
       position={spawnPosition}
       mass={1}
-      gravityScale={2.5}
+      gravityScale={CHARACTER_GRAVITY_SCALE}
     >
       <group name="player-container" ref={container}>
         <group name="player-camera-target" ref={cameraTarget} position-z={cameraTargetPositionZ} />
@@ -263,10 +349,12 @@ export const CharacterController = ({
         </group>
         <group name="player-inner-group" ref={character}>
           <PlayerCharacter settings={clampedSettings} state={characterState} />
+          <EquipmentRig combat={combat.current} equipment={clampedSettings.equipment} />
+          <SkillParticles combat={combat.current} />
         </group>
       </group>
-      <BallCollider args={[0.8]} position={[0, 1.5, 0]} />
-      <CapsuleCollider args={[0.08, 0.5]} position={[0, 0.1, 0]} />
+      <BallCollider args={[0.8]} position={[0, 1.5, 0]} friction={CHARACTER_FRICTION} frictionCombineRule={CoefficientCombineRule.Min} />
+      <CapsuleCollider args={[0.08, 0.5]} position={[0, 0.1, 0]} friction={CHARACTER_FRICTION} frictionCombineRule={CoefficientCombineRule.Min} />
     </RigidBody>
   )
 }

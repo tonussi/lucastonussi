@@ -15,6 +15,7 @@ import { clampHouseSettings } from './house-layout.ts'
 import { clampLightSettings } from './light-settings.ts'
 import { clampMountainSettings } from './mountain-generator.ts'
 import { clampCharacterSettings } from './character-settings.ts'
+import { clampPickupSettings } from './pickup-settings.ts'
 import { clampPathSettings } from './path-generator.ts'
 import { clampWaterSettings } from './water-generator.ts'
 import { clampRockSettings } from './rock-generator.ts'
@@ -64,6 +65,7 @@ const KIND_SETTINGS_NORMALIZERS: Partial<
   mountain: (object) => ({ mountain: clampMountainSettings(object.mountain) }),
   character: (object) => ({ character: clampCharacterSettings(object.character) }),
   rock: (object) => ({ rock: clampRockSettings(object.rock) }),
+  pickup: (object) => ({ pickup: clampPickupSettings(object.pickup) }),
   water: (object) => ({ water: clampWaterSettings(object.water) }),
   path: (object) => ({ path: clampPathSettings(object.path) }),
   ocean: (object) => ({ ocean: clampOceanSettings(object.ocean) }),

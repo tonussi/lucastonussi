@@ -1,6 +1,7 @@
 import { useAnimations, useGLTF } from '@react-three/drei'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
+import { rollFadeSeconds } from '../game-engine/roll'
 import { SkeletonUtils } from 'three-stdlib'
 import { CHARACTER_STATES, resolveClipName, type CharacterState } from '../game-engine/character-settings'
 import { MODEL_CATALOG } from '../game-engine/model-catalog'
@@ -38,12 +39,16 @@ export default function PlayerCharacter({ settings, state }: PlayerCharacterProp
   useEffect(() => {
     const action = clipName ? actions[clipName] : undefined
     action?.reset().setLoop(loop ? THREE.LoopRepeat : THREE.LoopOnce, Infinity)
-    if (action) action.clampWhenFinished = true
-    action?.fadeIn(CLIP_FADE_SECONDS).play()
-    return () => {
-      action?.fadeOut(CLIP_FADE_SECONDS)
+    if (action) {
+      action.clampWhenFinished = true
+      action.setEffectiveTimeScale(state === 'rolling' ? action.getClip().duration / settings.rollDuration : 1)
     }
-  }, [actions, clipName, loop])
+    const fadeSeconds = state === 'rolling' ? rollFadeSeconds(CLIP_FADE_SECONDS, settings.rollDuration) : CLIP_FADE_SECONDS
+    action?.fadeIn(fadeSeconds).play()
+    return () => {
+      action?.fadeOut(fadeSeconds)
+    }
+  }, [actions, clipName, loop, state, settings.rollDuration])
 
   return (
     <group ref={group} dispose={null}>
