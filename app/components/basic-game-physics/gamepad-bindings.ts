@@ -13,9 +13,11 @@ export const GAMEPAD_BINDINGS = {
   dodge: 'b',
   jump: 'a',
   guard: 'lb',
-  skill: 'lt',
+  skill: 'r3',
   attack: 'rb',
   strongAttack: 'rt',
   interact: 'y',
   useItem: 'x',
+  /** Toggles first-person view. */
+  toggleView: 'lt',
 } as const satisfies Record<string, GamepadButton>

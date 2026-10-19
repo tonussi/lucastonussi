@@ -48,6 +48,7 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import BasicGamePhysics from '@/components/basic-game-physics/world'
+import { MOTION_SETTINGS } from './character-settings'
 import {
   defaultEngineProject,
   type EngineProject,
@@ -154,7 +155,7 @@ const PALETTE_ITEMS: PaletteItem[] = [
 
 const COLORLESS_KINDS: SceneObjectKind[] = ['model', 'character']
 
-const SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3]
+const SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3, 4, 5]
 
 const OBJECT_DEFAULTS: Record<SceneObjectKind, { label: string; color: string }> = {
   cube: { label: 'Cube', color: '#d8a64d' },
@@ -234,6 +235,11 @@ const GRASS_PLANE_FIELDS: NumericField<GrassPlaneSettings>[] = [
   { key: 'bladeCount', label: 'Grass quantity', limits: GRASS_PLANE_LIMITS.bladeCount, step: 100 },
   { key: 'bladeHeight', label: 'Grass height', limits: GRASS_PLANE_LIMITS.bladeHeight, step: 0.05 },
   { key: 'shapeRandomness', label: 'Shape randomness', limits: GRASS_PLANE_LIMITS.shapeRandomness, step: 0.05 },
+  { key: 'edgeDropPosX', label: 'Bank drop +X', limits: GRASS_PLANE_LIMITS.edgeDrop, step: 0.5 },
+  { key: 'edgeDropNegX', label: 'Bank drop -X', limits: GRASS_PLANE_LIMITS.edgeDrop, step: 0.5 },
+  { key: 'edgeDropPosZ', label: 'Bank drop +Z', limits: GRASS_PLANE_LIMITS.edgeDrop, step: 0.5 },
+  { key: 'edgeDropNegZ', label: 'Bank drop -Z', limits: GRASS_PLANE_LIMITS.edgeDrop, step: 0.5 },
+  { key: 'rampRunRatio', label: 'Bank length ratio', limits: GRASS_PLANE_LIMITS.rampRunRatio, step: 0.1 },
   { key: 'seed', label: 'Seed', step: 1 },
 ]
 
@@ -464,6 +470,11 @@ function CharacterFields({
         step={0.5}
         onChange={(walkSpeed) => onChange({ ...settings, walkSpeed })}
       />
+      {(Object.keys(MOTION_SETTINGS) as (keyof typeof MOTION_SETTINGS)[]).map(key => (
+        <NumberField key={key} label={MOTION_SETTINGS[key].label} value={settings[key]}
+          min={MOTION_SETTINGS[key].min} max={MOTION_SETTINGS[key].max} step={0.05}
+          onChange={value => onChange({ ...settings, [key]: value })} />
+      ))}
       <NumberField
         label="Run speed"
         value={settings.runSpeed}
@@ -1516,25 +1527,52 @@ export default function GameEngineWorkbench() {
             onChange={(value) => updateProcedural('radius', value)}
           />
           <NumberField
-            label="Paths"
-            value={project.procedural.pathCount}
-            min={SCENARIO_LIMITS.pathCount.min}
-            max={SCENARIO_LIMITS.pathCount.max}
-            onChange={(value) => updateProcedural('pathCount', value)}
-          />
-          <NumberField
             label="Relief"
             value={project.procedural.relief}
             min={SCENARIO_LIMITS.relief.min}
             max={SCENARIO_LIMITS.relief.max}
             onChange={(value) => updateProcedural('relief', value)}
           />
+          <NumberField label="Grass per ground tile" value={project.procedural.groundGrassCount}
+            min={SCENARIO_LIMITS.groundGrassCount.min} max={SCENARIO_LIMITS.groundGrassCount.max} step={100}
+            onChange={value => updateProcedural('groundGrassCount', value)} />
+          <NumberField label="Ground grass height" value={project.procedural.groundGrassHeight}
+            min={SCENARIO_LIMITS.groundGrassHeight.min} max={SCENARIO_LIMITS.groundGrassHeight.max} step={0.01}
+            onChange={value => updateProcedural('groundGrassHeight', value)} />
           <NumberField
             label="Items on ground"
             value={project.procedural.pickupCount}
             min={SCENARIO_LIMITS.pickupCount.min}
             max={SCENARIO_LIMITS.pickupCount.max}
             onChange={(value) => updateProcedural('pickupCount', value)}
+          />
+          <NumberField
+            label="Villages"
+            value={project.procedural.villageCount}
+            min={SCENARIO_LIMITS.villageCount.min}
+            max={SCENARIO_LIMITS.villageCount.max}
+            onChange={(value) => updateProcedural('villageCount', value)}
+          />
+          <NumberField
+            label="Houses per village"
+            value={project.procedural.housesPerVillage}
+            min={SCENARIO_LIMITS.housesPerVillage.min}
+            max={SCENARIO_LIMITS.housesPerVillage.max}
+            onChange={(value) => updateProcedural('housesPerVillage', value)}
+          />
+          <NumberField
+            label="Forest trees"
+            value={project.procedural.forestTreeCount}
+            min={SCENARIO_LIMITS.forestTreeCount.min}
+            max={SCENARIO_LIMITS.forestTreeCount.max}
+            onChange={(value) => updateProcedural('forestTreeCount', value)}
+          />
+          <NumberField
+            label="Medicinal plants"
+            value={project.procedural.medicinalPlantCount}
+            min={SCENARIO_LIMITS.medicinalPlantCount.min}
+            max={SCENARIO_LIMITS.medicinalPlantCount.max}
+            onChange={(value) => updateProcedural('medicinalPlantCount', value)}
           />
           <NumberField
             label="Lakes"
@@ -1554,8 +1592,9 @@ export default function GameEngineWorkbench() {
             <Sparkles size={15} /> Generate scenario
           </button>
           <p className="engine-hint">
-            Builds terraced ground cells with cliffs down to the sea, paths from the spawn, separated lakes and rivers, horizon mountains, a large ocean below with distant ships, and rocks, trees, grass, caves, houses and
-            mountains kept clear of the paths. Generating replaces every object except the character and lights, and builds the ground under the character.
+            Nepal highland recipe: rural villages, varied forest, grassy hills, rivers,
+            medicinal plants and distant non-colliding Himalayan peaks. Generating replaces every
+            object except the character and lights, and builds the ground under the character.
           </p>
         </div>
       </aside>

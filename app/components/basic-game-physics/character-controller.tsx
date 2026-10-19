@@ -2,7 +2,7 @@ import { useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, CapsuleCollider, CoefficientCombineRule, RigidBody, useRapier } from '@react-three/rapier'
 import { useControls } from 'leva'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { Vector3 } from 'three'
 import { degToRad, MathUtils } from 'three/src/math/MathUtils.js'
@@ -10,8 +10,9 @@ import type { GamepadState } from './gamepad'
 import { jumpVelocity } from '../game-engine/jump'
 import { readDodgeInput } from '../game-engine/dodge-input'
 import { rollSpeedFor } from '../game-engine/roll'
-import { CHARACTER_FRICTION, CHARACTER_GRAVITY_SCALE, GRAVITY } from './constants'
+import { CHARACTER_FOOT_CAPSULE, CHARACTER_FOOT_DEPTH, CHARACTER_FRICTION, CHARACTER_GRAVITY_SCALE, GRAVITY } from './constants'
 import { GAMEPAD_BINDINGS } from './gamepad-bindings'
+import { GRASS_WIND, resetGrassWind } from './grass-wind'
 import { characterStateFor, clampCharacterSettings, type CharacterState } from '../game-engine/character-settings'
 import type { CharacterSettings } from '../game-engine/types'
 import {
@@ -69,6 +70,12 @@ const ACTION_BUTTONS: { id: ActionId; key: string; button: keyof typeof GAMEPAD_
   { id: 'skill', key: 'skill', button: 'skill' },
 ]
 
+const NO_KEYS: Record<string, boolean> = {}
+const THIRD_PERSON_MAX_PITCH = Math.PI / 4
+/** 135° each way, 270° of vertical view in total; past vertical the view rolls over the top. */
+const FIRST_PERSON_MAX_PITCH = (Math.PI * 3) / 4
+const firstPersonEuler = new THREE.Euler(0, 0, 0, 'YXZ')
+
 export const CharacterController = ({
   refScene,
   gamepad,
@@ -77,6 +84,7 @@ export const CharacterController = ({
   runtime,
   pickups = [],
   onAttack,
+  inputPaused = false,
 }: {
   refScene: React.RefObject<THREE.Scene>
   gamepad: GamepadState
@@ -85,6 +93,8 @@ export const CharacterController = ({
   runtime: CharacterRuntime
   pickups?: PickupTarget[]
   onAttack?: (position: [number, number, number]) => void
+  /** Ignores keyboard input while a dialog owns it; pass an empty gamepad state alongside. */
+  inputPaused?: boolean
 }) => {
   const clampedSettings = useMemo(() => clampCharacterSettings(characterSettings), [characterSettings])
   const { ROTATION_SPEED } = useControls('Character Control', {
@@ -118,7 +128,8 @@ export const CharacterController = ({
   const cameraWorldPosition = useRef(new Vector3())
   const cameraLookAtWorldPosition = useRef(new Vector3())
   const cameraLookAt = useRef(new Vector3())
-  const [, get] = useKeyboardControls()
+  const [, getKeyboard] = useKeyboardControls()
+  const get = () => (inputPaused ? NO_KEYS : getKeyboard())
 
   // Jump state
   const grounded = useRef(true)
@@ -129,6 +140,7 @@ export const CharacterController = ({
   const dodgeHeld = useRef(0)
   const action = useRef<ActionState>(IDLE_ACTION)
   const combat = useRef(createCombatVisual())
+  const firstPerson = useRef(false)
   const previousInputs = useRef<Record<string, boolean>>({})
   const risingEdge = (name: string, pressed: boolean) => {
     const edge = pressed && !previousInputs.current[name]
@@ -138,10 +150,15 @@ export const CharacterController = ({
   const rapierRay = useRef<any>(null)
   const { world, rapier } = useRapier()
 
-  useFrame(({ camera }, delta) => {
+  useEffect(() => resetGrassWind, [])
+
+  useFrame(({ camera, clock }, delta) => {
 
     if (rb.current) {
       const vel = rb.current.linvel()
+      const bodyPosition = rb.current.translation()
+      GRASS_WIND.player.value.set(bodyPosition.x, bodyPosition.y, bodyPosition.z)
+      GRASS_WIND.time.value = clock.elapsedTime
 
       const movement = {
         x: 0,
@@ -193,8 +210,9 @@ export const CharacterController = ({
         vel.z = Math.cos(rotationTarget.current + rollHeading.current) * rollSpeedRef.current
       } else if (moving) {
         characterRotationTarget.current = Math.atan2(movement.x, movement.z)
-        vel.x = Math.sin(rotationTarget.current + characterRotationTarget.current) * speed
-        vel.z = Math.cos(rotationTarget.current + characterRotationTarget.current) * speed
+        const magnitude = Math.min(1, Math.hypot(movement.x, movement.z))
+        vel.x = MathUtils.damp(vel.x, Math.sin(rotationTarget.current + characterRotationTarget.current) * speed * magnitude, clampedSettings.movementResponse, delta)
+        vel.z = MathUtils.damp(vel.z, Math.cos(rotationTarget.current + characterRotationTarget.current) * speed * magnitude, clampedSettings.movementResponse, delta)
       } else {
         vel.x = 0
         vel.z = 0
@@ -202,7 +220,7 @@ export const CharacterController = ({
       character.current.rotation.y = lerpAngle(
         character.current.rotation.y,
         characterRotationTarget.current,
-        0.1,
+        1 - Math.exp(-clampedSettings.turnResponse * delta),
       )
 
       rb.current.setLinvel(vel, true)
@@ -230,7 +248,7 @@ export const CharacterController = ({
 
       // JUMP — Y axis only, preserves horizontal velocity
       const jumpPressed = Boolean(keys.jump) || risingEdge('jump', Boolean(gamepad[GAMEPAD_BINDINGS.jump]))
-      jumpCooldown.current = Math.max(0, jumpCooldown.current - 1 / 60)
+      jumpCooldown.current = Math.max(0, jumpCooldown.current - delta)
 
       if (jumpPressed && grounded.current && jumpCooldown.current === 0) {
         const lv = rb.current.linvel()
@@ -238,15 +256,6 @@ export const CharacterController = ({
         grounded.current = false
         jumpCooldown.current = 0.15
       }
-
-      setCharacterState(
-        characterStateFor({
-          rolling,
-          grounded: grounded.current,
-          verticalSpeed: rb.current.linvel().y,
-          moving,
-        }),
-      )
 
       const tryStartAction = (id: ActionId) => {
         const definition = ACTIONS.find((entry) => entry.id === id)!
@@ -271,20 +280,25 @@ export const CharacterController = ({
         }
       })
 
-      if (risingEdge('useItem', Boolean(keys.useItem || gamepad[GAMEPAD_BINDINGS.useItem])) && actionIdle && runtime.consumeItem()) {
-        tryStartAction('useItem')
+      if (risingEdge('toggleView', Boolean(keys.toggleView || gamepad[GAMEPAD_BINDINGS.toggleView]))) {
+        firstPerson.current = !firstPerson.current
+        character.current.visible = !firstPerson.current
       }
 
-      if (risingEdge('interact', Boolean(keys.interact || gamepad[GAMEPAD_BINDINGS.interact])) && actionIdle) {
+      const useItemPressed = risingEdge('useItem', Boolean(keys.useItem || gamepad[GAMEPAD_BINDINGS.useItem]))
+      const interactPressed = risingEdge('interact', Boolean(keys.interact || gamepad[GAMEPAD_BINDINGS.interact]))
+
+      if ((useItemPressed || interactPressed) && actionIdle) {
         const position = rb.current.translation()
         const target = pickups
           .filter(({ id }) => !runtime.state.collected.includes(id))
-          .map((pickup) => ({ pickup, distance: Math.hypot(pickup.position[0] - position.x, pickup.position[2] - position.z) }))
+          .map((pickup) => ({ pickup, distance: Math.hypot(pickup.position[0] - position.x, pickup.position[1] - position.y, pickup.position[2] - position.z) }))
           .filter(({ distance }) => distance <= INTERACT_RANGE)
           .sort((first, second) => first.distance - second.distance)[0]
         if (target) {
-          runtime.pickUp(target.pickup.id, target.pickup.itemId, target.pickup.quantity)
-          tryStartAction('interact')
+          if (tryStartAction('interact')) runtime.pickUp(target.pickup.id, target.pickup.itemId, target.pickup.quantity)
+        } else if (useItemPressed && runtime.consumeItem()) {
+          tryStartAction('useItem')
         }
       }
 
@@ -292,12 +306,15 @@ export const CharacterController = ({
       combat.current.action = action.current.id
       combat.current.progress = actionProgress(action.current)
       combat.current.guarding = guarding
+      setCharacterState(action.current.id === 'interact' ? 'interacting' : characterStateFor({
+        rolling, grounded: grounded.current, verticalSpeed: rb.current.linvel().y, moving,
+      }))
     }
 
     // CAMERA — Dark Souls style: orbit around player driven by right stick (inverted)
     const yawSpeed = clampedSettings.cameraRotationSpeed
     const pitchSpeed = yawSpeed * CAMERA_PITCH_SPEED_RATIO
-    const maxPitch = Math.PI / 4
+    const maxPitch = firstPerson.current ? FIRST_PERSON_MAX_PITCH : THIRD_PERSON_MAX_PITCH
     rotationTarget.current += -gamepad.rightStickX * yawSpeed * delta
     cameraPitchTarget.current = MathUtils.clamp(
       cameraPitchTarget.current + gamepad.rightStickY * pitchSpeed * delta,
@@ -308,20 +325,30 @@ export const CharacterController = ({
     container.current.rotation.y = MathUtils.lerp(
       container.current.rotation.y,
       rotationTarget.current,
-      0.15,
+      1 - Math.exp(-clampedSettings.cameraResponse * delta),
     )
     cameraPitch.current.rotation.x = MathUtils.lerp(
       cameraPitch.current.rotation.x,
       cameraPitchTarget.current,
-      0.15,
+      1 - Math.exp(-clampedSettings.cameraResponse * delta),
     )
 
+    if (firstPerson.current && rb.current) {
+      const body = rb.current.translation()
+      const yaw = container.current.rotation.y
+      const pitch = cameraPitch.current.rotation.x
+      camera.position.set(body.x, body.y - CHARACTER_FOOT_DEPTH + clampedSettings.firstPersonEyeHeight, body.z)
+      // Euler instead of lookAt: lookAt flips the view once pitch passes straight up or down.
+      camera.quaternion.setFromEuler(firstPersonEuler.set(-pitch, yaw + Math.PI, 0))
+      return
+    }
+
     cameraPosition.current.getWorldPosition(cameraWorldPosition.current)
-    camera.position.lerp(cameraWorldPosition.current, 0.15)
+    camera.position.lerp(cameraWorldPosition.current, 1 - Math.exp(-clampedSettings.cameraResponse * delta))
 
     if (cameraTarget.current) {
       cameraTarget.current.getWorldPosition(cameraLookAtWorldPosition.current)
-      cameraLookAt.current.lerp(cameraLookAtWorldPosition.current, 0.15)
+      cameraLookAt.current.lerp(cameraLookAtWorldPosition.current, 1 - Math.exp(-clampedSettings.cameraResponse * delta))
 
       camera.lookAt(cameraLookAt.current)
     }
@@ -354,7 +381,7 @@ export const CharacterController = ({
         </group>
       </group>
       <BallCollider args={[0.8]} position={[0, 1.5, 0]} friction={CHARACTER_FRICTION} frictionCombineRule={CoefficientCombineRule.Min} />
-      <CapsuleCollider args={[0.08, 0.5]} position={[0, 0.1, 0]} friction={CHARACTER_FRICTION} frictionCombineRule={CoefficientCombineRule.Min} />
+      <CapsuleCollider args={[CHARACTER_FOOT_CAPSULE.halfHeight, CHARACTER_FOOT_CAPSULE.radius]} position={[0, CHARACTER_FOOT_CAPSULE.offsetY, 0]} friction={CHARACTER_FRICTION} frictionCombineRule={CoefficientCombineRule.Min} />
     </RigidBody>
   )
 }

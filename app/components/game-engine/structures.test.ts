@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { CAVE_LIMITS, clampCaveSettings, generateCave } from './cave-generator.ts'
 import { clampGrassSettings, generateGrass, GRASS_LIMITS } from './grass-generator.ts'
-import { buildHouse, DOOR_HEIGHT, DOOR_WIDTH, HOUSE_LIMITS } from './house-layout.ts'
+import { buildHouse, buildHouseWindows, DOOR_HEIGHT, DOOR_WIDTH, HOUSE_LIMITS } from './house-layout.ts'
 import { normalizeSceneObject } from './project-model.ts'
 import type { EngineSceneObject } from './types.ts'
 
@@ -29,18 +29,38 @@ test('cave is deterministic, bounded and enclosed by four colliders', () => {
 })
 
 test('house front wall leaves an empty door opening and no door piece exists', () => {
-  const pieces = buildHouse({ width: 6, depth: 5, wallHeight: 3, roofHeight: 2 })
+  const pieces = buildHouse({ width: 6, depth: 5, wallHeight: 4.5, roofHeight: 2 })
   const frontPieces = pieces.filter(({ kind, position, size }) => kind === 'wall' && position[2] > 0 && size[0] >= size[2])
-  const sideWidths = frontPieces.filter(({ size }) => size[1] === 3).map(({ size }) => size[0])
-  assert.equal(sideWidths.length, 2)
-  assert.ok(Math.abs(sideWidths[0] * 2 + DOOR_WIDTH - 6) < 1e-9)
-  const lintel = frontPieces.find(({ size }) => size[1] < 3)
-  assert.ok(lintel && Math.abs(lintel.size[1] - (3 - DOOR_HEIGHT)) < 1e-9)
+  const doorway = frontPieces.filter(({ position, size }) => Math.abs(position[0]) < DOOR_WIDTH / 2 && position[1] - size[1] / 2 < DOOR_HEIGHT)
+  assert.equal(doorway.length, 0)
+  const lintel = frontPieces.find(({ position }) => Math.abs(position[0]) < 1e-9)
+  assert.ok(lintel && Math.abs(lintel.size[1] - (4.5 - DOOR_HEIGHT)) < 1e-9)
   assert.equal(pieces.some(({ kind }) => (kind as string) === 'door'), false)
+})
+
+test('house windows are real openings: no solid piece covers the glass area', () => {
+  const settings = { width: 8, depth: 7, wallHeight: 4.5, roofHeight: 2 }
+  const windows = buildHouseWindows(settings)
+  assert.ok(windows.length >= 4)
+  const walls = buildHouse(settings).filter(({ kind }) => kind === 'wall')
+  windows.forEach(({ position, size, axis }) => {
+    const half = size[0] / 2 - 1e-6
+    const covers = walls.some((wall) => {
+      const along = axis === 'x' ? [wall.position[0], wall.size[0]] : [wall.position[2], wall.size[2]]
+      const across = axis === 'x' ? wall.position[2] : wall.position[0]
+      const sameWall = Math.abs(across - (axis === 'x' ? position[2] : position[0])) < 1e-6
+      const centerAlong = axis === 'x' ? position[0] : position[2]
+      const overlapsAlong = Math.abs(along[0] - centerAlong) < along[1] / 2 + half
+      const overlapsHeight = Math.abs(wall.position[1] - position[1]) < wall.size[1] / 2 + size[1] / 2 - 1e-6
+      return sameWall && overlapsAlong && overlapsHeight
+    })
+    assert.equal(covers, false)
+  })
 })
 
 test('house wall height never drops below the door height', () => {
   assert.ok(HOUSE_LIMITS.wallHeight.min > DOOR_HEIGHT)
+  assert.ok(DOOR_HEIGHT >= 2.9 && DOOR_WIDTH >= 2, 'the character body is about 1.6 wide and 2.8 tall when resting on the ground')
 })
 
 test('new structure kinds receive default settings when loaded without them', () => {
@@ -147,7 +167,7 @@ test('ocean settings are clamped and saved oceans round-trip', () => {
 
 import { generatePath, PATH_LIMITS, clampPathSettings } from './path-generator.ts'
 import { generateRockBumps, clampRockSettings, rockSurfacePoint, ROCK_LIMITS } from './rock-generator.ts'
-import { scenarioDimensions, clampProceduralSettings, generateScenario, isScenarioObject, SCENARIO_LIMITS } from './scenario-generator.ts'
+import { scenarioDimensions, clampProceduralSettings, generateScenario, isScenarioObject, SCENARIO_LIMITS, MOUND_SINK } from './scenario-generator.ts'
 import { normalizeProject } from './project-model.ts'
 import { defaultEngineProject } from './types.ts'
 
@@ -171,14 +191,14 @@ test('paths are deterministic, start at the origin and clamp their size', () => 
   assert.equal(clampPathSettings({ length: 1e6 }).length, PATH_LIMITS.length.max)
 })
 
-test('scenarios are deterministic, tagged, bounded and keep props off the paths', () => {
+test('scenarios are deterministic, tagged, bounded and have no ground trails', () => {
   const settings = { seed: 5, count: 80, radius: 60, pathCount: 3 }
   const scenario = generateScenario(settings)
   assert.deepEqual(scenario, generateScenario(settings))
   assert.notDeepEqual(scenario, generateScenario({ ...settings, seed: 6 }))
   assert.ok(scenario.every(isScenarioObject))
   assert.equal(new Set(scenario.map(({ id }) => id)).size, scenario.length)
-  assert.equal(scenario.filter(({ kind }) => kind === 'path').length, 3)
+  assert.equal(scenario.filter(({ kind }) => kind === 'path').length, 0)
   assert.ok(scenario.filter(({ kind }) => kind === 'grass-plane').length >= 1)
   const props = scenario.filter(({ id }) => /^scenario-\d+-(rock|tree|grass|mound|cave|house)-\d+$/.test(id))
   assert.ok(props.length > 0 && props.length <= settings.count)
@@ -190,9 +210,9 @@ test('procedural settings are clamped and older saves load', () => {
   const clamped = clampProceduralSettings({ count: 1e6, radius: -5, pathCount: 99 })
   assert.equal(clamped.count, SCENARIO_LIMITS.count.max)
   assert.equal(clamped.radius, SCENARIO_LIMITS.radius.min)
-  assert.equal(clamped.pathCount, SCENARIO_LIMITS.pathCount.max)
+  assert.equal(clamped.pathCount, 0)
   const legacy = normalizeProject({ ...defaultEngineProject, procedural: { enabled: true, seed: 7, count: 18, radius: 14 } as never })
-  assert.equal(legacy.procedural.pathCount, 3)
+  assert.equal(legacy.procedural.pathCount, 0)
   assert.equal('enabled' in legacy.procedural, false)
 })
 
@@ -205,14 +225,14 @@ test('the scenario ground cell under the spawn sits just below it', () => {
 
 import { replaceWithScenario } from './scenario-generator.ts'
 
-test('replacing with a scenario removes the default ocean, ship and plates but keeps character and lights', () => {
+test('replacing with the Nepal scenario removes the default ocean, ship and plates but keeps character and lights', () => {
   const light = { ...defaultEngineProject.sceneObjects[0], id: 'light-1', kind: 'light' as const }
   const objects = [...defaultEngineProject.sceneObjects, light]
   assert.ok(objects.some(({ kind }) => kind === 'ocean'))
   assert.ok(objects.some(({ kind }) => kind === 'model'))
   const next = replaceWithScenario(objects, { seed: 1, count: 20, radius: 20, pathCount: 1 })
   assert.equal(next.some(({ id }) => id.startsWith('builtin-')  && id !== 'builtin-character'), false)
-  assert.equal(next.filter(({ kind }) => kind === 'ocean').length, 1)
+  assert.equal(next.filter(({ kind }) => kind === 'ocean').length, 0)
   assert.equal(next.filter(({ kind }) => kind === 'character').length, 1)
   assert.ok(next.some(({ id }) => id === 'light-1'))
   assert.equal(next.some(({ id }) => id.startsWith('builtin-grass')), false)
@@ -245,20 +265,14 @@ test('water bodies never overlap or touch each other and keep their distance', (
   }
 })
 
-test('scenarios add horizon mountains, a large ocean below the ground and far ships', () => {
+test('scenarios add distant non-colliding blue and white Himalayan peaks', () => {
   const scenario = generateScenario({ seed: 3, count: 10, radius: 40, pathCount: 1, relief: 3 })
   const ground = scenario.find(({ kind }) => kind === 'grass-plane')!
-  const ocean = scenario.find(({ kind }) => kind === 'ocean')!
-  assert.ok(ocean.position[1] < ground.position[1])
-  const { size, segments, waveCount, amplitude, windDirection } = ocean.ocean!
-  assert.deepEqual({ waveCount, amplitude, windDirection }, { waveCount: DEFAULT_OCEAN_SETTINGS.waveCount, amplitude: DEFAULT_OCEAN_SETTINGS.amplitude, windDirection: DEFAULT_OCEAN_SETTINGS.windDirection })
-  assert.equal(Math.round(size / segments * 10), Math.round(DEFAULT_OCEAN_SETTINGS.size / DEFAULT_OCEAN_SETTINGS.segments * 10))
-  assert.ok(size >= DEFAULT_OCEAN_SETTINGS.size && size <= OCEAN_LIMITS.size.max)
-  assert.equal(ocean.color, createBuiltinObjects().find(({ kind }) => kind === 'ocean')!.color)
   const horizon = scenario.filter(({ id }) => id.includes('horizon'))
   assert.ok(horizon.length >= 8 && horizon.every(({ position }) => Math.hypot(position[0], position[2]) >= 40))
-  const ships = scenario.filter(({ kind }) => kind === 'model')
-  assert.ok(ships.length > 0 && ships.length === 4 && ships.every(({ position }) => Math.hypot(position[0], position[2]) > 70))
+  assert.ok(horizon.every(({ name, color, mountain, properties }) =>
+    name.startsWith('Himalayan Peak') && color === '#496985' && mountain!.snowLine === 0.5 && properties.collision === 'none'))
+  assert.equal(scenario.some(({ kind }) => kind === 'ocean' || kind === 'model'), false)
   assert.ok(scenarioFog({ radius: 40 }).fogFar > 150)
 })
 
@@ -284,11 +298,10 @@ test('terrain cells are stepped, reach down to the sea and keep paths, water and
   const settings = { seed: 7, count: 80, radius: 100, pathCount: 3, lakeCount: 2, riverCount: 2, relief: 4 }
   const scenario = generateScenario(settings)
   const cells = scenario.filter(({ id }) => id.includes('-ground-'))
-  const ocean = scenario.find(({ kind }) => kind === 'ocean')!
   const tops = new Set(cells.map(({ position }) => position[1] - SCENARIO_ORIGIN_Y))
   assert.ok(tops.size > 1)
   assert.ok([...tops].every((top) => top % TERRAIN_STEP === 0 && top >= 0 && top <= settings.relief * TERRAIN_STEP))
-  assert.ok(cells.every(({ position, grassPlane }) => position[1] - grassPlane!.thickness < ocean.position[1]))
+  assert.ok(cells.every(({ position, grassPlane }) => position[1] - grassPlane!.thickness < -1))
 
   const cellAt = (x: number, z: number) => cells.find(({ position }) => position[0] === Math.round(x / TERRAIN_CELL_SIZE) * TERRAIN_CELL_SIZE && position[2] === Math.round(z / TERRAIN_CELL_SIZE) * TERRAIN_CELL_SIZE)
   const flat = scenario.filter(({ kind }) => kind === 'path' || kind === 'water')
@@ -298,7 +311,8 @@ test('terrain cells are stepped, reach down to the sea and keep paths, water and
   }))
   const props = scenario.filter(({ id }) => /^scenario-\d+-(rock|tree|grass|mound|cave|house)-\d+$/.test(id))
   assert.ok(props.length > 0)
-  assert.ok(props.every(({ position }) => cellAt(position[0], position[2])?.position[1] === position[1]))
+  assert.ok(props.every(({ id, position }) => Math.abs((cellAt(position[0], position[2])?.position[1] ?? NaN) - position[1] - (id.includes('-mound-') ? MOUND_SINK : 0)) < 1e-9))
+  assert.ok(props.some(({ id }) => id.includes('-mound-')))
 })
 
 test('relief zero keeps the mainland flat and ships stay away from every land cell', () => {
@@ -311,19 +325,17 @@ test('relief zero keeps the mainland flat and ships stay away from every land ce
 
 import { ROCK_STYLES, SEAM_STYLE_KEYS } from './scenario-rocks.ts'
 
-test('scenarios follow the sketch: land strip, desert with a big mountain, forest strip, sea with islands', () => {
+test('scenarios follow the Nepal theme with villages, varied forest and medicinal plants', () => {
   const scenario = generateScenario({ seed: 12, count: 60, radius: 100, pathCount: 3, relief: 3 })
-  const { halfWidth } = scenarioDimensions(100)
-  const desert = scenario.find(({ name }) => name === 'Desert')!
-  assert.ok(desert.position[2] < -halfWidth && desert.grassPlane!.bladeCount === 0)
-  const bigMountain = scenario.find(({ name }) => name === 'Big Mountain')!
-  assert.ok(bigMountain.position[2] < desert.position[2] + desert.grassPlane!.depth / 2 && bigMountain.mountain!.height >= 80)
-  const forest = scenario.filter(({ name }) => name.startsWith('Forest Tree'))
+  const houses = scenario.filter(({ properties }) => typeof properties.settlement === 'string')
+  assert.ok(houses.length >= 2)
+  assert.ok(new Set(houses.map(({ properties }) => properties.settlement)).size >= 1)
+  const forest = scenario.filter(({ properties }) => properties.biome === 'nepal-highland-forest')
   assert.ok(forest.length > 10)
-  const ocean = scenario.find(({ kind }) => kind === 'ocean')!
-  assert.ok(ocean.position[2] > halfWidth)
-  const islandCells = scenario.filter(({ id }) => id.includes('-ground-')).filter(({ position }) => position[2] > halfWidth + TERRAIN_CELL_SIZE * 3)
-  assert.ok(islandCells.length > 0)
+  assert.ok(new Set(forest.map(({ color }) => color)).size >= 3)
+  const medicinal = scenario.filter(({ properties }) => properties.objectiveKind === 'medicinal-plant')
+  assert.ok(medicinal.length > 3)
+  assert.ok(medicinal.every(({ pickup }) => ['healing-herb', 'blue-juniper', 'mountain-root'].includes(pickup!.itemId)))
 })
 
 test('rocks of different styles fill the seams between cells, the coast and the gaps to islands', () => {
@@ -346,4 +358,80 @@ test('rock elongation is clamped and kept by saved rocks', () => {
   const wide = rockSurfacePoint([1, 0, 0], clampRockSettings({ size: 2, roughness: 0, elongation: 2 }), generateRockBumps(1))
   const round = rockSurfacePoint([1, 0, 0], clampRockSettings({ size: 2, roughness: 0, elongation: 1 }), generateRockBumps(1))
   assert.equal(wide[0], round[0] * 2)
+})
+import { Vector3 } from 'three'
+import { createVegetationMask } from './vegetation-footprint.ts'
+
+test('grass excludes transformed house interiors and lake and river surfaces', () => {
+  const objects = generateScenario({ seed: 1042, lakeCount: 2, riverCount: 2 })
+  const house = objects.find(o => o.kind === 'house')!
+  const rotated = { ...house, position: [10, 0, 20] as [number, number, number], rotation: [0, Math.PI / 2, 0] as [number, number, number], scale: [2, 1, 1] as [number, number, number] }
+  const mask = createVegetationMask([rotated])
+  assert.equal(mask(new Vector3(10, 0, 20)), true)
+  assert.equal(mask(new Vector3(100, 0, 100)), false)
+  assert.equal(createVegetationMask([{ ...rotated, visible: false }])(new Vector3(10, 0, 20)), false)
+  for (const water of objects.filter(o => o.kind === 'water')) {
+    assert.equal(createVegetationMask([water])(new Vector3(...water.position)), true)
+  }
+})
+import { broadenHorizonMountain } from './horizon-profile.ts'
+
+test('horizon peaks have broad smooth silhouettes and the profile applies only once', () => {
+  const peaks = generateScenario({ seed: 42, count: 0 }).filter(o => o.properties.landmark === 'himalaya')
+  assert.ok(peaks.length > 0)
+  for (const peak of peaks) {
+    assert.ok(peak.mountain!.radius * peak.scale[0] >= 110)
+    assert.ok(peak.mountain!.roughness <= 0.12)
+    assert.equal(peak.mountain!.peakCount, 2)
+    assert.equal(broadenHorizonMountain(peak), peak)
+    const edited = { ...peak, scale: [3, 1, 3] as [number, number, number] }
+    assert.equal(broadenHorizonMountain(edited), edited)
+  }
+})
+
+test('grass plane edge drops add a curved, upward-facing bank that reaches the lower ground', async () => {
+  const { rampRun } = await import('./grass-plane-generator.ts')
+  const flat = generateGrassPlane(PLANE)
+  assert.equal(flat.rampIndices.length, 0)
+  const banked = generateGrassPlane({ ...PLANE, edgeDropPosX: 2, edgeDropPosZ: 4 })
+  assert.deepEqual(banked, generateGrassPlane({ ...PLANE, edgeDropPosX: 2, edgeDropPosZ: 4 }))
+  const { rampPositions: p, rampIndices: i } = banked
+  assert.ok(i.length > 0)
+  for (let tri = 0; tri < i.length; tri += 3) {
+    const [a, b, c] = [i[tri] * 3, i[tri + 1] * 3, i[tri + 2] * 3]
+    const up = (p[b + 2] - p[a + 2]) * (p[c] - p[a]) - (p[b] - p[a]) * (p[c + 2] - p[a + 2])
+    assert.ok(up > 0)
+  }
+  const ys = Array.from({ length: p.length / 3 }, (_, index) => p[index * 3 + 1])
+  assert.ok(Math.max(...ys) <= 1e-9 && Math.min(...ys) < -4)
+  const single = generateGrassPlane({ ...PLANE, edgeDropPosX: 2 }).rampPositions
+  const xs = Array.from({ length: single.length / 3 }, (_, index) => single[index * 3])
+  assert.ok(Math.abs(Math.max(...xs) - (PLANE.width / 2 + rampRun(2))) < 1e-5)
+  assert.ok(banked.blades.length > flat.blades.length)
+  assert.equal(generateGrassPlane({ ...PLANE, shapeRandomness: 0.5, edgeDropPosX: 2 }).rampIndices.length, 0)
+  const clamped = clampGrassPlaneSettings({ edgeDropNegZ: 1e6, rampRunRatio: -1 })
+  assert.equal(clamped.edgeDropNegZ, GRASS_PLANE_LIMITS.edgeDrop.max)
+  assert.equal(clamped.rampRunRatio, GRASS_PLANE_LIMITS.rampRunRatio.min)
+  assert.equal(clampGrassPlaneSettings({}).edgeDropPosX, 0)
+})
+
+test('scenario ground cells carry the drop to every lower neighbour', () => {
+  const scenario = generateScenario({ seed: 3, count: 0, radius: 100, relief: 4 })
+  const cells = scenario.filter(({ id }) => id.includes('-ground-'))
+  const banked = cells.filter(({ grassPlane }) => (grassPlane!.edgeDropPosX + grassPlane!.edgeDropNegX + grassPlane!.edgeDropPosZ + grassPlane!.edgeDropNegZ) > 0)
+  assert.ok(banked.length > 0)
+  const step = TERRAIN_CELL_SIZE
+  banked.forEach(({ position, grassPlane }) => {
+    const neighbour = cells.find(({ position: other }) => Math.abs(other[0] - position[0] - step) < 1e-6 && Math.abs(other[2] - position[2]) < 1e-6)
+    if (grassPlane!.edgeDropPosX > 0 && neighbour) assert.ok(Math.abs(position[1] - neighbour.position[1] - grassPlane!.edgeDropPosX) < 1e-6)
+  })
+})
+
+test('village houses keep a wide gap between each other', () => {
+  const scenario = generateScenario({ seed: 5, count: 0, radius: 160, villageCount: 3, housesPerVillage: 8 })
+  const houses = scenario.filter(({ kind }) => kind === 'house')
+  assert.ok(houses.length > 3)
+  houses.forEach((house, index) => houses.slice(index + 1).forEach((other) => {
+    assert.ok(Math.hypot(house.position[0] - other.position[0], house.position[2] - other.position[2]) >= 18 - 1e-6)
+  }))
 })

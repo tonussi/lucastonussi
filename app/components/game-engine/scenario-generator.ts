@@ -12,6 +12,7 @@ import { buildSeamRocks, buildStepStones } from './scenario-rocks.ts'
 import { between, clampIntegerRange, clampRange, createRandom } from './seeded-random.ts'
 import { buildTerrain, TERRAIN_CELL_SIZE, type FlatZone, type Terrain } from './terrain-grid.ts'
 import { DEFAULT_TREE_SETTINGS } from './tree-generator.ts'
+import { broadenHorizonMountain } from './horizon-profile.ts'
 import { DEFAULT_WATER_SETTINGS, generateWater, LAKE_MAX_RADIUS_RATIO, WATER_LIMITS } from './water-generator.ts'
 import type { EngineSceneObject, ProceduralSettings } from './types.ts'
 
@@ -25,6 +26,12 @@ export const SCENARIO_LIMITS = {
   riverCount: { min: 0, max: 4 },
   relief: { min: 0, max: 6 },
   pickupCount: { min: 0, max: 24 },
+  villageCount: { min: 0, max: 6 },
+  housesPerVillage: { min: 2, max: 10 },
+  forestTreeCount: { min: 0, max: 240 },
+  medicinalPlantCount: { min: 0, max: 48 },
+  groundGrassCount: { min: 0, max: 20000 },
+  groundGrassHeight: { min: 0.1, max: 0.5 },
 } as const
 
 export const PRESERVED_KINDS: EngineSceneObject['kind'][] = ['character', 'light']
@@ -33,7 +40,6 @@ const GROUND_LEVEL = 0
 const SPAWN_GROUND_DROP = 0.5
 const LAND_LENGTH_RATIO = 1.4
 const LAND_WIDTH_RATIO = 0.8
-const GROUND_BLADES_PER_CELL = 140
 const CLIFF_EXTRA_DEPTH = 1
 const FOOTPRINT_SAMPLE_RATIO = 0.6
 const FLAT_ZONE_CELL_RATIO = 0.75
@@ -63,9 +69,12 @@ const PATH_MARGIN = 1
 const MAX_PLACEMENT_ATTEMPTS = 20
 const MAX_BIG_PROPS = { cave: 4, house: 8 } as const
 const SMALL_GRASS_BLADES = 200
+const VILLAGE_WALL_HEIGHT = { min: 4, max: 5.5 }
 const MOUND_RADIUS_RANGE = { min: 4, max: 9 }
 const MOUND_HEIGHT_RANGE = { min: 1.2, max: 3 }
 const MOUND_FOOTPRINT_RATIO = 0.6
+/** Mounds sit this far below the ground top so their base never z-fights with the grass plane. */
+export const MOUND_SINK = 0.08
 const TREE_STRIP_SPACING = 7
 const TREE_STRIP_ROWS = 2
 const TREE_STRIP_OFFSET_CELLS = 0.8
@@ -93,18 +102,32 @@ const SHIP_ATTEMPTS = 20
 const PICKUP_RING_RADIUS = { min: 4, max: 9 }
 const PICKUP_QUANTITY_MAX = 3
 const PICKUP_COLOR = '#ffd166'
+const NEPAL_GROUND_COLOR = '#637d43'
+const NEPAL_PATH_COLOR = '#9a7b55'
+const NEPAL_HOUSE_COLORS = ['#b89466', '#92704f', '#c3a477'] as const
+const NEPAL_TREE_COLORS = ['#355d36', '#426d3e', '#587744', '#6b8047'] as const
+const NEPAL_HORIZON_COLOR = '#496985'
+const VILLAGE_RADIUS_RANGE = { min: 35, max: 60 }
+/** Houses spread between these fractions of the village radius. */
+const VILLAGE_HOUSE_DISTANCE_RATIO = { min: 0.45, max: 1 }
+/** Minimum gap between the centers of any two houses. */
+const VILLAGE_HOUSE_SPACING = 18
+/** Village centers stay at least this many village radii apart. */
+const VILLAGE_SEPARATION_RATIO = 2.2
+const VILLAGE_HOUSE_SIZE = { min: 4, max: 8 }
+const VILLAGE_CLEARANCE = 22
+const HERB_ITEM_IDS = ['healing-herb', 'blue-juniper', 'mountain-root'] as const
 const FOG_NEAR_RATIO = 1
 const FOG_FAR_RATIO = 5
 
 type PropKind = 'rock' | 'tree' | 'grass' | 'mound' | 'cave' | 'house'
 
 const PROP_WEIGHTS: [PropKind, number][] = [
-  ['rock', 0.2],
-  ['tree', 0.22],
-  ['grass', 0.2],
-  ['mound', 0.16],
-  ['house', 0.12],
-  ['cave', 0.1],
+  ['rock', 0.22],
+  ['tree', 0.28],
+  ['grass', 0.24],
+  ['mound', 0.18],
+  ['cave', 0.08],
 ]
 
 const PROP_COLORS: Record<PropKind, string> = {
@@ -132,11 +155,17 @@ export function clampProceduralSettings(settings: Partial<ProceduralSettings> = 
     seed: Math.round(Number.isFinite(settings.seed) ? (settings.seed as number) : 1),
     count: clampIntegerRange(settings.count ?? 120, SCENARIO_LIMITS.count),
     radius: clampRange(settings.radius ?? 100, SCENARIO_LIMITS.radius),
-    pathCount: clampIntegerRange(settings.pathCount ?? 3, SCENARIO_LIMITS.pathCount),
+    pathCount: 0,
     lakeCount: clampIntegerRange(settings.lakeCount ?? 2, SCENARIO_LIMITS.lakeCount),
     riverCount: clampIntegerRange(settings.riverCount ?? 2, SCENARIO_LIMITS.riverCount),
     relief: clampIntegerRange(settings.relief ?? 3, SCENARIO_LIMITS.relief),
     pickupCount: clampIntegerRange(settings.pickupCount ?? 6, SCENARIO_LIMITS.pickupCount),
+    villageCount: clampIntegerRange(settings.villageCount ?? 2, SCENARIO_LIMITS.villageCount),
+    housesPerVillage: clampIntegerRange(settings.housesPerVillage ?? 5, SCENARIO_LIMITS.housesPerVillage),
+    forestTreeCount: clampIntegerRange(settings.forestTreeCount ?? 80, SCENARIO_LIMITS.forestTreeCount),
+    medicinalPlantCount: clampIntegerRange(settings.medicinalPlantCount ?? 12, SCENARIO_LIMITS.medicinalPlantCount),
+    groundGrassCount: clampIntegerRange(settings.groundGrassCount ?? 14400, SCENARIO_LIMITS.groundGrassCount),
+    groundGrassHeight: clampRange(settings.groundGrassHeight ?? 0.22, SCENARIO_LIMITS.groundGrassHeight),
   }
 }
 
@@ -176,7 +205,7 @@ function buildPaths(prefix: string, settings: ProceduralSettings, random: () => 
       seed: Math.floor(random() * 1e6),
     })
     objects.push({
-      ...baseObject(`${prefix}-path-${index}`, `Path ${index + 1}`, 'path', PATH_COLOR, [0, GROUND_LEVEL, 0], heading),
+      ...baseObject(`${prefix}-path-${index}`, `Village Trail ${index + 1}`, 'path', NEPAL_PATH_COLOR, [0, GROUND_LEVEL, 0], heading),
       path: pathSettings,
     })
     lines.push({ points: toWorld(generatePath(pathSettings).centerline, heading, [0, 0]), reach: pathSettings.width / 2 })
@@ -234,17 +263,25 @@ function flatZonesFrom(lines: Polyline[]): FlatZone[] {
   ]
 }
 
-function buildGround(prefix: string, terrain: Terrain): EngineSceneObject[] {
+function buildGround(prefix: string, terrain: Terrain, settings: ProceduralSettings): EngineSceneObject[] {
   const oceanY = GROUND_LEVEL - OCEAN_DEPTH
+  const drops = new Map(terrain.seams.filter(({ coast }) => !coast).map((seam) => [`${seam.x},${seam.z},${seam.normal.join(',')}`, seam.drop]))
+  const half = TERRAIN_CELL_SIZE / 2
+  const dropAt = (x: number, z: number, dx: number, dz: number) => drops.get(`${x + dx * half},${z + dz * half},${dx},${dz}`) ?? 0
   return terrain.cells.map(({ x, z, top }, index) => ({
-    ...baseObject(`${prefix}-ground-${index}`, `Ground ${index + 1}`, 'grass-plane', GROUND_COLOR, [x, top, z], 0),
+    ...baseObject(`${prefix}-ground-${index}`, `Highland Ground ${index + 1}`, 'grass-plane', NEPAL_GROUND_COLOR, [x, top, z], 0),
     grassPlane: {
       ...DEFAULT_GRASS_PLANE_SETTINGS,
       width: TERRAIN_CELL_SIZE,
       depth: TERRAIN_CELL_SIZE,
       thickness: top - oceanY + CLIFF_EXTRA_DEPTH,
-      bladeCount: GROUND_BLADES_PER_CELL,
+      bladeCount: settings.groundGrassCount,
+      bladeHeight: settings.groundGrassHeight,
       shapeRandomness: 0,
+      edgeDropPosX: dropAt(x, z, 1, 0),
+      edgeDropNegX: dropAt(x, z, -1, 0),
+      edgeDropPosZ: dropAt(x, z, 0, 1),
+      edgeDropNegZ: dropAt(x, z, 0, -1),
       seed: index + 1,
     },
   }))
@@ -296,7 +333,7 @@ function buildProp(prefix: string, index: number, kind: PropKind, random: () => 
   }
   if (kind === 'mound') {
     const radius = between(random, MOUND_RADIUS_RANGE.min, MOUND_RADIUS_RANGE.max)
-    return { footprint: radius * MOUND_FOOTPRINT_RATIO, create: (x: number, z: number, y: number) => ({ ...make([x, y, z]), mountain: { ...DEFAULT_MOUNTAIN_SETTINGS, radius, height: between(random, MOUND_HEIGHT_RANGE.min, MOUND_HEIGHT_RANGE.max), peakCount: 1, roughness: 0.15, snowLine: 1, seed } }) }
+    return { footprint: radius * MOUND_FOOTPRINT_RATIO, create: (x: number, z: number, y: number) => ({ ...make([x, y - MOUND_SINK, z]), mountain: { ...DEFAULT_MOUNTAIN_SETTINGS, radius, height: between(random, MOUND_HEIGHT_RANGE.min, MOUND_HEIGHT_RANGE.max), peakCount: 1, roughness: 0.15, snowLine: 1, seed } }) }
   }
   if (kind === 'cave') {
     const radius = between(random, CAVE_LIMITS.radius.min + 1, CAVE_LIMITS.radius.max)
@@ -323,12 +360,113 @@ function buildHorizon(prefix: string, settings: ProceduralSettings, random: () =
       const radius = between(random, HORIZON_RADIUS_RANGE.min, HORIZON_RADIUS_RANGE.max)
       const id = mountains.length
       mountains.push({
-        ...baseObject(`${prefix}-horizon-${id}`, `Horizon Mountain ${id + 1}`, 'mountain', '#7b736a', [Math.cos(angle) * distance, GROUND_LEVEL - HORIZON_SINK, Math.sin(angle) * distance], random() * Math.PI * 2),
-        mountain: { ...DEFAULT_MOUNTAIN_SETTINGS, radius, height: between(random, HORIZON_HEIGHT_RANGE.min, HORIZON_HEIGHT_RANGE.max) + HORIZON_SINK, peakCount: 2 + Math.floor(random() * 3), roughness: 0.5, snowLine: 0.7, seed: Math.floor(random() * 1e6) },
+        ...baseObject(`${prefix}-horizon-${id}`, `Himalayan Peak ${id + 1}`, 'mountain', NEPAL_HORIZON_COLOR, [Math.cos(angle) * distance, GROUND_LEVEL - HORIZON_SINK, Math.sin(angle) * distance], random() * Math.PI * 2),
+        mountain: { ...DEFAULT_MOUNTAIN_SETTINGS, radius, height: between(random, HORIZON_HEIGHT_RANGE.min, HORIZON_HEIGHT_RANGE.max) + HORIZON_SINK, peakCount: 2 + Math.floor(random() * 3), roughness: 0.58, snowLine: 0.5, seed: Math.floor(random() * 1e6) },
+        properties: { ...SCENARIO_GENERATED_TAG, collision: 'none', landmark: 'himalaya' },
       })
     }
   }
-  return mountains
+  return mountains.map(broadenHorizonMountain)
+}
+
+function buildNepalVillages(
+  prefix: string,
+  terrain: Terrain,
+  settings: ProceduralSettings,
+  random: () => number,
+): EngineSceneObject[] {
+  const { halfLength, halfWidth } = scenarioDimensions(settings.radius)
+  const villages: EngineSceneObject[] = []
+  const centers: { x: number; z: number }[] = []
+  for (let village = 0; village < settings.villageCount; village += 1) {
+    let center: { x: number; z: number } | undefined
+    for (let attempt = 0; attempt < MAX_PLACEMENT_ATTEMPTS; attempt += 1) {
+      const candidate = {
+        x: between(random, -halfLength * 0.55, halfLength * 0.55),
+        z: between(random, -halfWidth * 0.45, halfWidth * 0.45),
+      }
+      const clearOfSpawn = Math.hypot(candidate.x, candidate.z) >= VILLAGE_CLEARANCE
+      const clearOfVillages = centers.every(({ x, z }) => Math.hypot(candidate.x - x, candidate.z - z) >= VILLAGE_RADIUS_RANGE.max * VILLAGE_SEPARATION_RATIO)
+      if (clearOfSpawn && clearOfVillages && terrain.heightAt(candidate.x, candidate.z) !== undefined) {
+        center = candidate
+        centers.push(candidate)
+        break
+      }
+    }
+    if (!center) continue
+    const radius = between(random, VILLAGE_RADIUS_RANGE.min, VILLAGE_RADIUS_RANGE.max)
+    for (let house = 0; house < settings.housesPerVillage; house += 1) {
+      const angle = (house / settings.housesPerVillage) * Math.PI * 2 + between(random, -0.25, 0.25)
+      let position: { x: number; y: number; z: number } | undefined
+      for (let attempt = 0; attempt < MAX_PLACEMENT_ATTEMPTS; attempt += 1) {
+        const distance = between(random, radius * VILLAGE_HOUSE_DISTANCE_RATIO.min, radius * VILLAGE_HOUSE_DISTANCE_RATIO.max)
+        const x = center.x + Math.cos(angle) * distance
+        const z = center.z + Math.sin(angle) * distance
+        const y = terrain.heightAt(x, z)
+        const spaced = villages.every(({ position: [hx, , hz] }) => Math.hypot(hx - x, hz - z) >= VILLAGE_HOUSE_SPACING)
+        if (y !== undefined && spaced) {
+          position = { x, y, z }
+          break
+        }
+      }
+      if (!position) continue
+      const width = between(random, VILLAGE_HOUSE_SIZE.min, VILLAGE_HOUSE_SIZE.max)
+      const depth = between(random, VILLAGE_HOUSE_SIZE.min, VILLAGE_HOUSE_SIZE.max)
+      villages.push({
+        ...baseObject(`${prefix}-village-${village}-house-${house}`, `Village ${village + 1} House ${house + 1}`, 'house', NEPAL_HOUSE_COLORS[Math.floor(random() * NEPAL_HOUSE_COLORS.length)], [position.x, position.y, position.z], -angle + Math.PI),
+        house: { ...DEFAULT_HOUSE_SETTINGS, width, depth, wallHeight: between(random, VILLAGE_WALL_HEIGHT.min, VILLAGE_WALL_HEIGHT.max), roofHeight: between(random, 1.4, 2.8) },
+        properties: { ...SCENARIO_GENERATED_TAG, settlement: `village-${village + 1}`, theme: 'nepal' },
+      })
+    }
+  }
+  return villages
+}
+
+function buildNepalForest(prefix: string, terrain: Terrain, settings: ProceduralSettings, random: () => number) {
+  const { halfLength, halfWidth } = scenarioDimensions(settings.radius)
+  const trees: EngineSceneObject[] = []
+  for (let attempt = 0; trees.length < settings.forestTreeCount && attempt < settings.forestTreeCount * MAX_PLACEMENT_ATTEMPTS; attempt += 1) {
+    const index = trees.length
+    const x = between(random, -halfLength, halfLength)
+    const z = between(random, -halfWidth, halfWidth)
+    if (Math.hypot(x, z) < SPAWN_CLEARANCE * 2) continue
+    const y = terrain.heightAt(x, z)
+    if (y === undefined) continue
+    const tall = random() > 0.55
+    trees.push({
+      ...baseObject(`${prefix}-nepal-tree-${index}`, `Highland Tree ${index + 1}`, 'tree', NEPAL_TREE_COLORS[Math.floor(random() * NEPAL_TREE_COLORS.length)], [x, y, z], random() * Math.PI * 2),
+      tree: {
+        ...DEFAULT_TREE_SETTINGS,
+        height: tall ? between(random, 7, 13) : between(random, 3.5, 7),
+        branchCount: tall ? 14 : 8,
+        leafCount: tall ? 180 : 100,
+        leafSize: tall ? 0.7 : 0.55,
+        seed: Math.floor(random() * 1e6),
+      },
+      properties: { ...SCENARIO_GENERATED_TAG, biome: 'nepal-highland-forest' },
+    })
+  }
+  return trees
+}
+
+function buildMedicinalPlants(prefix: string, terrain: Terrain, settings: ProceduralSettings, random: () => number) {
+  const { halfLength, halfWidth } = scenarioDimensions(settings.radius)
+  const plants: EngineSceneObject[] = []
+  for (let attempt = 0; plants.length < settings.medicinalPlantCount && attempt < settings.medicinalPlantCount * MAX_PLACEMENT_ATTEMPTS; attempt += 1) {
+    const index = plants.length
+    const x = between(random, -halfLength * 0.8, halfLength * 0.8)
+    const z = between(random, -halfWidth * 0.8, halfWidth * 0.8)
+    const y = terrain.heightAt(x, z)
+    if (y === undefined || Math.hypot(x, z) < SPAWN_CLEARANCE) continue
+    const itemId = HERB_ITEM_IDS[index % HERB_ITEM_IDS.length]
+    const item = ITEMS.find(({ id }) => id === itemId)!
+    plants.push({
+      ...baseObject(`${prefix}-medicinal-${index}`, item.label, 'pickup', item.color, [x, y, z], 0),
+      pickup: { itemId, quantity: 1 },
+      properties: { ...SCENARIO_GENERATED_TAG, objectiveKind: 'medicinal-plant', theme: 'nepal' },
+    })
+  }
+  return plants
 }
 
 function buildOceanAndShips(prefix: string, terrain: Terrain, random: () => number): EngineSceneObject[] {
@@ -386,7 +524,6 @@ function buildSpawnPickups(
   prefix: string,
   terrain: Terrain,
   count: number,
-  isClear: (x: number, z: number) => boolean,
   random: () => number,
 ): EngineSceneObject[] {
   const pickups: EngineSceneObject[] = []
@@ -397,7 +534,7 @@ function buildSpawnPickups(
     const x = Math.cos(angle) * distance
     const z = Math.sin(angle) * distance
     const height = terrain.heightAt(x, z)
-    if (height === undefined || !isClear(x, z)) continue
+    if (height === undefined) continue
     pickups.push({
       ...baseObject(`${prefix}-pickup-${index}`, item.label, 'pickup', PICKUP_COLOR, [x, height, z], 0),
       pickup: { itemId: item.id, quantity: 1 + Math.floor(random() * PICKUP_QUANTITY_MAX) },
@@ -479,17 +616,17 @@ export function generateScenario(
   const oceanY = GROUND_LEVEL - OCEAN_DEPTH
   const origin: [number, number, number] = [spawn[0], spawn[1] - SPAWN_GROUND_DROP, spawn[2]]
   const objects = [
-    ...buildGround(prefix, terrain),
-    ...buildDesert(prefix, settings, random),
-    ...buildTreeStrip(prefix, terrain, settings, isClear, random),
+    ...buildGround(prefix, terrain, settings),
+    ...buildNepalVillages(prefix, terrain, settings, random),
+    ...buildNepalForest(prefix, terrain, settings, random),
+    ...buildMedicinalPlants(prefix, terrain, settings, random),
     ...buildSeamRocks(prefix, terrain, oceanY, random),
     ...buildStepStones(prefix, terrain, oceanY, random),
-    ...buildSpawnPickups(prefix, terrain, settings.pickupCount, isClear, random),
+    ...buildSpawnPickups(prefix, terrain, settings.pickupCount, random),
     ...paths,
     ...water,
     ...props,
     ...buildHorizon(prefix, settings, random),
-    ...buildOceanAndShips(prefix, terrain, random),
   ]
   return objects.map((object) => ({
     ...object,

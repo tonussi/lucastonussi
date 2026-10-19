@@ -117,10 +117,9 @@ export const quickSlotLabel = (state: CharacterRuntimeState, categoryId: string)
   return quantity !== undefined ? `${itemLabel(slot)} ×${quantity}` : itemLabel(slot)
 }
 
-/** Consumes the selected consumable and restores its resource; returns undefined when nothing can be used. */
-export function consumeSelectedItem(state: CharacterRuntimeState): CharacterRuntimeState | undefined {
-  const slot = state.quickSlots.consumables?.[state.selectedItems.consumables ?? 0]
-  const item = itemById(slot ?? '')
+/** Consumes one owned consumable and restores its resource; returns undefined when nothing can be used. */
+export function consumeItemById(state: CharacterRuntimeState, itemId: string): CharacterRuntimeState | undefined {
+  const item = itemById(itemId)
   const owned = state.inventory[item?.id ?? ''] ?? 0
   if (!item?.effect || owned <= 0) return undefined
   const maxima = resourceMaxima(state.attributes)
@@ -130,4 +129,9 @@ export function consumeSelectedItem(state: CharacterRuntimeState): CharacterRunt
     inventory: { ...state.inventory, [item.id]: owned - 1 },
     resources: { ...state.resources, [resourceId]: Math.min(maxima[resourceId], (state.resources[resourceId] ?? 0) + amount) },
   }
+}
+
+/** Consumes the selected consumable; returns undefined when nothing can be used. */
+export function consumeSelectedItem(state: CharacterRuntimeState): CharacterRuntimeState | undefined {
+  return consumeItemById(state, state.quickSlots.consumables?.[state.selectedItems.consumables ?? 0] ?? '')
 }

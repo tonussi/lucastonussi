@@ -22,7 +22,7 @@ test('legacy v1 projects are migrated with the built-in world objects and their 
   assert.equal(migrated.sceneObjects[1].position[1], -39)
   assert.deepEqual(migrated.sceneObjects[1].scale, [3, 3, 3])
   assert.equal(migrated.world.fogNear, 10)
-  assert.equal(migrated.schemaVersion, 3)
+  assert.equal(migrated.schemaVersion, 5)
 })
 
 test('v2 projects are not re-migrated, so deleted built-ins stay deleted', () => {
@@ -74,4 +74,25 @@ test('world background color round-trips, and invalid or missing colors fall bac
   const invalid = normalizeProject({ ...defaultEngineProject, world: { ...defaultEngineProject.world, backgroundColor: 'red' } })
   assert.equal(invalid.world.backgroundColor, DEFAULT_BACKGROUND_COLOR)
   assert.equal(normalizeProject({ world: { fogNear: 1, fogFar: 2 } }).world.backgroundColor, DEFAULT_BACKGROUND_COLOR)
+})
+test('v3 worlds lose generated trails and equipment once, and v4 round-trips edits', () => {
+  const old = normalizeProject({ schemaVersion: 1, sceneObjects: [] })
+  const character = old.sceneObjects.find(o => o.kind === 'character')!
+  character.character!.equipment = { sword: true, shield: true }
+  const path = { ...character, id: 'old-trail', kind: 'path' as const, properties: { generated: 'scenario' } }
+  const migrated = normalizeProject({ ...old, schemaVersion: 3, sceneObjects: [character, path] })
+  assert.equal(migrated.sceneObjects.length, 1)
+  assert.deepEqual(migrated.sceneObjects[0].character!.equipment, { sword: false, shield: false })
+  migrated.sceneObjects[0].character!.equipment.sword = true
+  assert.deepEqual(normalizeProject(JSON.parse(serializeProject(migrated))), migrated)
+})
+test('grass density increases once on old worlds and later density edits round-trip', () => {
+  const ground = { ...createGrassCoverObjects()[0], kind: 'grass-plane' as const, properties: { generated: 'scenario' } }
+  ground.grassPlane = { ...ground.grassPlane!, bladeCount: 3600 }
+  const migrated = normalizeProject({ ...defaultEngineProject, schemaVersion: 4,
+    procedural: { ...defaultEngineProject.procedural, groundGrassCount: 3600 }, sceneObjects: [ground] })
+  assert.equal(migrated.procedural.groundGrassCount, 14400)
+  assert.equal(migrated.sceneObjects[0].grassPlane!.bladeCount, 14400)
+  migrated.sceneObjects[0].grassPlane!.bladeCount = 3600
+  assert.deepEqual(normalizeProject(JSON.parse(serializeProject(migrated))), migrated)
 })

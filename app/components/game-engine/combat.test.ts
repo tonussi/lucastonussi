@@ -92,14 +92,33 @@ test('pickups are clamped, saved with their object, and the scenario scatters th
   }
   assert.ok(normalizeSceneObject(object).pickup)
 
-  const pickups = generateScenario({ seed: 3, count: 10, radius: 100, pickupCount: 6 }).filter(({ kind }) => kind === 'pickup')
+  const pickups = generateScenario({ seed: 3, count: 10, radius: 100, pickupCount: 6 }).filter(
+    ({ kind, properties }) => kind === 'pickup' && properties.objectiveKind !== 'medicinal-plant',
+  )
   assert.ok(pickups.length >= 3 && pickups.length <= 6)
   assert.ok(pickups.every(({ position }) => Math.hypot(position[0], position[2]) <= 10))
-  assert.equal(generateScenario({ seed: 3, count: 10, radius: 100, pickupCount: 0 }).filter(({ kind }) => kind === 'pickup').length, 0)
+  assert.equal(generateScenario({ seed: 3, count: 10, radius: 100, pickupCount: 0 }).filter(
+    ({ kind, properties }) => kind === 'pickup' && properties.objectiveKind !== 'medicinal-plant',
+  ).length, 0)
 })
 
 test('equipment and dodge settings are clamped with defaults', () => {
   const settings = clampCharacterSettings({ dashHoldSeconds: 0, equipment: { sword: false } as never })
   assert.equal(settings.dashHoldSeconds, 0.05)
-  assert.deepEqual(settings.equipment, { sword: false, shield: true })
+  assert.deepEqual(settings.equipment, { sword: false, shield: false })
+})
+
+test('inventory navigation keeps the cursor on filled slots and items live in the first tab', async () => {
+  const { moveSlot, wrapIndex, itemsForTab } = await import('./inventory-navigation.ts')
+  assert.equal(moveSlot(0, 'left', 3), 0)
+  assert.equal(moveSlot(0, 'right', 3), 1)
+  assert.equal(moveSlot(2, 'right', 3), 2)
+  assert.equal(moveSlot(1, 'down', 3), 1)
+  assert.equal(moveSlot(7, 'up', 8), 2)
+  assert.equal(moveSlot(0, 'down', 0), 0)
+  assert.equal(wrapIndex(-1, 3), 2)
+  assert.equal(wrapIndex(3, 3), 0)
+  const owned = { [ITEMS[0].id]: 2 }
+  assert.deepEqual(itemsForTab(ITEMS, owned, 0).map(({ id }) => id), [ITEMS[0].id])
+  assert.deepEqual(itemsForTab(ITEMS, owned, 1), [])
 })

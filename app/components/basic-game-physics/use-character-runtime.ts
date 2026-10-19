@@ -8,6 +8,7 @@ import {
   spendAttributePoint,
   spendResource,
   consumeSelectedItem,
+  consumeItemById as consumeItemByIdIn,
   type CharacterRuntimeState,
 } from '../game-engine/character-runtime'
 import { QUICK_SLOT_CATEGORIES, type DpadDirection } from '../game-engine/quick-slots'
@@ -32,6 +33,8 @@ export interface CharacterRuntime {
   trySpend: (resourceId: string, amount: number) => boolean
   /** Uses the selected consumable; returns false when nothing could be used. */
   consumeItem: () => boolean
+  /** Uses one owned consumable by id; returns false when it cannot be used. */
+  consumeItemById: (itemId: string) => boolean
   pickUp: (pickupId: string, itemId: string, quantity: number) => void
 }
 
@@ -83,10 +86,17 @@ export function useCharacterRuntime(settings: CharacterSettings, gamepad: Gamepa
     refresh()
     return true
   }, [])
+  const consumeItemById = useCallback((itemId: string) => {
+    const next = consumeItemByIdIn(store.current, itemId)
+    if (!next) return false
+    store.current = next
+    refresh()
+    return true
+  }, [])
   const pickUp = useCallback((pickupId: string, itemId: string, quantity: number) => {
     store.current = pickUpItem(store.current, pickupId, itemId, quantity)
     refresh()
   }, [])
 
-  return { state: store.current, tick, canSprint: () => canSprint(store.current), spendPoint, trySpend, consumeItem, pickUp }
+  return { state: store.current, tick, canSprint: () => canSprint(store.current), spendPoint, trySpend, consumeItem, consumeItemById, pickUp }
 }

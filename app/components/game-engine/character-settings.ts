@@ -14,6 +14,7 @@ import type { CharacterSettings, InventorySettings } from './types.ts'
 export const AUTO_CLIP = ''
 
 export const CHARACTER_STATES = [
+  { state: 'interacting', field: 'interactClip', label: 'Pickup animation', pattern: /PickUp_Table|Interact/i, fallbackState: 'idle', loop: false },
   { state: 'idle', field: 'idleClip', label: 'Idle animation', pattern: /idle|stand|pose/i, fallbackIndex: 0, loop: true },
   { state: 'moving', field: 'movingClip', label: 'Moving animation', pattern: /run|jog|walk|move/i, fallbackIndex: 1, loop: true },
   { state: 'rolling', field: 'rollClip', label: 'Roll animation', pattern: /roll|dodge/i, fallbackState: 'moving', loop: false },
@@ -65,7 +66,14 @@ export const DEFAULT_ROLL_DURATION = 0.45
 export const DEFAULT_ROLL_DISTANCE = 5
 export const DASH_HOLD_LIMITS = { min: 0.05, max: 1 } as const
 export const DEFAULT_DASH_HOLD_SECONDS = 0.2
-export const DEFAULT_EQUIPMENT = { sword: true, shield: true }
+export const DEFAULT_EQUIPMENT = { sword: false, shield: false }
+export const MOTION_SETTINGS = {
+  movementResponse: { label: 'Movement response', min: 2, max: 40, default: 14 },
+  turnResponse: { label: 'Turn response', min: 2, max: 40, default: 12 },
+  cameraResponse: { label: 'Camera response', min: 2, max: 40, default: 10 },
+  firstPersonEyeHeight: { label: 'First-person eye height (above feet)', min: 0.5, max: 4, default: 1.5 },
+  animationFade: { label: 'Animation blend (s)', min: 0.05, max: 1, default: 0.18 },
+} as const
 export const DEFAULT_WALK_SPEED = 6
 export const DEFAULT_RUN_SPEED = 14
 
@@ -129,6 +137,11 @@ export const DEFAULT_CHARACTER_SETTINGS: CharacterSettings = {
   cameraRotationSpeed: DEFAULT_CAMERA_ROTATION_SPEED,
   walkSpeed: DEFAULT_WALK_SPEED,
   runSpeed: DEFAULT_RUN_SPEED,
+  movementResponse: MOTION_SETTINGS.movementResponse.default,
+  turnResponse: MOTION_SETTINGS.turnResponse.default,
+  cameraResponse: MOTION_SETTINGS.cameraResponse.default,
+  firstPersonEyeHeight: MOTION_SETTINGS.firstPersonEyeHeight.default,
+  animationFade: MOTION_SETTINGS.animationFade.default,
   jumpHeight: DEFAULT_JUMP_HEIGHT,
   rollDuration: DEFAULT_ROLL_DURATION,
   rollDistance: DEFAULT_ROLL_DISTANCE,
@@ -159,6 +172,11 @@ export function clampCharacterSettings(settings: Partial<CharacterSettings> = {}
     ),
     walkSpeed: clampRange(settings.walkSpeed ?? DEFAULT_WALK_SPEED, WALK_SPEED_LIMITS),
     runSpeed: clampRange(settings.runSpeed ?? DEFAULT_RUN_SPEED, RUN_SPEED_LIMITS),
+    movementResponse: clampRange(settings.movementResponse ?? MOTION_SETTINGS.movementResponse.default, MOTION_SETTINGS.movementResponse),
+    turnResponse: clampRange(settings.turnResponse ?? MOTION_SETTINGS.turnResponse.default, MOTION_SETTINGS.turnResponse),
+    cameraResponse: clampRange(settings.cameraResponse ?? MOTION_SETTINGS.cameraResponse.default, MOTION_SETTINGS.cameraResponse),
+    firstPersonEyeHeight: clampRange(settings.firstPersonEyeHeight ?? MOTION_SETTINGS.firstPersonEyeHeight.default, MOTION_SETTINGS.firstPersonEyeHeight),
+    animationFade: clampRange(settings.animationFade ?? MOTION_SETTINGS.animationFade.default, MOTION_SETTINGS.animationFade),
     jumpHeight: clampRange(settings.jumpHeight ?? DEFAULT_JUMP_HEIGHT, JUMP_HEIGHT_LIMITS),
     rollDuration: clampRange(settings.rollDuration ?? DEFAULT_ROLL_DURATION, ROLL_DURATION_LIMITS),
     rollDistance: clampRange(settings.rollDistance ?? DEFAULT_ROLL_DISTANCE, ROLL_DISTANCE_LIMITS),

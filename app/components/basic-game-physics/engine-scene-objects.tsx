@@ -30,6 +30,7 @@ import ModelObject from './model-object'
 import Ocean from './ocean'
 import PlayerCharacter from './player-character'
 import TreeMesh from './tree-mesh'
+import { VegetationMask } from './vegetation-mask'
 
 const HALF_HEIGHT_RATIO = 0.5
 const GIZMO_RELEASE_SELECTION_GUARD_MS = 300
@@ -95,7 +96,7 @@ function ObjectMesh({ object, selected, onSelect, editorEnabled }: {
   }
 
   if (object.kind === 'mountain') {
-    return <MountainMesh settings={clampMountainSettings(object.mountain)} color={object.color} selected={selected} onClick={handleClick} />
+    return <MountainMesh settings={clampMountainSettings(object.mountain)} grass={object.grass} color={object.color} selected={selected} onClick={handleClick} />
   }
 
   if (object.kind === 'house') {
@@ -177,8 +178,11 @@ function StructureBody({ object, onSelect, editorEnabled }: {
 }
 
 function buildTrimesh(object: EngineSceneObject) {
-  if (object.kind === 'mountain') return generateMountain(clampMountainSettings(object.mountain))
-  return generateGrassPlane(clampGrassPlaneSettings(object.grassPlane))
+  if (object.kind === 'mountain') {
+    const { positions, indices } = generateMountain(clampMountainSettings(object.mountain))
+    return { positions, indices, rampPositions: undefined, rampIndices: undefined }
+  }
+  return generateGrassPlane({ ...clampGrassPlaneSettings(object.grassPlane), bladeCount: 0 })
 }
 
 function TrimeshBody({ object, onSelect, editorEnabled }: {
@@ -187,7 +191,7 @@ function TrimeshBody({ object, onSelect, editorEnabled }: {
   editorEnabled: boolean
 }) {
   const settingsKey = JSON.stringify(object.kind === 'mountain' ? object.mountain : object.grassPlane)
-  const { positions, indices } = useMemo(() => buildTrimesh(object), [object.kind, settingsKey])
+  const { positions, indices, rampPositions, rampIndices } = useMemo(() => buildTrimesh(object), [object.kind, settingsKey])
 
   return <RigidBody
     type="fixed"
@@ -197,6 +201,7 @@ function TrimeshBody({ object, onSelect, editorEnabled }: {
     scale={object.scale}
   >
     <TrimeshCollider args={[positions, indices]} />
+    {rampIndices && rampIndices.length > 0 && <TrimeshCollider args={[rampPositions!, rampIndices]} />}
     <ObjectMesh object={object} selected={false} onSelect={onSelect} editorEnabled={editorEnabled} />
   </RigidBody>
 }
@@ -270,7 +275,7 @@ export default function EngineSceneObjects({
     [onSelect],
   )
 
-  return <group name="engine-scene-objects">
+  return <VegetationMask objects={objects}><group name="engine-scene-objects">
     {objects.map((object) => {
       if (!object.visible || hiddenIds.includes(object.id)) return null
       if (editorEnabled && selectedId === object.id) {
@@ -298,6 +303,11 @@ export default function EngineSceneObjects({
         </RigidBody>
       }
       if (NON_PHYSICAL_KINDS.includes(object.kind) || object.kind === 'model') {
+        return <group key={object.id} position={object.position} rotation={object.rotation} scale={object.scale}>
+          <ObjectMesh object={object} selected={false} onSelect={editorEnabled && onSelect ? guardedSelect : undefined} editorEnabled={editorEnabled} />
+        </group>
+      }
+      if (object.properties.collision === 'none') {
         return <group key={object.id} position={object.position} rotation={object.rotation} scale={object.scale}>
           <ObjectMesh object={object} selected={false} onSelect={editorEnabled && onSelect ? guardedSelect : undefined} editorEnabled={editorEnabled} />
         </group>
@@ -358,5 +368,5 @@ export default function EngineSceneObjects({
         <ObjectMesh object={object} selected={false} onSelect={editorEnabled && onSelect ? guardedSelect : undefined} editorEnabled={editorEnabled} />
       </RigidBody>
     })}
-  </group>
+  </group></VegetationMask>
 }

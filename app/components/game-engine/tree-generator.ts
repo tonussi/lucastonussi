@@ -88,12 +88,16 @@ export function generateTree(input: Partial<TreeSettings>): GeneratedTree {
   const anchors = branches.length > 0 ? branches.map(({ end }) => end) : [trunk.end]
   const leaves: TreeLeaf[] = Array.from({ length: leafCount }, (_, index) => {
     const [anchorX, anchorY, anchorZ] = anchors[index % anchors.length]
-    const spread = anchors.length > 1 ? crownRadius / 2 : crownRadius
+    const spread = anchors.length > 1 ? crownRadius / 3 : crownRadius / 2
+    const yaw = random() * Math.PI * 2
+    const vertical = between(random, -1, 1)
+    const radial = Math.cbrt(random()) * spread
+    const horizontal = Math.sqrt(1 - vertical * vertical) * radial
     return {
       position: [
-        anchorX + between(random, -spread, spread),
-        anchorY + between(random, -spread, spread) + (anchors.length > 1 ? 0 : height * (CROWN_CENTER_RATIO - 1)),
-        anchorZ + between(random, -spread, spread),
+        anchorX + Math.cos(yaw) * horizontal,
+        anchorY + vertical * radial * 0.65 + (anchors.length > 1 ? 0 : height * (CROWN_CENTER_RATIO - 1)),
+        anchorZ + Math.sin(yaw) * horizontal,
       ],
       size: leafSize * between(random, 1 - LEAF_SIZE_VARIATION, 1 + LEAF_SIZE_VARIATION),
     }

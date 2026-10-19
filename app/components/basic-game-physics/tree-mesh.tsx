@@ -5,7 +5,7 @@ import type { TreeSettings } from '../game-engine/types'
 
 const TRUNK_COLOR = '#6b4a2b'
 const CYLINDER_SEGMENTS = 8
-const LEAF_DETAIL = 0
+const LEAF_DETAIL = 1
 
 const branchStart = new THREE.Vector3()
 const branchEnd = new THREE.Vector3()
@@ -64,13 +64,16 @@ export default function TreeMesh({ settings, leafColor, selected, onClick }: Tre
     if (!leaves) return
     tree.leaves.forEach(({ position, size }, index) => {
       leafPosition.set(...position)
-      leafScale.setScalar(size)
+      leafScale.set(size * 1.5, size * 0.55, size)
+      identityQuaternion.setFromEuler(new THREE.Euler(index * 2.4, index * 1.7, index * 0.6))
       matrix.compose(leafPosition, identityQuaternion, leafScale)
       leaves.setMatrixAt(index, matrix)
+      leaves.setColorAt(index, new THREE.Color(leafColor).multiplyScalar(0.8 + (index % 7) * 0.055))
     })
     leaves.instanceMatrix.needsUpdate = true
+    if (leaves.instanceColor) leaves.instanceColor.needsUpdate = true
     leaves.computeBoundingSphere()
-  }, [tree])
+  }, [tree, leafColor])
 
   const emissive = selected ? '#8a631e' : '#000000'
   const emissiveIntensity = selected ? 0.6 : 0
@@ -95,7 +98,7 @@ export default function TreeMesh({ settings, leafColor, selected, onClick }: Tre
           castShadow
         >
           <icosahedronGeometry args={[1, LEAF_DETAIL]} />
-          <meshStandardMaterial color={leafColor} roughness={0.8} emissive={emissive} emissiveIntensity={emissiveIntensity} />
+          <meshStandardMaterial color="#ffffff" roughness={0.9} emissive={emissive} emissiveIntensity={emissiveIntensity} />
         </instancedMesh>
       )}
     </group>

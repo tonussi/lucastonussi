@@ -22,6 +22,16 @@ export interface ProceduralSettings {
   relief: number
   /** Items lying on the ground around the spawn point. */
   pickupCount: number
+  /** Rural settlements generated along the walkable paths. */
+  villageCount: number
+  /** Houses generated in each rural settlement. */
+  housesPerVillage: number
+  /** Number of trees in the Nepal highland forest. */
+  forestTreeCount: number
+  /** Medicinal plants scattered near paths for exploration objectives. */
+  medicinalPlantCount: number
+  groundGrassCount: number
+  groundGrassHeight: number
 }
 
 export interface EngineDebugSettings {
@@ -66,6 +76,13 @@ export interface GrassPlaneSettings {
   bladeHeight: number
   /** 0 keeps a plain rectangle; higher values distort the outline. */
   shapeRandomness: number
+  /** Height down to the lower neighbour on each side; above 0 adds a curved grassy bank there. */
+  edgeDropPosX: number
+  edgeDropNegX: number
+  edgeDropPosZ: number
+  edgeDropNegZ: number
+  /** Bank run as a multiple of its drop (capped). */
+  rampRunRatio: number
   seed: number
 }
 
@@ -135,6 +152,13 @@ export interface CharacterSettings {
   walkSpeed: number
   /** Running speed in units per second, used while holding the run button. */
   runSpeed: number
+  movementResponse: number
+  turnResponse: number
+  cameraResponse: number
+  /** Camera height above the character's feet in first-person view. */
+  firstPersonEyeHeight: number
+  animationFade: number
+  interactClip: string
   /** Peak height of a jump in world units. */
   jumpHeight: number
   /** How long a roll lasts in seconds; the roll clip is sped up to fit. */
@@ -240,7 +264,7 @@ export interface EngineSceneObject {
 }
 
 export interface EngineProject {
-  schemaVersion: 3
+  schemaVersion: 5
   name: string
   updatedAt: string
   world: EngineWorldSettings
@@ -255,7 +279,7 @@ export interface EngineProject {
 }
 
 export const defaultEngineProject: EngineProject = {
-  schemaVersion: 3,
+  schemaVersion: 5,
   name: 'Experimental World',
   updatedAt: new Date(0).toISOString(),
   world: {
@@ -267,11 +291,17 @@ export const defaultEngineProject: EngineProject = {
     seed: 1042,
     count: 120,
     radius: 100,
-    pathCount: 3,
+    pathCount: 0,
     lakeCount: 2,
     riverCount: 2,
     relief: 3,
     pickupCount: 6,
+    villageCount: 2,
+    housesPerVillage: 5,
+    forestTreeCount: 80,
+    medicinalPlantCount: 12,
+    groundGrassCount: 14400,
+    groundGrassHeight: 0.22,
   },
   debug: {
     collisionShapes: false,

@@ -1,8 +1,9 @@
 import { useLayoutEffect, useRef } from 'react'
 import * as THREE from 'three'
 import type { GrassBlade } from '../game-engine/grass-generator'
-
-const BLADE_SEGMENTS = 3
+import { applyGrassWind } from './grass-wind'
+import { createTuftGeometry, TUFT_RADIUS } from './grass-tuft'
+import { useVegetationMask } from './vegetation-mask'
 
 const matrix = new THREE.Matrix4()
 const position = new THREE.Vector3()
@@ -12,7 +13,7 @@ const euler = new THREE.Euler(0, 0, 0, 'YXZ')
 const baseColor = new THREE.Color()
 const bladeColor = new THREE.Color()
 
-const bladeGeometry = new THREE.ConeGeometry(1, 1, BLADE_SEGMENTS).translate(0, 0.5, 0)
+const bladeGeometry = createTuftGeometry()
 
 interface GrassBladesProps {
   blades: GrassBlade[]
@@ -22,24 +23,31 @@ interface GrassBladesProps {
 
 export default function GrassBlades({ blades, color, selected }: GrassBladesProps) {
   const mesh = useRef<THREE.InstancedMesh>(null)
+  const blocked = useVegetationMask()
 
   useLayoutEffect(() => {
     const instances = mesh.current
     if (!instances) return
     baseColor.set(color)
-    blades.forEach((blade, index) => {
+    instances.updateWorldMatrix(true, false)
+    const worldPoint = new THREE.Vector3()
+    let count = 0
+    blades.forEach((blade) => {
       position.set(...blade.position)
-      euler.set(blade.lean, blade.yaw, 0)
+      worldPoint.copy(position).applyMatrix4(instances.matrixWorld)
+      if (blocked(worldPoint)) return
+      euler.set(0, blade.yaw, 0)
       quaternion.setFromEuler(euler)
-      scale.set(blade.width, blade.height, blade.width)
+      scale.set(TUFT_RADIUS, blade.height, TUFT_RADIUS)
       matrix.compose(position, quaternion, scale)
-      instances.setMatrixAt(index, matrix)
-      instances.setColorAt(index, bladeColor.copy(baseColor).multiplyScalar(blade.shade))
+      instances.setMatrixAt(count, matrix)
+      instances.setColorAt(count++, bladeColor.copy(baseColor).multiplyScalar(blade.shade))
     })
+    instances.count = count
     instances.instanceMatrix.needsUpdate = true
     if (instances.instanceColor) instances.instanceColor.needsUpdate = true
     instances.computeBoundingSphere()
-  }, [blades, color])
+  }, [blades, color, blocked])
 
   if (blades.length === 0) return null
 
@@ -48,6 +56,8 @@ export default function GrassBlades({ blades, color, selected }: GrassBladesProp
       <meshStandardMaterial
         color="#ffffff"
         roughness={0.9}
+        side={THREE.DoubleSide}
+        onBeforeCompile={applyGrassWind}
         emissive={selected ? '#8a631e' : '#000000'}
         emissiveIntensity={selected ? 0.5 : 0}
       />

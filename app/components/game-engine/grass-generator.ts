@@ -17,7 +17,7 @@ export const DEFAULT_GRASS_SETTINGS: GrassSettings = {
 }
 
 const HEIGHT_VARIATION = 0.35
-const BLADE_WIDTH_RATIO = 0.07
+const BLADE_WIDTH_RATIO = 0.3
 const MAX_LEAN = 0.5
 const MIN_SHADE = 0.75
 const MAX_SHADE = 1.2

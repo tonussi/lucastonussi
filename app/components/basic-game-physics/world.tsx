@@ -14,7 +14,7 @@ import { GRAVITY } from './constants'
 import EditorCamera from './editor-camera'
 import EngineSceneObjects from './engine-scene-objects'
 import FullscreenWrapper from './fullscreen'
-import useGamepad from './gamepad'
+import useGamepad, { emptyState as emptyGamepadState } from './gamepad'
 import ImpactBurst from './impact-burst'
 import PercentageProgress from './progress'
 import Projectiles from './projectiles'
@@ -52,6 +52,7 @@ const keyboardMap = [
   { name: 'strongAttack', keys: ['KeyG'] },
   { name: 'interact', keys: ['KeyT'] },
   { name: 'useItem', keys: ['KeyX'] },
+  { name: 'toggleView', keys: ['KeyV'] },
 ]
 
 interface BasicGamePhysicsProps {
@@ -100,7 +101,7 @@ export default function BasicGamePhysics({
     () => clampCharacterSettings(characterObject?.character),
     [characterObject?.character],
   )
-  const runtime = useCharacterRuntime(characterSettings, gamepad, isPlaying)
+  const runtime = useCharacterRuntime(characterSettings, gamepad, isPlaying && !dialogs.active)
   const pickups = useMemo<PickupTarget[]>(
     () =>
       sceneObjects
@@ -151,7 +152,7 @@ export default function BasicGamePhysics({
         </>
       )}
       {dialogs.active === 'inventory' && (
-        <InventoryDialog settings={characterSettings.inventory} owned={runtime.state.inventory} onClose={dialogs.close} />
+        <InventoryDialog settings={characterSettings.inventory} owned={runtime.state.inventory} gamepad={gamepad} onUseItem={runtime.consumeItemById} onClose={dialogs.close} />
       )}
       {dialogs.active === 'stats' && <StatsDialog runtime={runtime} onClose={dialogs.close} />}
       <KeyboardControls map={keyboardMap}>
@@ -198,7 +199,8 @@ export default function BasicGamePhysics({
                 {isPlaying && (
                   <CharacterController
                     refScene={refScene}
-                    gamepad={gamepad}
+                    gamepad={dialogs.active ? emptyGamepadState : gamepad}
+                    inputPaused={Boolean(dialogs.active)}
                     spawnPosition={characterSpawn}
                     characterSettings={characterSettings}
                     runtime={runtime}

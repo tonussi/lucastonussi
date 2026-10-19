@@ -23,13 +23,15 @@ export type GamepadState = {
   rt: boolean
   start: boolean
   select: boolean
+  l3: boolean
+  r3: boolean
   dpadUp: boolean
   dpadDown: boolean
   dpadLeft: boolean
   dpadRight: boolean
 }
 
-const emptyState: GamepadState = {
+export const emptyState: GamepadState = {
   connected: false,
   leftStickX: 0,
   leftStickY: 0,
@@ -47,6 +49,8 @@ const emptyState: GamepadState = {
   rt: false,
   start: false,
   select: false,
+  l3: false,
+  r3: false,
   dpadUp: false,
   dpadDown: false,
   dpadLeft: false,
@@ -95,6 +99,8 @@ const useGamepad = () => {
         rt: (pad.buttons[7]?.value ?? 0) > TRIGGER_PRESS_THRESHOLD,
         start: !!(pad.buttons[9]?.pressed),
         select: !!(pad.buttons[8]?.pressed),
+        l3: !!(pad.buttons[10]?.pressed),
+        r3: !!(pad.buttons[11]?.pressed),
         dpadUp: !!(pad.buttons[12]?.pressed),
         dpadDown: !!(pad.buttons[13]?.pressed),
         dpadLeft: !!(pad.buttons[14]?.pressed),

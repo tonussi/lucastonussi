@@ -1,4 +1,5 @@
 import { baseObject } from './scenario-objects.ts'
+import { rampRun } from './grass-plane-generator.ts'
 import { DEFAULT_ROCK_SETTINGS } from './rock-generator.ts'
 import { between } from './seeded-random.ts'
 import { TERRAIN_CELL_SIZE, type Terrain } from './terrain-grid.ts'
@@ -25,13 +26,15 @@ export const ROCK_STYLES: Record<string, RockStyle> = {
 export const SEAM_STYLE_KEYS = ['boulder', 'slab', 'pillar', 'cliffstone']
 export const COAST_STYLE_KEYS = ['cliffstone', 'pillar', 'boulder']
 
-const SEAM_ROCK_LIMIT = 70
-const COAST_ROCK_LIMIT = 30
+const SEAM_ROCK_LIMIT = 180
 const COAST_ROCK_RATE = 0.5
-const SEAM_ROCKS_PER_EDGE = { min: 1, max: 2 }
-const EDGE_SPREAD_RATIO = 0.8
-const SEAM_OFFSET = 1.2
+const EDGE_SPREAD_RATIO = 0.9
 const DROP_SIZE_DIVISOR = 8
+/** Cliff joints are covered by curved grass banks; a few stones sit where each bank meets the lower ground. */
+const SEAM_TIERS = [
+  { name: 'foot', normalOffset: 0.8, heightRatio: 0, sizeRatio: 0.8 },
+] as const
+const SEAM_ROCKS_PER_TIER = { min: 1, max: 2 }
 const COAST_WATER_OFFSET = 1.5
 const WATERLINE_SINK = 0.3
 const STONE_SPACING = 9
@@ -65,9 +68,9 @@ const pick = <T,>(items: T[], random: () => number) => items[Math.floor(random()
 export function buildSeamRocks(prefix: string, terrain: Terrain, oceanY: number, random: () => number): EngineSceneObject[] {
   const rocks: EngineSceneObject[] = []
   const halfEdge = (TERRAIN_CELL_SIZE / 2) * EDGE_SPREAD_RATIO
+  const coastSeams = terrain.seams.filter(({ coast }) => coast).length
 
   for (const seam of terrain.seams) {
-    if (rocks.length >= SEAM_ROCK_LIMIT + COAST_ROCK_LIMIT) break
     const tangent: [number, number] = [-seam.normal[1], seam.normal[0]]
     const sizeScale = 1 + seam.drop / DROP_SIZE_DIVISOR
 
@@ -81,13 +84,17 @@ export function buildSeamRocks(prefix: string, terrain: Terrain, oceanY: number,
       continue
     }
 
-    const count = SEAM_ROCKS_PER_EDGE.min + Math.floor(random() * (SEAM_ROCKS_PER_EDGE.max - SEAM_ROCKS_PER_EDGE.min + 1))
-    for (let index = 0; index < count; index += 1) {
-      const along = between(random, -halfEdge, halfEdge)
-      const x = seam.x + seam.normal[0] * SEAM_OFFSET + tangent[0] * along
-      const z = seam.z + seam.normal[1] * SEAM_OFFSET + tangent[1] * along
-      if (terrain.heightAt(x, z) !== seam.lowerTop) continue
-      rocks.push(createRock(`${prefix}-seam-rock-${rocks.length}`, pick(SEAM_STYLE_KEYS, random), [x, seam.lowerTop, z], random, sizeScale))
+    const nonCoastSeams = terrain.seams.length - coastSeams
+    const perTier = Math.max(SEAM_ROCKS_PER_TIER.min, Math.min(SEAM_ROCKS_PER_TIER.max, Math.floor(SEAM_ROCK_LIMIT / Math.max(1, nonCoastSeams) / SEAM_TIERS.length)))
+    for (const tier of SEAM_TIERS) {
+      for (let index = 0; index < perTier; index += 1) {
+        const along = ((index + random()) / perTier - 0.5) * 2 * halfEdge
+        const offset = rampRun(seam.drop) + tier.normalOffset
+        const x = seam.x + seam.normal[0] * offset + tangent[0] * along
+        const z = seam.z + seam.normal[1] * offset + tangent[1] * along
+        const y = seam.lowerTop + seam.drop * tier.heightRatio
+        rocks.push(createRock(`${prefix}-seam-rock-${rocks.length}`, pick(SEAM_STYLE_KEYS, random), [x, y, z], random, sizeScale * tier.sizeRatio))
+      }
     }
   }
   return rocks

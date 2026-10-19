@@ -22,11 +22,12 @@ import { clampRockSettings } from './rock-generator.ts'
 import { clampProceduralSettings } from './scenario-generator.ts'
 import { clampOceanSettings } from './ocean-generator.ts'
 import { clampTreeSettings } from './tree-generator.ts'
+import { broadenHorizonMountain } from './horizon-profile.ts'
 
 export const ENGINE_PROJECT_STORAGE_KEY = 'lucastonussi:experimental-engine:v1'
 
 export type EngineProjectInput = Omit<Partial<EngineProject>, 'schemaVersion' | 'world'> & {
-  schemaVersion?: 1 | 2 | 3
+  schemaVersion?: 1 | 2 | 3 | 4 | 5
   world?: Partial<EngineProject['world']> & LegacyWorldSettings
 }
 
@@ -72,6 +73,7 @@ const KIND_SETTINGS_NORMALIZERS: Partial<
 }
 
 export function normalizeSceneObject(object: EngineSceneObject): EngineSceneObject {
+  object = broadenHorizonMountain(object)
   return {
     ...object,
     ...KIND_SETTINGS_NORMALIZERS[object.kind]?.(object),
@@ -108,10 +110,28 @@ export function normalizeProject(input: EngineProjectInput): EngineProject {
       fogFar: input.world?.fogFar ?? defaultEngineProject.world.fogFar,
       backgroundColor: normalizeHexColor(input.world?.backgroundColor, DEFAULT_BACKGROUND_COLOR),
     },
-    procedural: clampProceduralSettings({ ...defaultEngineProject.procedural, ...input.procedural }),
+    procedural: clampProceduralSettings({ ...defaultEngineProject.procedural, ...input.procedural,
+      ...((input.schemaVersion ?? 1) < 5 && { groundGrassCount: Math.min(20000, (input.procedural?.groundGrassCount ?? 3600) * 4) }),
+    }),
     debug: { ...defaultEngineProject.debug, ...input.debug },
-    schemaVersion: 3,
-    sceneObjects: migrateLegacySceneObjects(input).map((object) => normalizeSceneObject(object)),
+    schemaVersion: 5,
+    sceneObjects: migrateLegacySceneObjects(input)
+      .filter(object => !(object.kind === 'path' && object.properties?.generated === 'scenario'))
+      .map(object => {
+        if ((input.schemaVersion ?? 1) < 4) {
+          if (object.kind === 'character') object = { ...object, character: { ...clampCharacterSettings(object.character), equipment: { sword: false, shield: false } } }
+          if (object.kind === 'tree' && object.properties?.biome === 'nepal-highland-forest') {
+            const tree = clampTreeSettings(object.tree)
+            object = { ...object, tree: { ...tree, leafSize: tree.height >= 7 ? 0.7 : 0.55 } }
+          }
+          if (object.kind === 'grass-plane' && object.properties?.generated === 'scenario') object = { ...object, grassPlane: { ...clampGrassPlaneSettings(object.grassPlane), bladeCount: 3600, bladeHeight: 0.22 } }
+        }
+        if ((input.schemaVersion ?? 1) < 5 && object.kind === 'grass-plane' && object.properties?.generated === 'scenario') {
+          const grassPlane = clampGrassPlaneSettings(object.grassPlane)
+          object = { ...object, grassPlane: { ...grassPlane, bladeCount: Math.min(20000, grassPlane.bladeCount * 4) } }
+        }
+        return normalizeSceneObject(object)
+      }),
     flow: input.flow ?? defaultEngineProject.flow,
     generations: input.generations ?? [],
   }

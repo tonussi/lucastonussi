@@ -7,8 +7,6 @@ import { CHARACTER_STATES, resolveClipName, type CharacterState } from '../game-
 import { MODEL_CATALOG } from '../game-engine/model-catalog'
 import type { CharacterSettings } from '../game-engine/types'
 
-const CLIP_FADE_SECONDS = 0.5
-
 interface PlayerCharacterProps {
   settings: CharacterSettings
   state: CharacterState
@@ -41,14 +39,14 @@ export default function PlayerCharacter({ settings, state }: PlayerCharacterProp
     action?.reset().setLoop(loop ? THREE.LoopRepeat : THREE.LoopOnce, Infinity)
     if (action) {
       action.clampWhenFinished = true
-      action.setEffectiveTimeScale(state === 'rolling' ? action.getClip().duration / settings.rollDuration : 1)
+      action.setEffectiveTimeScale(state === 'rolling' ? action.getClip().duration / settings.rollDuration : state === 'interacting' ? action.getClip().duration / settings.actions.interact.duration : 1)
     }
-    const fadeSeconds = state === 'rolling' ? rollFadeSeconds(CLIP_FADE_SECONDS, settings.rollDuration) : CLIP_FADE_SECONDS
+    const fadeSeconds = state === 'rolling' ? rollFadeSeconds(settings.animationFade, settings.rollDuration) : settings.animationFade
     action?.fadeIn(fadeSeconds).play()
     return () => {
       action?.fadeOut(fadeSeconds)
     }
-  }, [actions, clipName, loop, state, settings.rollDuration])
+  }, [actions, clipName, loop, state, settings.rollDuration, settings.animationFade, settings.actions.interact.duration])
 
   return (
     <group ref={group} dispose={null}>

@@ -183,3 +183,14 @@ test('roll speed covers the configured distance in the configured time and the f
   assert.ok(Math.abs(rollFadeSeconds(0.5, 0.45) - 0.045) < 1e-9)
   assert.equal(rollFadeSeconds(0.05, 2), 0.05)
 })
+import { MOTION_SETTINGS } from './character-settings.ts'
+
+test('motion tunings normalize old characters and clamp persisted values', () => {
+  const defaults = clampCharacterSettings()
+  for (const key of Object.keys(MOTION_SETTINGS) as (keyof typeof MOTION_SETTINGS)[]) {
+    assert.equal(defaults[key], MOTION_SETTINGS[key].default)
+    assert.equal(clampCharacterSettings({ [key]: -100 })[key], MOTION_SETTINGS[key].min)
+    assert.equal(clampCharacterSettings({ [key]: 100 })[key], MOTION_SETTINGS[key].max)
+  }
+  assert.equal(resolveClipName(['Idle_Loop', 'PickUp_Table'], 'interacting'), 'PickUp_Table')
+})
