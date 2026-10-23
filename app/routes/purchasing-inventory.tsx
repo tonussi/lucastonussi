@@ -8,6 +8,7 @@ import {
 } from '@/components/purchasing-inventory/ui'
 import {
   ArrowRight,
+  BellRing,
   Boxes,
   CalendarDays,
   ChefHat,
@@ -15,6 +16,7 @@ import {
   CreditCard,
   LayoutDashboard,
   Lightbulb,
+  RefreshCw,
   ListChecks,
   PieChart,
   ReceiptText,
@@ -22,6 +24,8 @@ import {
   ShieldCheck,
   ShoppingBasket,
   Sparkles,
+  UserPlus,
+  Users,
   Wallet,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -69,6 +73,14 @@ export default function PurchasingInventoryPage() {
     { icon: ListChecks, key: 'f4' },
     { icon: CreditCard, key: 'f5' },
     { icon: Lightbulb, key: 'f6' },
+    { icon: BellRing, key: 'f7' },
+    { icon: Users, key: 'f8' },
+  ]
+
+  const household = [
+    { icon: UserPlus, key: 'c1' },
+    { icon: RefreshCw, key: 'c2' },
+    { icon: BellRing, key: 'c3' },
   ]
 
   return (
@@ -355,13 +367,48 @@ export default function PurchasingInventoryPage() {
               t('purchasingInventory.spending.b1'),
               t('purchasingInventory.spending.b2'),
               t('purchasingInventory.spending.b3'),
+              t('purchasingInventory.spending.b4'),
             ]}
           />
         </ShowcaseRow>
       </Section>
 
+      {/* ----------------------------------------------------------- Household */}
+      <Section id="household" className="bg-secondary/40 dark:bg-gray-950">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <Eyebrow>
+            <Users className="h-3.5 w-3.5" />
+            {t('purchasingInventory.household.eyebrow')}
+          </Eyebrow>
+          <h2 className="mt-6 text-3xl font-bold tracking-tight sm:text-5xl">
+            {t('purchasingInventory.household.title')}
+          </h2>
+          <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
+            {t('purchasingInventory.household.subtitle')}
+          </p>
+        </Reveal>
+
+        <div className="mt-16 grid gap-6 md:grid-cols-3">
+          {household.map(({ icon: Icon, key }, index) => (
+            <Reveal key={key} delay={index * 120}>
+              <div className="h-full rounded-2xl border border-border bg-card p-8 shadow-sm">
+                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/10 to-emerald-500/10 text-blue-600 dark:text-blue-400">
+                  <Icon className="h-6 w-6" />
+                </div>
+                <h3 className="mb-2 text-lg font-semibold">
+                  {t(`purchasingInventory.household.${key}Title`)}
+                </h3>
+                <p className="leading-relaxed text-muted-foreground">
+                  {t(`purchasingInventory.household.${key}Desc`)}
+                </p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
       {/* ----------------------------------------------------------- All in one */}
-      <Section id="modules" className="bg-secondary/40 dark:bg-gray-950">
+      <Section id="modules">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_240px] lg:gap-16">
           <div>
             <Reveal className="max-w-2xl">

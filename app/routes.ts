@@ -6,7 +6,6 @@ export default [
   route('login', 'routes/login.tsx'),
   route('docs', 'routes/docs.tsx'),
   route('contact', 'routes/contact.tsx'),
-  route('atoms', 'routes/atoms.tsx'),
   route('how-to-delete-your-user', 'routes/how-to-delete-your-user.tsx'),
   // Kept so old links to the previous Purchasing Inventory URL still land on it.
   route('purchasing-inventory', 'routes/purchasing-inventory-redirect.tsx'),

@@ -19,17 +19,13 @@
       "title": "Experiments",
       "description": "Experiments"
     },
-    "atoms": {
-      "title": "Atoms",
-      "description": "Atoms"
-    },
     "deleteUser": {
       "title": "How to Delete Your User - T Labs",
       "description": "Learn how to delete your account and all associated data from the T Labs purchasing inventory app."
     },
     "purchasingInventory": {
       "title": "Purchasing Inventory - T Labs",
-      "description": "Scan your grocery receipt and let Purchasing Inventory build your home inventory, track spending by AI-generated categories and plan the week of meals.",
+      "description": "Scan your grocery receipt and let Purchasing Inventory build your home inventory, track spending by AI-generated categories, plan the week of meals and share lists with your household.",
       "keywords": "purchasing inventory, grocery app, receipt scanner, NFC-e, shopping list, meal planner, home inventory, T Labs"
     }
   },
@@ -155,7 +151,7 @@
       "title": "Point it at the receipt. The app takes it from there.",
       "description": "Scan the receipt QR code or photograph the printed slip. The shopping assistant reads the electronic document and returns every line item with quantity, unit and price — no typing.",
       "b1": "Reads the electronic consumer invoice (NFC-e) directly.",
-      "b2": "Product, unit, quantity and price extracted automatically.",
+      "b2": "Product, unit, quantity and price extracted automatically, with the store shown while the receipt loads.",
       "b3": "Sensitive receipt data is not stored."
     },
     "inventory": {
@@ -171,16 +167,16 @@
       "title": "A list that builds itself.",
       "description": "Pick what is missing or ask the AI for a suggestion: describe the context — barbecue this weekend, focus on vegetables, cleaning supplies — and the list comes back ready and organized.",
       "b1": "AI suggestions based on your history and your instructions.",
-      "b2": "Double tap a product to adjust quantity and weight.",
+      "b2": "Edit any saved list: quantity, weight and product photos.",
       "b3": "Items grouped by category: produce, dry goods, meat, drinks."
     },
     "planner": {
       "eyebrow": "Meal plan",
-      "title": "Seven days of meals in one tap.",
-      "description": "The Meal Planner builds the week's menu from what is already in your pantry and tracks how your Nutrition Score evolves over time.",
-      "b1": "Generate 7 days of meals with a single button.",
-      "b2": "Free-form instructions for the AI, like \"more vegetables, no fried food\".",
-      "b3": "Nutrition Score history to follow your progress."
+      "title": "A week of meals, your way.",
+      "description": "The Meal Planner builds the menu from your latest purchases or the products you pick. Allow new products and they go into a shopping list for the week. Your Nutrition Score history shows how you are doing.",
+      "b1": "Choose the meal periods and how many recent purchases to use.",
+      "b2": "Protein and carb targets per meal, plus free-form instructions for the AI.",
+      "b3": "Copy a recipe with ingredients and steps to share it."
     },
     "spending": {
       "eyebrow": "Spending",
@@ -188,7 +184,19 @@
       "description": "Each statement shows the total spent in the period plus AI-generated categories. Pick a date, open a category and see item by item what pushed the bill up.",
       "b1": "Total spent per purchase, per day and per period.",
       "b2": "Categories created by AI from the receipt line items.",
-      "b3": "Item-by-item breakdown inside every category."
+      "b3": "Item-by-item breakdown inside every category.",
+      "b4": "Swipe a product in a recent purchase to add it to a list."
+    },
+    "household": {
+      "eyebrow": "New · Connected home",
+      "title": "Shopping for the whole household.",
+      "subtitle": "Connect with the people you live with and everyone sees the same receipts and lists — no more two people buying the same thing.",
+      "c1Title": "Invite by email",
+      "c1Desc": "Send an invite and confirm it with a 6-digit code delivered by push. The code expires in 5 minutes.",
+      "c2Title": "Shared receipts and lists",
+      "c2Desc": "Scanned receipts, new lists, item edits and checked items reach everyone in the group.",
+      "c3Title": "Notifications and reminders",
+      "c3Desc": "A history of invites and alerts, plus a shopping reminder at the interval you choose."
     },
     "modules": {
       "eyebrow": "All in one app",
@@ -201,11 +209,15 @@
       "f3Title": "Meal Planner",
       "f3Desc": "A weekly menu built from what you already have.",
       "f4Title": "Checklists",
-      "f4Desc": "Named shopping lists you can reuse and share.",
+      "f4Desc": "Named, editable shopping lists with product photos, shared with your group.",
       "f5Title": "Payments",
       "f5Desc": "Your plan and charges gathered on a single screen.",
       "f6Title": "Suggestions",
-      "f6Desc": "Tell us what you want in the app and follow its development in a kanban board."
+      "f6Desc": "Tell us what you want in the app and follow its development in a kanban board.",
+      "f7Title": "Notifications",
+      "f7Desc": "Invites, purchase alerts and reminders in one history.",
+      "f8Title": "Connections",
+      "f8Desc": "Link your account with the people you live with."
     },
     "cta": {
       "title": "Want to try it before everyone else?",
