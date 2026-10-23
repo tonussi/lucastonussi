@@ -11,14 +11,6 @@ export function meta({}: Route.MetaArgs) {
 
 const experiments = [
   {
-    id: 'basic-game-physics',
-    title: 'Basic Game Physics',
-    description: 'Explore fundamental physics concepts in game development with interactive demos.',
-    path: '/experiments/basic-game-physics-page',
-    gradient: 'from-blue-500 to-purple-600',
-    clipPath: 'polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%)',
-  },
-  {
     id: 'car-build-share',
     title: 'Car Build Share',
     description: 'Interactive 3D car building and sharing platform with community features.',
